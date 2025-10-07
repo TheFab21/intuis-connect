@@ -20,7 +20,7 @@
 > **Requires Home Assistant 2024.6 or newer and HACS ≥ 1.33**
 
 #### With HACS
-[![Open your Home Assistant instance and add a repository in the Home Assistant Community Store (HACS).](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=antoine-pyre&repository=intuis-connect&category=integration)
+[![Open your Home Assistant instance and add a repository in the Home Assistant Community Store (HACS).](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=TheFab21&repository=intuis-connect&category=integration)
 
 More information [here](https://hacs.xyz/).
 
