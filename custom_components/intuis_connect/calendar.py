@@ -9,6 +9,7 @@ import homeassistant.util.dt as dt_util
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -52,7 +53,8 @@ class IntuisScheduleCalendar(
     def event_list(self) -> list[CalendarEvent]:
         """Return all schedule slots for the calendar."""
         events: list[CalendarEvent] = []
-        slots = self.coordinator.data.get("schedule", {}).get(self._room.id, [])
+        coordinator_data = self.coordinator.data or {}
+        slots = coordinator_data.get("schedule_slots", {}).get(self._room.id, [])
         for slot in slots:
             start = dt_util.parse_datetime(slot["start"])
             end = dt_util.parse_datetime(slot.get("end")) or (
@@ -91,10 +93,14 @@ class IntuisScheduleCalendar(
         end_val: datetime = kwargs.get("end") or (start_val + timedelta(hours=1))
         start = start_val.isoformat()
         end = end_val.isoformat()
+        active_schedule_id = (self.coordinator.data or {}).get("active_schedule_id")
+        if active_schedule_id is None:
+            raise HomeAssistantError("No active schedule available")
+
         try:
             await self._api.async_set_schedule_slot(
                 self._home_id,
-                self.coordinator.data.get("active_schedule_id"),
+                active_schedule_id,
                 self._get_room().id,
                 start,
                 end,
