@@ -74,6 +74,32 @@ class IntuisData:
 
             data_by_room[rid] = info
 
+        # --- fetch schedule slots for the active schedule ---
+        active_schedule_id: int | None = None
+        schedule_slots: dict[str, list[dict[str, Any]]] = {}
+        for schedule in self._schedules:
+            if getattr(schedule, "selected", False):
+                try:
+                    active_schedule_id = int(schedule.id)
+                except (TypeError, ValueError):
+                    _LOGGER.warning("Invalid schedule id %s", schedule.id)
+                    active_schedule_id = None
+                break
+
+        if active_schedule_id is not None and self._api.home_id:
+            try:
+                schedule_slots = await self._api.async_get_schedule(
+                    self._api.home_id,
+                    active_schedule_id,
+                )
+            except Exception as err:  # broad to keep coordinator running
+                _LOGGER.warning(
+                    "Failed to fetch schedule %s: %s",
+                    active_schedule_id,
+                    err,
+                )
+                schedule_slots = {}
+
         # return structured data
         _LOGGER.debug("Coordinator update completed")
         result = {
@@ -82,6 +108,8 @@ class IntuisData:
             "rooms": data_by_room,
             "modules": modules,
             "schedules": self._schedules,
+            "active_schedule_id": active_schedule_id,
+            "schedule_slots": schedule_slots,
         }
 
         _LOGGER.debug("Returning data: %s", result)
