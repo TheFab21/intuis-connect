@@ -27,6 +27,7 @@ from .const import (
     SET_SCHEDULE_PATH,
     DELETE_SCHEDULE_PATH,
     SWITCH_SCHEDULE_PATH,
+    API_BASE
 )
 
 _LOGGER = logging.getLogger(__name__)
