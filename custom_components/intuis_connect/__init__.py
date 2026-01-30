@@ -1,4 +1,4 @@
-"""Setup for Intuis Connect (v1.9.6)."""
+"""Setup for Intuis Connect (v1.10.0)."""
 from __future__ import annotations
 
 import asyncio
@@ -21,7 +21,11 @@ from .utils.const import (
     CONF_HOME_NAME,
     CONF_IMPORT_HISTORY,
     CONF_IMPORT_HISTORY_DAYS,
+    CONF_HOURLY_STATS_ENABLED,
+    CONF_HOURLY_STATS_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
+    DEFAULT_HOURLY_STATS_ENABLED,
+    DEFAULT_HOURLY_STATS_INTERVAL,
     CONF_RATE_LIMIT_DELAY,
     CONF_CIRCUIT_BREAKER_THRESHOLD,
     CONF_MIN_REQUEST_DELAY,
@@ -36,6 +40,7 @@ from .history_import import (
     HistoryImportManager,
     async_import_energy_history,
 )
+from .hourly_stats import HourlyStatsUpdater
 from .intuis_data import IntuisData
 from .services import (
     async_generate_services_yaml,
@@ -246,12 +251,72 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         new_options = {**entry.options, CONF_IMPORT_HISTORY: False}
         hass.config_entries.async_update_entry(entry, options=new_options)
 
+    # ---------- start hourly stats updater ------------------------------------------
+    # HourlyStatsUpdater - Periodic import of hourly energy statistics
+    # This runs periodically to fetch hourly energy data and inject it into HA statistics
+    hourly_stats_enabled = entry.options.get(
+        CONF_HOURLY_STATS_ENABLED, DEFAULT_HOURLY_STATS_ENABLED
+    )
+    hourly_stats_interval = entry.options.get(
+        CONF_HOURLY_STATS_INTERVAL, DEFAULT_HOURLY_STATS_INTERVAL
+    )
+    
+    if hourly_stats_enabled:
+        # Get timezone from HA config or default to Europe/Paris
+        timezone_str = hass.config.time_zone or "Europe/Paris"
+        
+        hourly_stats_updater = HourlyStatsUpdater(
+            hass=hass,
+            api=intuis_api,
+            intuis_home=intuis_home,
+            entry_id=entry.entry_id,
+            home_id=entry.data["home_id"],
+            update_interval_minutes=hourly_stats_interval,
+            timezone_str=timezone_str,
+        )
+        hass.data[DOMAIN][entry.entry_id]["hourly_stats_updater"] = hourly_stats_updater
+        await hourly_stats_updater.async_start()
+        
+        # Schedule daily rebase at 00:02 local time
+        async def _daily_rebase(now: datetime) -> None:
+            """Perform daily baseline rebase."""
+            updater = hass.data[DOMAIN].get(entry.entry_id, {}).get("hourly_stats_updater")
+            if updater:
+                await updater.async_rebase_daily()
+        
+        from homeassistant.helpers.event import async_track_time_change
+        hass.data[DOMAIN][entry.entry_id]["unsub_daily_rebase"] = async_track_time_change(
+            hass, _daily_rebase, hour=0, minute=2, second=0
+        )
+        
+        _LOGGER.info(
+            "Hourly energy statistics updater started (interval: %d min, tz: %s)",
+            hourly_stats_interval,
+            timezone_str,
+        )
+    else:
+        _LOGGER.debug("Hourly energy statistics updater disabled by configuration")
+
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     _LOGGER.debug("Unloading entry %s", entry.entry_id)
+    
+    # Stop hourly stats updater
+    entry_data = hass.data[DOMAIN].get(entry.entry_id, {})
+    hourly_stats_updater = entry_data.get("hourly_stats_updater")
+    if hourly_stats_updater:
+        await hourly_stats_updater.async_stop()
+        _LOGGER.debug("Stopped hourly stats updater for entry %s", entry.entry_id)
+    
+    # Cancel daily rebase schedule
+    unsub_daily_rebase = entry_data.get("unsub_daily_rebase")
+    if unsub_daily_rebase:
+        unsub_daily_rebase()
+        _LOGGER.debug("Cancelled daily rebase schedule for entry %s", entry.entry_id)
+    
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         hass.data[DOMAIN].pop(entry.entry_id)
         _LOGGER.debug("Unloaded entry %s", entry.entry_id)

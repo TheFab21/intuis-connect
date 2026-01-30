@@ -285,6 +285,13 @@ class IntuisCurrentZoneSensor(CoordinatorEntity[IntuisDataUpdateCoordinator], Se
                 room_temps[rt.room_id] = rt.temp
             attrs["room_temperatures"] = room_temps
 
+            # Build room_names mapping (room_id -> room_name) for UI display
+            rooms = self.coordinator.data.get("rooms", {})
+            room_names = {}
+            for room_id, room in rooms.items():
+                room_names[str(room_id)] = room.name
+            attrs["room_names"] = room_names
+
         return attrs
 
 
@@ -435,6 +442,13 @@ class IntuisScheduleSummarySensor(CoordinatorEntity[IntuisDataUpdateCoordinator]
                 zones_info.append(zone_info)
         attrs["zones"] = zones_info
         attrs["zones_count"] = len(zones_info)
+
+        # Build room_names mapping (room_id -> room_name) for UI display
+        rooms = self.coordinator.data.get("rooms", {})
+        room_names = {}
+        for room_id, room in rooms.items():
+            room_names[str(room_id)] = room.name
+        attrs["room_names"] = room_names
 
         # Build weekly timetable summary (day -> list of changes)
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]

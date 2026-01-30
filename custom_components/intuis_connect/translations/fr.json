@@ -50,6 +50,14 @@
           "name": "Jours a importer",
           "description": "Nombre de jours d'historique a importer (1-730). Par defaut 365 jours."
         },
+        "granularity": {
+          "name": "Granularité",
+          "description": "Choisir entre données horaires (recommandé pour le tableau de bord Énergie) ou journalières (import plus rapide)."
+        },
+        "clear_existing": {
+          "name": "Effacer les statistiques existantes",
+          "description": "Supprime TOUTES les statistiques d'énergie existantes avant l'import. Requis lors du changement de granularité journalière vers horaire pour éviter les incohérences."
+        },
         "room_name": {
           "name": "Piece",
           "description": "Importer uniquement cette piece. Laisser vide pour toutes les pieces."
@@ -185,14 +193,18 @@
         }
       },
       "rate_limit": {
-        "title": "Limitation de l'API",
-        "description": "Configurez la gestion des limites de l'API (erreurs 429).\n\nCes paramètres aident à éviter d'être bloqué par l'API Intuis lors d'une utilisation intensive.",
+        "title": "Statistiques horaires et limitation API",
+        "description": "Configurez la récupération des statistiques horaires et la gestion des limites de l'API.\n\n**Statistiques horaires** : L'API Intuis a un décalage de 2-4h pour les données de consommation. Cette option récupère périodiquement les données horaires passées et les injecte dans les statistiques Home Assistant pour un suivi précis.",
         "data": {
+          "hourly_stats_enabled": "Activer les statistiques horaires",
+          "hourly_stats_interval": "Intervalle de mise à jour",
           "rate_limit_delay": "Délai initial de réessai",
           "circuit_breaker_threshold": "Seuil du disjoncteur",
           "max_update_interval": "Intervalle de mise à jour maximum"
         },
         "data_description": {
+          "hourly_stats_enabled": "Active la récupération périodique des données de consommation horaires pour un suivi précis dans le tableau de bord Énergie.",
+          "hourly_stats_interval": "Fréquence de mise à jour des statistiques horaires. 2 heures est recommandé pour éviter les limites de l'API.",
           "rate_limit_delay": "Temps d'attente avant de réessayer après une erreur de limitation.",
           "circuit_breaker_threshold": "Nombre d'erreurs de limitation consécutives avant de suspendre toutes les requêtes.",
           "max_update_interval": "Intervalle maximum entre les mises à jour quand l'API est limitée. Normalement interroge toutes les 2 minutes."

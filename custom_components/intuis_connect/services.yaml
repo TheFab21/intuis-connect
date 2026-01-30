@@ -10,18 +10,30 @@ switch_schedule:
       selector:
         select:
           options: &id001
-          - label: 'Rouge '
-            value: 'Rouge '
-          - label: Normal
-            value: Normal
+          - label: Absent Semaine
+            value: Absent Semaine
+          - label: 'Pas Utilisé '
+            value: 'Pas Utilisé '
+          - label: A La Maison Haut
+            value: A La Maison Haut
+          - label: A La Maison Toutes Pièces
+            value: A La Maison Toutes Pièces
 refresh_schedules:
   name: Refresh Schedules
   description: Force a refresh of all schedule and home data from the Intuis API.
 set_schedule_slot:
   name: Set Schedule Slot
-  description: Set a zone for a specific time range in the active heating schedule.
-    Creates a slot from start_time to end_time with the specified zone.
+  description: Set a zone for a specific time range in a heating schedule. Creates
+    a slot from start_time to end_time with the specified zone. If no schedule_name
+    is provided, uses the active schedule.
   fields:
+    schedule_name:
+      name: Schedule Name
+      description: Select the schedule to modify (optional, defaults to active schedule).
+      required: false
+      selector:
+        select:
+          options: *id001
     day:
       name: Day of Week
       description: Select the day of the week.
@@ -29,19 +41,19 @@ set_schedule_slot:
       selector:
         select:
           options:
-          - label: Lundi
+          - label: Monday
             value: '0'
-          - label: Mardi
+          - label: Tuesday
             value: '1'
-          - label: Mercredi
+          - label: Wednesday
             value: '2'
-          - label: Jeudi
+          - label: Thursday
             value: '3'
-          - label: Vendredi
+          - label: Friday
             value: '4'
-          - label: Samedi
+          - label: Saturday
             value: '5'
-          - label: Dimanche
+          - label: Sunday
             value: '6'
     start_time:
       name: Start Time
@@ -64,14 +76,34 @@ set_schedule_slot:
       selector:
         select:
           options:
-          - label: Comfort
-            value: Comfort
-          - label: Eco
-            value: Eco
-          - label: À la maison
-            value: À la maison
+          - label: Douche
+            value: Douche
           - label: Nuit
             value: Nuit
+          - label: À la maison
+            value: À la maison
+          - label: Économie
+            value: Économie
+sync_schedule:
+  name: Sync Full Schedule
+  description: Synchronize the complete timetable for a schedule. Used by the planning
+    UI to save all changes at once.
+  fields:
+    schedule_name:
+      name: Schedule Name
+      description: Select the schedule to sync.
+      required: true
+      selector:
+        select:
+          options: *id001
+    timetable:
+      name: Timetable
+      description: JSON array of timetable entries [{zone_id, m_offset}, ...]
+      required: true
+      example: '[{"zone_id": 0, "m_offset": 0}, {"zone_id": 1, "m_offset": 480}]'
+      selector:
+        text:
+          multiline: true
 set_zone_temperature:
   name: Set Zone Temperature
   description: Set the temperature for a specific room in a schedule zone. Works with
@@ -91,14 +123,22 @@ set_zone_temperature:
       selector:
         select:
           options:
-          - label: Comfort
-            value: Comfort
-          - label: Eco
-            value: Eco
-          - label: À la maison
-            value: À la maison
+          - label: Douche
+            value: Douche
           - label: Nuit
             value: Nuit
+          - label: À la maison
+            value: À la maison
+          - label: Économie
+            value: Économie
+          - label: Comfort
+            value: Comfort
+          - label: Night
+            value: Night
+          - label: Comfort+
+            value: Comfort+
+          - label: Eco
+            value: Eco
     room_name:
       name: Room Name
       description: Select the room to set temperature for.
@@ -106,14 +146,28 @@ set_zone_temperature:
       selector:
         select:
           options: &id002
+          - label: Entrée
+            value: Entrée
+          - label: Chambre D’amis
+            value: Chambre D’amis
+          - label: Salle De Bain Filles
+            value: Salle De Bain Filles
+          - label: Chambre Filles
+            value: Chambre Filles
+          - label: Couloir
+            value: Couloir
+          - label: Toilettes Visiteurs
+            value: Toilettes Visiteurs
           - label: Salon
             value: Salon
-          - label: Chambre
-            value: Chambre
-          - label: Bureau
-            value: Bureau
+          - label: Salle à manger
+            value: Salle à manger
+          - label: Salle De Bain Parents
+            value: Salle De Bain Parents
           - label: Cuisine
             value: Cuisine
+          - label: Chambre Parents
+            value: Chambre Parents
     temperature:
       name: Temperature
       description: Target temperature in Celsius (5-30).
@@ -141,6 +195,27 @@ import_energy_history:
           max: 730
           step: 1
           mode: box
+    granularity:
+      name: Granularity
+      description: Choose between hourly data (recommended for Energy Dashboard) or
+        daily data (faster import).
+      required: false
+      default: hourly
+      selector:
+        select:
+          options:
+          - value: hourly
+            label: Hourly (recommended)
+          - value: daily
+            label: Daily (faster)
+    clear_existing:
+      name: Clear existing statistics
+      description: Delete ALL existing energy statistics before import. Required when
+        changing from daily to hourly granularity to avoid data inconsistencies.
+      required: false
+      default: false
+      selector:
+        boolean: {}
     room_name:
       name: Room (Optional)
       description: Import only this room. Leave empty for all rooms.

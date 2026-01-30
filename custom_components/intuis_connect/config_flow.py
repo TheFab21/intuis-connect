@@ -43,6 +43,8 @@ from .utils.const import (
     CONF_RATE_LIMIT_DELAY,
     CONF_CIRCUIT_BREAKER_THRESHOLD,
     CONF_MAX_UPDATE_INTERVAL,
+    CONF_HOURLY_STATS_ENABLED,
+    CONF_HOURLY_STATS_INTERVAL,
     DEFAULT_MANUAL_DURATION,
     DEFAULT_AWAY_DURATION,
     DEFAULT_BOOST_DURATION,
@@ -56,6 +58,8 @@ from .utils.const import (
     DEFAULT_RATE_LIMIT_DELAY,
     DEFAULT_CIRCUIT_THRESHOLD,
     DEFAULT_MAX_UPDATE_INTERVAL,
+    DEFAULT_HOURLY_STATS_ENABLED,
+    DEFAULT_HOURLY_STATS_INTERVAL,
     ENERGY_SCALE_OPTIONS,
     DURATION_OPTIONS_SHORT,
     DURATION_OPTIONS_LONG,
@@ -581,7 +585,7 @@ class IntuisOptionsFlow(config_entries.OptionsFlow):
     async def async_step_rate_limit(
             self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Step 4: Configure rate limiting settings."""
+        """Step 4: Configure rate limiting and hourly stats settings."""
         if user_input is not None:
             # Convert values to integers
             rate_limit_delay = user_input.get(
@@ -593,6 +597,9 @@ class IntuisOptionsFlow(config_entries.OptionsFlow):
             max_update_interval = user_input.get(
                 CONF_MAX_UPDATE_INTERVAL, str(DEFAULT_MAX_UPDATE_INTERVAL)
             )
+            hourly_stats_interval = user_input.get(
+                CONF_HOURLY_STATS_INTERVAL, str(DEFAULT_HOURLY_STATS_INTERVAL)
+            )
 
             if isinstance(rate_limit_delay, str):
                 rate_limit_delay = int(rate_limit_delay)
@@ -600,6 +607,8 @@ class IntuisOptionsFlow(config_entries.OptionsFlow):
                 circuit_threshold = int(circuit_threshold)
             if isinstance(max_update_interval, str):
                 max_update_interval = int(max_update_interval)
+            if isinstance(hourly_stats_interval, str):
+                hourly_stats_interval = int(hourly_stats_interval)
 
             # Combine all options
             all_options = {
@@ -607,6 +616,10 @@ class IntuisOptionsFlow(config_entries.OptionsFlow):
                 CONF_RATE_LIMIT_DELAY: rate_limit_delay,
                 CONF_CIRCUIT_BREAKER_THRESHOLD: circuit_threshold,
                 CONF_MAX_UPDATE_INTERVAL: max_update_interval,
+                CONF_HOURLY_STATS_ENABLED: user_input.get(
+                    CONF_HOURLY_STATS_ENABLED, DEFAULT_HOURLY_STATS_ENABLED
+                ),
+                CONF_HOURLY_STATS_INTERVAL: hourly_stats_interval,
             }
             return self.async_create_entry(title="", data=all_options)
 
@@ -620,9 +633,35 @@ class IntuisOptionsFlow(config_entries.OptionsFlow):
         current_max_interval = self._entry.options.get(
             CONF_MAX_UPDATE_INTERVAL, DEFAULT_MAX_UPDATE_INTERVAL
         )
+        current_hourly_stats_enabled = self._entry.options.get(
+            CONF_HOURLY_STATS_ENABLED, DEFAULT_HOURLY_STATS_ENABLED
+        )
+        current_hourly_stats_interval = self._entry.options.get(
+            CONF_HOURLY_STATS_INTERVAL, DEFAULT_HOURLY_STATS_INTERVAL
+        )
+
+        # Options for hourly stats interval
+        hourly_stats_interval_options = [
+            {"value": "60", "label": "1 hour"},
+            {"value": "120", "label": "2 hours (recommended)"},
+            {"value": "240", "label": "4 hours"},
+        ]
 
         options_schema = vol.Schema(
             {
+                vol.Optional(
+                    CONF_HOURLY_STATS_ENABLED,
+                    default=current_hourly_stats_enabled,
+                ): BooleanSelector(),
+                vol.Optional(
+                    CONF_HOURLY_STATS_INTERVAL,
+                    default=str(current_hourly_stats_interval),
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=hourly_stats_interval_options,
+                        mode=SelectSelectorMode.DROPDOWN
+                    )
+                ),
                 vol.Optional(
                     CONF_RATE_LIMIT_DELAY,
                     default=str(current_rate_limit),

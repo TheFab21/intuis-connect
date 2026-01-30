@@ -21,9 +21,6 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
-    TextSelector,
-    TextSelectorConfig,
-    TextSelectorType,
     TimeSelector,
     TimeSelectorConfig,
 )
@@ -42,7 +39,6 @@ from .timetable import (
     find_zone_at_offset,
     upsert_timetable_entry,
     remove_consecutive_duplicates,
-    normalize_timetable,
     DAYS_OF_WEEK,
     DAYS_OF_WEEK_LABELS,
     MINUTES_PER_DAY,
@@ -61,7 +57,6 @@ SERVICE_REFRESH_SCHEDULES = "refresh_schedules"
 SERVICE_SET_SCHEDULE_SLOT = "set_schedule_slot"
 SERVICE_SET_ZONE_TEMPERATURE = "set_zone_temperature"
 SERVICE_IMPORT_ENERGY_HISTORY = "import_energy_history"
-SERVICE_SYNC_SCHEDULE = "sync_schedule"
 
 # Service attributes
 ATTR_ROOM_ID = "room_id"
@@ -78,7 +73,6 @@ ATTR_TEMPERATURE = "temperature"
 ATTR_DAYS = "days"
 ATTR_GRANULARITY = "granularity"
 ATTR_CLEAR_EXISTING = "clear_existing"
-ATTR_TIMETABLE = "timetable"
 
 # Base service schemas (dynamic schemas are built in async_register_services)
 CLEAR_OVERRIDE_SCHEMA = vol.Schema({vol.Required(ATTR_ROOM_ID): str})
@@ -188,18 +182,8 @@ async def async_generate_services_yaml(hass: HomeAssistant, intuis_home: IntuisH
         },
         "set_schedule_slot": {
             "name": "Set Schedule Slot",
-            "description": "Set a zone for a specific time range in a heating schedule. Creates a slot from start_time to end_time with the specified zone. If no schedule_name is provided, uses the active schedule.",
+            "description": "Set a zone for a specific time range in the active heating schedule. Creates a slot from start_time to end_time with the specified zone.",
             "fields": {
-                "schedule_name": {
-                    "name": "Schedule Name",
-                    "description": "Select the schedule to modify (optional, defaults to active schedule).",
-                    "required": False,
-                    "selector": {
-                        "select": {
-                            "options": schedule_options,
-                        }
-                    }
-                },
                 "day": {
                     "name": "Day of Week",
                     "description": "Select the day of the week.",
@@ -235,33 +219,6 @@ async def async_generate_services_yaml(hass: HomeAssistant, intuis_home: IntuisH
                     "selector": {
                         "select": {
                             "options": zone_options,
-                        }
-                    }
-                }
-            }
-        },
-        "sync_schedule": {
-            "name": "Sync Full Schedule",
-            "description": "Synchronize the complete timetable for a schedule. Used by the planning UI to save all changes at once.",
-            "fields": {
-                "schedule_name": {
-                    "name": "Schedule Name",
-                    "description": "Select the schedule to sync.",
-                    "required": True,
-                    "selector": {
-                        "select": {
-                            "options": schedule_options,
-                        }
-                    }
-                },
-                "timetable": {
-                    "name": "Timetable",
-                    "description": "JSON array of timetable entries [{zone_id, m_offset}, ...]",
-                    "required": True,
-                    "example": "[{\"zone_id\": 0, \"m_offset\": 0}, {\"zone_id\": 1, \"m_offset\": 480}]",
-                    "selector": {
-                        "text": {
-                            "multiline": True
                         }
                     }
                 }
@@ -560,16 +517,12 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
     async def async_handle_set_schedule_slot(call: ServiceCall) -> None:
         """Handle set_schedule_slot service call.
 
-        Sets a zone for a specific time range in a schedule.
+        Sets a zone for a specific time range in the active schedule.
         Supports multi-day spans with start_day and end_day parameters.
         Creates two timetable entries: one at start_time with the target zone,
         and one at end_time to restore the previous zone.
-        
-        If schedule_name is provided, modifies that specific schedule.
-        Otherwise, modifies the active (selected) schedule.
         """
         # Support both legacy 'day' and new 'start_day'/'end_day' parameters
-        schedule_name = call.data.get(ATTR_SCHEDULE_NAME)
         start_day_str = call.data.get(ATTR_START_DAY) or call.data.get(ATTR_DAY)
         end_day_str = call.data.get(ATTR_END_DAY) or call.data.get(ATTR_DAY)
         start_time = call.data.get(ATTR_START_TIME)
@@ -683,40 +636,21 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             _LOGGER.error("API or home data not available")
             return
 
-        # Find the target schedule (by name if provided, otherwise active)
-        target_schedule = None
-        available_schedules = []
-        
+        # Find the active therm schedule
+        active_schedule = None
         for schedule in intuis_home.schedules:
-            if isinstance(schedule, IntuisThermSchedule):
-                has_zones = schedule.zones and len(schedule.zones) > 0
-                has_timetables = schedule.timetables and len(schedule.timetables) > 0
-                if has_zones and has_timetables:
-                    available_schedules.append(schedule.name)
-                    
-                    if schedule_name:
-                        # Match by name if schedule_name is provided
-                        if schedule.name == schedule_name:
-                            target_schedule = schedule
-                    elif schedule.selected:
-                        # Fall back to active schedule if no name provided
-                        target_schedule = schedule
+            if isinstance(schedule, IntuisThermSchedule) and schedule.selected:
+                active_schedule = schedule
+                break
 
-        if not target_schedule:
-            if schedule_name:
-                _LOGGER.error(
-                    "Schedule not found: %s. Available schedules: %s",
-                    schedule_name,
-                    available_schedules,
-                )
-            else:
-                _LOGGER.error("No active therm schedule found. Available: %s", available_schedules)
+        if not active_schedule:
+            _LOGGER.error("No active therm schedule found")
             return
 
         # Find the target zone by name
         target_zone = None
         available_zones = []
-        for zone in target_schedule.zones:
+        for zone in active_schedule.zones:
             if isinstance(zone, IntuisThermZone):
                 available_zones.append(zone.name)
                 if zone.name.lower() == zone_name.lower():
@@ -756,14 +690,14 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
         # Build updated timetable
         timetable = [
             {"zone_id": t.zone_id, "m_offset": t.m_offset}
-            for t in target_schedule.timetables
+            for t in active_schedule.timetables
         ]
 
         # Validate timetable is not empty
         if not timetable:
             _LOGGER.error(
                 "Schedule '%s' has no timetable entries. Cannot set slot.",
-                target_schedule.name,
+                active_schedule.name,
             )
             return
 
@@ -772,8 +706,8 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
         restore_zone_id = find_zone_at_offset(timetable, end_m_offset)
 
         # If no zone found at end offset (edge case), use the first zone as fallback
-        if restore_zone_id is None and target_schedule.zones:
-            restore_zone_id = target_schedule.zones[0].id
+        if restore_zone_id is None and active_schedule.zones:
+            restore_zone_id = active_schedule.zones[0].id
             _LOGGER.debug(
                 "No zone found at end offset %d, using first zone (ID: %d) as fallback",
                 end_m_offset,
@@ -796,7 +730,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
 
         # Build zones payload (only rooms_temp, not rooms - API requirement)
         zones_payload = []
-        for zone in target_schedule.zones:
+        for zone in active_schedule.zones:
             if isinstance(zone, IntuisThermZone):
                 zone_data = {
                     "id": zone.id,
@@ -811,17 +745,17 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
 
         try:
             await api.async_sync_schedule(
-                schedule_id=target_schedule.id,
-                schedule_name=target_schedule.name,
-                schedule_type=target_schedule.type,
+                schedule_id=active_schedule.id,
+                schedule_name=active_schedule.name,
+                schedule_type=active_schedule.type,
                 timetable=timetable,
                 zones=zones_payload,
-                away_temp=target_schedule.away_temp,
-                hg_temp=target_schedule.hg_temp,
+                away_temp=active_schedule.away_temp,
+                hg_temp=active_schedule.hg_temp,
             )
 
             # Update local timetable state
-            target_schedule.timetables = [
+            active_schedule.timetables = [
                 IntuisTimetable(zone_id=t["zone_id"], m_offset=t["m_offset"])
                 for t in timetable
             ]
@@ -1012,188 +946,6 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             _LOGGER.error("Failed to set zone temperature: %s", err)
             raise
 
-    async def async_handle_sync_schedule(call: ServiceCall) -> None:
-        """Handle sync_schedule service call.
-
-        Synchronizes the complete timetable for a schedule.
-        Used by the planning UI to save all changes at once.
-        """
-        import json
-        
-        schedule_name = call.data.get(ATTR_SCHEDULE_NAME)
-        timetable_json = call.data.get(ATTR_TIMETABLE)
-        target_home_id = call.data.get(ATTR_HOME_ID)
-
-        if not schedule_name:
-            _LOGGER.error("schedule_name must be provided")
-            return
-
-        if not timetable_json:
-            _LOGGER.error("timetable must be provided")
-            return
-
-        # Parse timetable JSON
-        try:
-            if isinstance(timetable_json, str):
-                timetable_raw = json.loads(timetable_json)
-            else:
-                timetable_raw = timetable_json
-            
-            # Validate and convert timetable format (ensure int types)
-            if not isinstance(timetable_raw, list):
-                raise ValueError("timetable must be a list")
-            
-            timetable = []
-            for entry in timetable_raw:
-                if not isinstance(entry, dict) or "zone_id" not in entry or "m_offset" not in entry:
-                    raise ValueError("Each entry must have zone_id and m_offset")
-                timetable.append({
-                    "zone_id": int(entry["zone_id"]),
-                    "m_offset": int(entry["m_offset"])
-                })
-                
-        except (json.JSONDecodeError, ValueError) as err:
-            _LOGGER.error("Invalid timetable format: %s", err)
-            return
-
-        entries = _get_target_entries(target_home_id)
-
-        if not entries:
-            if target_home_id:
-                _LOGGER.error("Home with ID %s not found", target_home_id)
-            else:
-                _LOGGER.error("No configured homes found")
-            return
-
-        # Process first matching entry
-        entry_id, data = entries[0]
-        api: IntuisAPI = data.get("api")
-        intuis_home: IntuisHome = data.get("intuis_home")
-        coordinator = data.get("coordinator")
-
-        if not api or not intuis_home:
-            _LOGGER.error("API or home data not available")
-            return
-
-        # Find the target schedule by name
-        target_schedule = None
-        available_schedules = []
-        
-        for schedule in intuis_home.schedules:
-            if isinstance(schedule, IntuisThermSchedule):
-                has_zones = schedule.zones and len(schedule.zones) > 0
-                if has_zones:
-                    available_schedules.append(schedule.name)
-                    if schedule.name == schedule_name:
-                        target_schedule = schedule
-
-        if not target_schedule:
-            _LOGGER.error(
-                "Schedule not found: %s. Available schedules: %s",
-                schedule_name,
-                available_schedules,
-            )
-            return
-
-        # Get valid zone IDs from the schedule
-        valid_zone_ids = {zone.id for zone in target_schedule.zones if isinstance(zone, IntuisThermZone)}
-        _LOGGER.debug("Valid zone IDs for schedule '%s': %s", schedule_name, valid_zone_ids)
-        
-        # Validate all zone_ids in timetable exist in the schedule
-        for entry in timetable:
-            if entry["zone_id"] not in valid_zone_ids:
-                _LOGGER.error(
-                    "Invalid zone_id %d in timetable. Valid IDs: %s",
-                    entry["zone_id"],
-                    valid_zone_ids,
-                )
-                return
-            # Validate m_offset is in valid range (0-10079)
-            if not (0 <= entry["m_offset"] < 10080):
-                _LOGGER.error(
-                    "Invalid m_offset %d in timetable. Must be 0-10079",
-                    entry["m_offset"],
-                )
-                return
-
-        _LOGGER.info(
-            "Syncing full timetable for schedule '%s' with %d entries",
-            target_schedule.name,
-            len(timetable),
-        )
-
-        # Ensure timetable starts at m_offset = 0 (API requirement)
-        timetable = sorted(timetable, key=lambda x: x["m_offset"])
-        if not timetable or timetable[0]["m_offset"] != 0:
-            # Add a slot at 0 with the last zone (week wrap-around)
-            first_zone = timetable[-1]["zone_id"] if timetable else list(valid_zone_ids)[0]
-            timetable.insert(0, {"zone_id": first_zone, "m_offset": 0})
-            _LOGGER.debug("Added missing slot at m_offset=0 with zone_id=%d", first_zone)
-
-        # Sort and remove consecutive duplicates (API requirement)
-        timetable = remove_consecutive_duplicates(timetable)
-        _LOGGER.debug(
-            "Cleaned timetable has %d entries: %s",
-            len(timetable),
-            [(t["m_offset"], t["zone_id"]) for t in timetable],
-        )
-
-        # Build zones payload (preserve existing zone temperatures)
-        zones_payload = []
-        for zone in target_schedule.zones:
-            if isinstance(zone, IntuisThermZone):
-                zone_data = {
-                    "id": zone.id,
-                    "name": zone.name,
-                    "type": zone.type,
-                    "rooms_temp": [
-                        {"room_id": rt.room_id, "temp": rt.temp}
-                        for rt in zone.rooms_temp
-                    ],
-                }
-                zones_payload.append(zone_data)
-
-        _LOGGER.info(
-            "sync_schedule payload: schedule_id=%s, name=%s, type=%s, "
-            "timetable_count=%d, zones_count=%d, away=%s, hg=%s",
-            target_schedule.id,
-            target_schedule.name,
-            target_schedule.type,
-            len(timetable),
-            len(zones_payload),
-            target_schedule.away_temp,
-            target_schedule.hg_temp,
-        )
-        _LOGGER.debug("Timetable being sent: %s", timetable)
-        _LOGGER.debug("Zones being sent: %s", zones_payload)
-
-        try:
-            await api.async_sync_schedule(
-                schedule_id=target_schedule.id,
-                schedule_name=target_schedule.name,
-                schedule_type=target_schedule.type,
-                timetable=timetable,
-                zones=zones_payload,
-                away_temp=target_schedule.away_temp,
-                hg_temp=target_schedule.hg_temp,
-            )
-
-            # Update local timetable state
-            target_schedule.timetables = [
-                IntuisTimetable(zone_id=t["zone_id"], m_offset=t["m_offset"])
-                for t in timetable
-            ]
-
-            # Refresh coordinator
-            if coordinator:
-                await coordinator.async_request_refresh()
-
-            _LOGGER.info("Schedule timetable synced successfully")
-
-        except (APIError, CannotConnect, RateLimitError) as err:
-            _LOGGER.error("Failed to sync schedule: %s", err)
-            raise
-
     # Store for import managers (one per entry)
     if "import_managers" not in hass.data[DOMAIN]:
         hass.data[DOMAIN]["import_managers"] = {}
@@ -1331,12 +1083,6 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
     })
 
     set_schedule_slot_schema = vol.Schema({
-        vol.Optional(ATTR_SCHEDULE_NAME): SelectSelector(
-            SelectSelectorConfig(
-                options=schedule_options if schedule_options else [{"value": "", "label": "No schedules found"}],
-                mode=SelectSelectorMode.DROPDOWN,
-            )
-        ),
         vol.Required(ATTR_START_DAY): SelectSelector(
             SelectSelectorConfig(
                 options=day_options,
@@ -1385,21 +1131,6 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 step=0.5,
                 unit_of_measurement="°C",
                 mode=NumberSelectorMode.BOX,
-            )
-        ),
-    })
-
-    sync_schedule_schema = vol.Schema({
-        vol.Required(ATTR_SCHEDULE_NAME): SelectSelector(
-            SelectSelectorConfig(
-                options=schedule_options if schedule_options else [{"value": "", "label": "No schedules found"}],
-                mode=SelectSelectorMode.DROPDOWN,
-            )
-        ),
-        vol.Required(ATTR_TIMETABLE): TextSelector(
-            TextSelectorConfig(
-                multiline=True,
-                type=TextSelectorType.TEXT,
             )
         ),
     })
@@ -1468,14 +1199,6 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             SERVICE_SET_ZONE_TEMPERATURE,
             async_handle_set_zone_temperature,
             schema=set_zone_temperature_schema,
-        )
-
-    if not hass.services.has_service(DOMAIN, SERVICE_SYNC_SCHEDULE):
-        hass.services.async_register(
-            DOMAIN,
-            SERVICE_SYNC_SCHEDULE,
-            async_handle_sync_schedule,
-            schema=sync_schedule_schema,
         )
 
     if not hass.services.has_service(DOMAIN, SERVICE_IMPORT_ENERGY_HISTORY):
