@@ -57,6 +57,30 @@
       margin: 0 8px; 
       overflow: hidden;
     }
+    /* Hours header/footer row */
+    .hours-row {
+      display: flex;
+      align-items: center;
+      margin: 2px 0;
+      font-size: 10px;
+    }
+    .hours-row .lbl { width: 42px; }
+    .hours-bar {
+      flex: 1;
+      position: relative;
+      height: 16px;
+      margin: 0 8px;
+      display: flex;
+    }
+    .hours-bar .hour-mark {
+      position: absolute;
+      transform: translateX(-50%);
+      color: #888;
+      font-size: 9px;
+      font-weight: 500;
+    }
+    .hours-row.top .hour-mark { top: 0; }
+    .hours-row.bottom .hour-mark { bottom: 0; }
     .seg { 
       cursor: pointer; 
       height: 100%; 
@@ -75,7 +99,15 @@
       outline: 2px solid #666; 
       z-index: 1; 
     }
-    .tick { position: absolute; top: -14px; font-size: 9px; transform: translateX(-50%); color: #888; }
+    /* Vertical grid lines */
+    .tick { 
+      position: absolute; 
+      top: 0;
+      bottom: 0;
+      width: 1px; 
+      background: rgba(128,128,128,0.2);
+      pointer-events: none;
+    }
     .plusbtn { 
       background: var(--card-bg); 
       border: 1px solid var(--border-color); 
@@ -798,6 +830,41 @@
     week.innerHTML = '';
     const timetable = [...currentSchedule.timetable].sort((a,b) => a.m_offset - b.m_offset);
     
+    // Helper function to create hours row
+    function createHoursRow(position) {
+      const row = document.createElement('div');
+      row.className = `hours-row ${position}`;
+      
+      const lbl = document.createElement('div');
+      lbl.className = 'lbl';
+      lbl.textContent = '';
+      row.appendChild(lbl);
+      
+      const bar = document.createElement('div');
+      bar.className = 'hours-bar';
+      
+      // Add hour marks (every 2 hours for readability)
+      for (let h = 0; h <= 24; h += 2) {
+        const mark = document.createElement('span');
+        mark.className = 'hour-mark';
+        mark.style.left = `${(h * 60) / 14.4}%`;
+        mark.textContent = `${h}h`;
+        bar.appendChild(mark);
+      }
+      
+      row.appendChild(bar);
+      
+      // Spacer for alignment with plus button
+      const spacer = document.createElement('div');
+      spacer.style.width = '24px';
+      row.appendChild(spacer);
+      
+      return row;
+    }
+    
+    // Add hours header
+    week.appendChild(createHoursRow('top'));
+    
     for (let d = 0; d < 7; d++) {
       const row = document.createElement('div');
       row.className = 'row';
@@ -810,12 +877,11 @@
       const bar = document.createElement('div');
       bar.className = 'bar';
       
-      // Add time ticks
-      for (const t of TICKS) {
+      // Add vertical grid lines (subtle ticks)
+      for (let h = 0; h < 24; h += 6) {
         const tick = document.createElement('span');
         tick.className = 'tick';
-        tick.style.left = `${t / 14.4}%`;
-        tick.textContent = fmt(t);
+        tick.style.left = `${(h * 60) / 14.4}%`;
         bar.appendChild(tick);
       }
       
@@ -888,6 +954,9 @@
       
       week.appendChild(row);
     }
+    
+    // Add hours footer
+    week.appendChild(createHoursRow('bottom'));
     
     // Build zone temperature boxes
     zonesDiv.innerHTML = '';
