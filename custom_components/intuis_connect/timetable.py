@@ -66,30 +66,58 @@ def upsert_timetable_entry(timetable: list[dict], m_offset: int, zone_id: int) -
 
 
 def remove_consecutive_duplicates(timetable: list[dict]) -> list[dict]:
-    """Remove consecutive entries with the same zone_id.
+    """Remove duplicate offsets and consecutive entries with the same zone_id.
 
-    The Intuis API rejects timetables with consecutive entries having the same
-    zone_id. This function removes such duplicates while preserving the first
-    occurrence.
+    The Intuis API requires:
+    1. All m_offset values must be STRICTLY INCREASING (no duplicates)
+    2. Consecutive entries should not have the same zone_id
+
+    This function:
+    1. First removes duplicate m_offset values (keeps the LAST zone_id for each offset)
+    2. Then removes consecutive entries with the same zone_id
 
     Args:
         timetable: List of timetable entries to process.
 
     Returns:
-        A new list with consecutive duplicates removed, sorted by m_offset.
+        A new list with strictly increasing offsets and no consecutive zone duplicates.
     """
     if not timetable:
         return []
 
+    # Step 1: Sort by m_offset
     sorted_tt = sorted(timetable, key=lambda x: x["m_offset"])
-    result = [sorted_tt[0]]
-
-    for entry in sorted_tt[1:]:
+    
+    # Step 2: Remove duplicate m_offset values (keep the LAST entry for each offset)
+    # This handles the case where multiple zones are defined at the same offset
+    offset_to_zone: dict[int, int] = {}
+    for entry in sorted_tt:
+        m_offset = entry["m_offset"]
+        zone_id = entry["zone_id"]
+        if m_offset in offset_to_zone and offset_to_zone[m_offset] != zone_id:
+            _LOGGER.debug(
+                "Duplicate m_offset %d: replacing zone_id %d with %d",
+                m_offset,
+                offset_to_zone[m_offset],
+                zone_id,
+            )
+        offset_to_zone[m_offset] = zone_id
+    
+    # Step 3: Build list with unique offsets in sorted order
+    unique_offsets = sorted(offset_to_zone.keys())
+    deduped = [{"zone_id": offset_to_zone[offset], "m_offset": offset} for offset in unique_offsets]
+    
+    if not deduped:
+        return []
+    
+    # Step 4: Remove consecutive entries with the same zone_id
+    result = [deduped[0]]
+    for entry in deduped[1:]:
         if entry["zone_id"] != result[-1]["zone_id"]:
             result.append(entry)
         else:
             _LOGGER.debug(
-                "Removing duplicate zone_id %d at m_offset %d",
+                "Removing consecutive duplicate zone_id %d at m_offset %d",
                 entry["zone_id"],
                 entry["m_offset"],
             )
@@ -155,6 +183,7 @@ def normalize_timetable(timetable: list[dict]) -> list[dict]:
     1. Each day has a zone defined from its start
     2. Zones are properly inherited from the previous day if no explicit slot exists
     3. Consecutive entries with the same zone_id are merged
+    4. No duplicate m_offset values exist (strictly increasing offsets)
 
     The Intuis API requires a properly normalized timetable to work correctly.
 
@@ -167,7 +196,14 @@ def normalize_timetable(timetable: list[dict]) -> list[dict]:
     if not timetable:
         return []
 
-    sorted_tt = sorted(timetable, key=lambda x: x["m_offset"])
+    # First, deduplicate by m_offset (keep last zone for each offset)
+    offset_to_zone: dict[int, int] = {}
+    for entry in sorted(timetable, key=lambda x: x["m_offset"]):
+        offset_to_zone[entry["m_offset"]] = entry["zone_id"]
+    
+    sorted_tt = [{"m_offset": offset, "zone_id": zone} 
+                 for offset, zone in sorted(offset_to_zone.items())]
+    
     result = []
 
     for day in range(7):

@@ -1038,12 +1038,12 @@ class IntuisAPI:
                 len(zones),
             )
 
-        # Build payload in the required format
+        # Build payload in the required format (matching working Node-RED format)
         payload: dict[str, Any] = {
+            "app_identifier": "app_muller",
             "home_id": self.home_id,
-            "id": schedule_id,
+            "schedule_id": schedule_id,
             "name": schedule_name,
-            "type": schedule_type,
             "timetable": timetable,
             "zones": zones,
         }

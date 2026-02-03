@@ -45,16 +45,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities += provide_home_sensors(coordinator, home_id, intuis_home)
     
-    # Add schedule data sensor for UI integration
+    # Add schedule data sensor for UI integration (summary only)
+    # Note: Individual schedule sensors are created in provide_home_sensors
+    # via IntuisScheduleSummarySensor to avoid duplicate entity IDs
     if intuis_home and intuis_home.schedules:
         entities.append(IntuisScheduleDataSensor(coordinator, home_id, intuis_home))
-        
-        # Add individual sensor per schedule for Node-RED/HTML UI compatibility
-        for schedule in intuis_home.schedules:
-            if isinstance(schedule, IntuisThermSchedule):
-                entities.append(IntuisIndividualScheduleSensor(
-                    coordinator, home_id, intuis_home, schedule
-                ))
     
     async_add_entities(entities, update_before_add=True)
 
@@ -572,65 +567,44 @@ class IntuisScheduleDataSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict:
-        """Return complete schedule data as attributes."""
+        """Return schedule summary data as attributes.
+        
+        Note: To avoid exceeding the 16KB attribute limit, we only include
+        essential data here. Full schedule details are available via individual
+        schedule sensors or the sync_schedule service.
+        """
         home = self.coordinator.data.get("intuis_home") if isinstance(self.coordinator.data, dict) else self.coordinator.data
         if not home or not hasattr(home, 'schedules') or not home.schedules:
             return {"schedules": []}
         
-        schedules_data = []
-        rooms_map = {}
-        
-        # Build rooms map
-        if hasattr(home, 'rooms') and home.rooms:
-            for room_id, room in home.rooms.items():
-                rooms_map[room_id] = room.name if hasattr(room, 'name') else str(room_id)
+        schedules_summary = []
         
         for schedule in home.schedules:
             if not isinstance(schedule, IntuisThermSchedule):
                 continue
             
-            # Convert timetable
-            timetable = []
-            if schedule.timetables:
-                for tt in schedule.timetables:
-                    timetable.append({
-                        "zone_id": tt.zone_id,
-                        "m_offset": tt.m_offset
-                    })
-            
-            # Convert zones
-            zones = []
+            # Only include essential schedule info (no detailed rooms_temp)
+            zones_summary = []
             if schedule.zones:
                 for zone in schedule.zones:
                     if isinstance(zone, IntuisThermZone):
-                        rooms_temp = []
-                        if zone.rooms_temp:
-                            for rt in zone.rooms_temp:
-                                rooms_temp.append({
-                                    "room_id": rt.room_id,
-                                    "room_name": rooms_map.get(rt.room_id, rt.room_id),
-                                    "temp": rt.temp
-                                })
-                        zones.append({
+                        zones_summary.append({
                             "id": zone.id,
                             "name": zone.name,
-                            "rooms_temp": rooms_temp
                         })
             
-            schedules_data.append({
-                "id": schedule.id,
+            schedules_summary.append({
+                "schedule_id": schedule.id,
                 "name": schedule.name,
                 "selected": schedule.selected,
-                "type": "therm",
+                "timetable_count": len(schedule.timetables) if schedule.timetables else 0,
+                "zones": zones_summary,
                 "away_temp": schedule.away_temp,
                 "hg_temp": schedule.hg_temp,
-                "timetable": timetable,
-                "zones": zones
             })
         
         return {
-            "schedules": schedules_data,
-            "rooms": rooms_map,
+            "schedules": schedules_summary,
             "active_schedule": self.native_value
         }
 

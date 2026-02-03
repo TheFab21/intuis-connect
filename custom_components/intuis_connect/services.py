@@ -66,6 +66,7 @@ SERVICE_SYNC_SCHEDULE = "sync_schedule"
 # Service attributes
 ATTR_ROOM_ID = "room_id"
 ATTR_SCHEDULE_NAME = "schedule_name"
+ATTR_SCHEDULE_ID = "schedule_id"
 ATTR_HOME_ID = "home_id"
 ATTR_DAY = "day"  # Legacy, kept for backward compatibility
 ATTR_START_DAY = "start_day"
@@ -818,6 +819,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 zones=zones_payload,
                 away_temp=target_schedule.away_temp,
                 hg_temp=target_schedule.hg_temp,
+                
             )
 
             # Update local timetable state
@@ -841,14 +843,21 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
 
         Sets the temperature for a specific room in a schedule zone.
         Works with any schedule, not just the active one.
+        
+        Accepts schedule_id (preferred) or schedule_name (fallback for compatibility).
         """
+        schedule_id = call.data.get(ATTR_SCHEDULE_ID)
         schedule_name = call.data.get(ATTR_SCHEDULE_NAME)
         zone_name = call.data.get(ATTR_ZONE_NAME)
         room_name = call.data.get(ATTR_ROOM_NAME)
         temperature = call.data.get(ATTR_TEMPERATURE)
         target_home_id = call.data.get(ATTR_HOME_ID)
 
-        if not all([schedule_name, zone_name, room_name, temperature is not None]):
+        if not schedule_id and not schedule_name:
+            _LOGGER.error("Either schedule_id or schedule_name must be provided")
+            return
+            
+        if not all([zone_name, room_name, temperature is not None]):
             _LOGGER.error("Missing required parameters for set_zone_temperature")
             return
 
@@ -885,7 +894,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             _LOGGER.error("API or home data not available")
             return
 
-        # Find the target schedule by name (any schedule, not just active)
+        # Find the target schedule by ID (preferred) or name (fallback)
         target_schedule = None
         available_schedules = []
         for schedule in intuis_home.schedules:
@@ -893,14 +902,25 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 has_zones = schedule.zones and len(schedule.zones) > 0
                 has_timetables = schedule.timetables and len(schedule.timetables) > 0
                 if has_zones and has_timetables:
-                    available_schedules.append(schedule.name)
-                    if schedule.name == schedule_name:
+                    available_schedules.append(f"{schedule.name} (ID: {schedule.id})")
+                    # Match by ID first (preferred)
+                    if schedule_id and schedule.id == schedule_id:
                         target_schedule = schedule
+                        _LOGGER.debug("Found schedule by ID: %s", schedule_id)
+                        break
+                    # Fallback to name match only if no ID provided
+                    elif not schedule_id and schedule_name and schedule.name == schedule_name:
+                        target_schedule = schedule
+                        _LOGGER.warning(
+                            "Finding schedule by name '%s' (deprecated). Use schedule_id for reliability.",
+                            schedule_name
+                        )
                         break
 
         if not target_schedule:
             _LOGGER.error(
-                "Schedule not found: %s. Available schedules: %s",
+                "Schedule not found: ID=%s, name=%s. Available schedules: %s",
+                schedule_id,
                 schedule_name,
                 available_schedules,
             )
@@ -1000,6 +1020,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 zones=zones_payload,
                 away_temp=target_schedule.away_temp,
                 hg_temp=target_schedule.hg_temp,
+                
             )
 
             # Refresh coordinator
@@ -1017,15 +1038,18 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
 
         Synchronizes the complete timetable for a schedule.
         Used by the planning UI to save all changes at once.
+        
+        Accepts schedule_id (preferred) or schedule_name (fallback for compatibility).
         """
         import json
         
+        schedule_id = call.data.get(ATTR_SCHEDULE_ID)
         schedule_name = call.data.get(ATTR_SCHEDULE_NAME)
         timetable_json = call.data.get(ATTR_TIMETABLE)
         target_home_id = call.data.get(ATTR_HOME_ID)
 
-        if not schedule_name:
-            _LOGGER.error("schedule_name must be provided")
+        if not schedule_id and not schedule_name:
+            _LOGGER.error("Either schedule_id or schedule_name must be provided")
             return
 
         if not timetable_json:
@@ -1047,6 +1071,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             for entry in timetable_raw:
                 if not isinstance(entry, dict) or "zone_id" not in entry or "m_offset" not in entry:
                     raise ValueError("Each entry must have zone_id and m_offset")
+                # Use zone_id first to match API response format
                 timetable.append({
                     "zone_id": int(entry["zone_id"]),
                     "m_offset": int(entry["m_offset"])
@@ -1075,7 +1100,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             _LOGGER.error("API or home data not available")
             return
 
-        # Find the target schedule by name
+        # Find the target schedule by ID (preferred) or name (fallback)
         target_schedule = None
         available_schedules = []
         
@@ -1083,13 +1108,23 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             if isinstance(schedule, IntuisThermSchedule):
                 has_zones = schedule.zones and len(schedule.zones) > 0
                 if has_zones:
-                    available_schedules.append(schedule.name)
-                    if schedule.name == schedule_name:
+                    available_schedules.append(f"{schedule.name} (ID: {schedule.id})")
+                    # Match by ID first (preferred)
+                    if schedule_id and schedule.id == schedule_id:
                         target_schedule = schedule
+                        _LOGGER.debug("Found schedule by ID: %s", schedule_id)
+                    # Fallback to name match only if no ID provided
+                    elif not schedule_id and schedule_name and schedule.name == schedule_name:
+                        target_schedule = schedule
+                        _LOGGER.warning(
+                            "Finding schedule by name '%s' (deprecated). Use schedule_id for reliability.",
+                            schedule_name
+                        )
 
         if not target_schedule:
             _LOGGER.error(
-                "Schedule not found: %s. Available schedules: %s",
+                "Schedule not found: ID=%s, name=%s. Available schedules: %s",
+                schedule_id,
                 schedule_name,
                 available_schedules,
             )
@@ -1097,7 +1132,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
 
         # Get valid zone IDs from the schedule
         valid_zone_ids = {zone.id for zone in target_schedule.zones if isinstance(zone, IntuisThermZone)}
-        _LOGGER.debug("Valid zone IDs for schedule '%s': %s", schedule_name, valid_zone_ids)
+        _LOGGER.debug("Valid zone IDs for schedule '%s': %s", target_schedule.name, valid_zone_ids)
         
         # Validate all zone_ids in timetable exist in the schedule
         for entry in timetable:
@@ -1132,6 +1167,19 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
 
         # Sort and remove consecutive duplicates (API requirement)
         timetable = remove_consecutive_duplicates(timetable)
+        
+        # Final validation: ensure m_offset values are strictly increasing
+        for i in range(1, len(timetable)):
+            if timetable[i]["m_offset"] <= timetable[i-1]["m_offset"]:
+                _LOGGER.error(
+                    "CRITICAL: Timetable validation failed! m_offset not strictly increasing: "
+                    "[%d]=%d <= [%d]=%d. Full timetable: %s",
+                    i, timetable[i]["m_offset"],
+                    i-1, timetable[i-1]["m_offset"],
+                    [(t["m_offset"], t["zone_id"]) for t in timetable],
+                )
+                raise ValueError("Invalid timetable: m_offset values must be strictly increasing")
+        
         _LOGGER.debug(
             "Cleaned timetable has %d entries: %s",
             len(timetable),
@@ -1176,6 +1224,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 zones=zones_payload,
                 away_temp=target_schedule.away_temp,
                 hg_temp=target_schedule.hg_temp,
+                
             )
 
             # Update local timetable state
@@ -1360,7 +1409,12 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
     })
 
     set_zone_temperature_schema = vol.Schema({
-        vol.Required(ATTR_SCHEDULE_NAME): SelectSelector(
+        vol.Optional(ATTR_SCHEDULE_ID): TextSelector(
+            TextSelectorConfig(
+                type=TextSelectorType.TEXT,
+            )
+        ),
+        vol.Optional(ATTR_SCHEDULE_NAME): SelectSelector(
             SelectSelectorConfig(
                 options=schedule_options if schedule_options else [{"value": "", "label": "No schedules found"}],
                 mode=SelectSelectorMode.DROPDOWN,
@@ -1390,7 +1444,12 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
     })
 
     sync_schedule_schema = vol.Schema({
-        vol.Required(ATTR_SCHEDULE_NAME): SelectSelector(
+        vol.Optional(ATTR_SCHEDULE_ID): TextSelector(
+            TextSelectorConfig(
+                type=TextSelectorType.TEXT,
+            )
+        ),
+        vol.Optional(ATTR_SCHEDULE_NAME): SelectSelector(
             SelectSelectorConfig(
                 options=schedule_options if schedule_options else [{"value": "", "label": "No schedules found"}],
                 mode=SelectSelectorMode.DROPDOWN,
