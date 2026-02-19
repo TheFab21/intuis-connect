@@ -36,7 +36,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.recorder import session_scope
 from sqlalchemy import delete, select, and_
 
-from .utils.const import DOMAIN, HISTORY_IMPORT_IN_PROGRESS
+from .utils.const import DOMAIN, HISTORY_IMPORT_KEY
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -355,8 +355,9 @@ class HourlyStatsUpdater:
         
         Returns the number of statistics imported.
         """
-        # Check if history import is in progress - skip update to avoid conflicts
-        if HISTORY_IMPORT_IN_PROGRESS.get(self._home_id, False):
+        # Check if history import is in progress via hass.data — skip to avoid conflicts
+        import_flags = self._hass.data.get(DOMAIN, {}).get(HISTORY_IMPORT_KEY, {})
+        if import_flags.get(self._home_id, False):
             _LOGGER.info(
                 "History import in progress for home %s - skipping hourly stats update",
                 self._home_id
@@ -463,13 +464,14 @@ class HourlyStatsUpdater:
                 "%s: Using sum at J-1 midnight=%.3f from HA stats",
                 statistic_id, base_at_j1_midnight
             )
-        
-        if base_at_j1_midnight == 0:
-            _LOGGER.warning(
-                "%s: No base found at J-1 midnight. Run historical import first. Skipping.",
+        else:
+            # No base found at all — first run, bootstrap from 0
+            # Stats will be correct going forward; historical import fills the past
+            _LOGGER.info(
+                "%s: No base found — bootstrapping from 0 (first run). "
+                "Run historical import to backfill older data.",
                 statistic_id
             )
-            return 0
         
         _LOGGER.info(
             "%s: Processing %d data points with base=%.3f kWh",
@@ -490,17 +492,19 @@ class HourlyStatsUpdater:
             start_dt = datetime.fromtimestamp(start_ms / 1000, tz=self._timezone)
             
             # Add hourly consumption (Wh -> kWh)
-            energy_kwh = wh / 1000.0
+            energy_kwh = round(wh / 1000.0, 3)
             cumul_from_j1_midnight += energy_kwh
             
-            # Calculate sum: base + cumul since J-1 midnight
+            # Calculate cumulative sum: base + cumul since J-1 midnight
             sum_kwh = round(base_at_j1_midnight + cumul_from_j1_midnight, 3)
             
             # Build stat entry - ALWAYS include (idempotent)
+            # state = hourly consumption for this period (not cumulative!)
+            # sum  = running cumulative total (used by Energy dashboard)
             stats.append(StatisticData(
                 start=start_dt,
-                sum=sum_kwh,
-                state=sum_kwh,
+                state=energy_kwh,   # consumption during this 1-hour period
+                sum=sum_kwh,        # cumulative total from all time
             ))
         
         if not stats:
@@ -511,16 +515,17 @@ class HourlyStatsUpdater:
         if "base_kwh" not in self._data:
             self._data["base_kwh"] = {}
         # Store the last sum as the new base for tomorrow
-        self._data["base_kwh"][statistic_id] = stats[-1]["sum"]
+        # StatisticData is a dataclass — use attribute access (.sum, .start), NOT dict access
+        self._data["base_kwh"][statistic_id] = stats[-1].sum
         
         # Update persistent anchors
         last_stat = stats[-1]
-        last_ms = int(last_stat["start"].timestamp() * 1000)
+        last_ms = int(last_stat.start.timestamp() * 1000)
         
         if "anchors" not in self._data:
             self._data["anchors"] = {}
         self._data["anchors"][statistic_id] = {
-            "prev_sum": last_stat["sum"],
+            "prev_sum": last_stat.sum,
             "prev_start": last_ms,
         }
         
@@ -528,10 +533,8 @@ class HourlyStatsUpdater:
         room = self._intuis_home.rooms.get(room_id)
         room_name = room.name if room else f"Room {room_id}"
         
-        # **CRITICAL: Clear old statistics before importing new ones**
-        # This removes any corrupted stats from previous versions
-        first_stat_time = stats[0]["start"]
-        # Clear from first stat time to now + 1 hour (to cover current hour)
+        # Clear old statistics in range before importing new corrected ones
+        first_stat_time = stats[0].start
         clear_end = datetime.now(self._timezone) + timedelta(hours=1)
         await self._clear_statistics_in_range(statistic_id, first_stat_time, clear_end)
         
@@ -550,8 +553,8 @@ class HourlyStatsUpdater:
             _LOGGER.info(
                 "%s: Imported %d hours, first: %s (sum=%.3f), last: %s (sum=%.3f)",
                 statistic_id, len(stats),
-                stats[0]["start"].isoformat(), stats[0]["sum"],
-                stats[-1]["start"].isoformat(), stats[-1]["sum"]
+                stats[0].start.isoformat(), stats[0].sum,
+                stats[-1].start.isoformat(), stats[-1].sum,
             )
             return len(stats)
         except Exception as err:

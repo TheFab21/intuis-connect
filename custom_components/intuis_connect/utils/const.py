@@ -190,6 +190,8 @@ MAX_UPDATE_INTERVAL_OPTIONS = [
     {"value": "30", "label": "30 minutes"},
 ]
 
-# Global flag to pause HourlyStatsUpdater during history import
-# This prevents the hourly updater from corrupting data while import is running
-HISTORY_IMPORT_IN_PROGRESS: dict[str, bool] = {}
+# Key used in hass.data[DOMAIN] to signal that a history import is in progress.
+# Stored as hass.data[DOMAIN][HISTORY_IMPORT_KEY] = {home_id: bool}
+# Using hass.data avoids a module-level mutable global and works correctly
+# across multiple config entries.
+HISTORY_IMPORT_KEY = "history_import_in_progress"

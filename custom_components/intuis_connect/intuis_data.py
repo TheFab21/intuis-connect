@@ -6,6 +6,7 @@ import time
 from collections.abc import Awaitable, Callable
 from datetime import datetime, timedelta, timezone
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from .entity.intuis_home import IntuisHome
 from .entity.intuis_home_config import IntuisHomeConfig
@@ -302,12 +303,17 @@ class IntuisData:
             _LOGGER.debug("No rooms with bridge_id found, skipping energy fetch")
             return
 
-        # Calculate epoch timestamps for today (midnight to now for real-time, midnight to midnight for daily)
-        today_start = datetime.combine(now.date(), datetime.min.time(), tzinfo=timezone.utc)
+        # Calculate epoch timestamps using the HOME's timezone (from IntuisHome.timezone),
+        # not the HA server timezone. These can differ if the HA server runs in UTC or a
+        # different locale from the physical installation.
+        home_tz_str = getattr(self._intuis_home, "timezone", None) or "Europe/Paris"
+        home_tz = ZoneInfo(home_tz_str)
+        now_local = now.astimezone(home_tz)
+        today_start = datetime.combine(now_local.date(), datetime.min.time(), tzinfo=home_tz)
         if is_realtime:
             date_end = int(now.timestamp())
         else:
-            today_end = datetime.combine(now.date(), datetime.max.time(), tzinfo=timezone.utc)
+            today_end = datetime.combine(now_local.date(), datetime.max.time(), tzinfo=home_tz)
             date_end = int(today_end.timestamp())
         date_begin = int(today_start.timestamp())
 

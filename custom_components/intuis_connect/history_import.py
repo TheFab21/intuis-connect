@@ -34,7 +34,7 @@ from .utils.const import (
     DOMAIN,
     API_DATA_DELAY_HOURS,
     MAX_DAYS_PER_HOURLY_REQUEST,
-    HISTORY_IMPORT_IN_PROGRESS,
+    HISTORY_IMPORT_KEY,
 )
 from .intuis_api.api import RateLimitError, APIError, CannotConnect
 
@@ -520,9 +520,14 @@ async def async_import_energy_history(
     manager.status = "importing"
     manager.last_error = None
     
-    # Set global flag to pause HourlyStatsUpdater during import
-    HISTORY_IMPORT_IN_PROGRESS[home_id or intuis_home.id] = True
-    _LOGGER.info("History import started - HourlyStatsUpdater paused for home %s", home_id or intuis_home.id)
+    # Signal to HourlyStatsUpdater that import is running, using hass.data to avoid globals
+    effective_home_id = home_id or intuis_home.id
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+    if HISTORY_IMPORT_KEY not in hass.data[DOMAIN]:
+        hass.data[DOMAIN][HISTORY_IMPORT_KEY] = {}
+    hass.data[DOMAIN][HISTORY_IMPORT_KEY][effective_home_id] = True
+    _LOGGER.info("History import started - HourlyStatsUpdater paused for home %s", effective_home_id)
     
     # Validate granularity
     if granularity not in ("hourly", "daily"):
@@ -770,11 +775,6 @@ async def async_import_energy_history(
                         step_name,
                         room_name,
                     )
-                    _LOGGER.warning(
-                        "No %s energy data returned for %s, skipping",
-                        step_name,
-                        room_name,
-                    )
                 else:
                     # Sort by timestamp to ensure chronological order
                     energy_values.sort(key=lambda x: x[0])
@@ -935,7 +935,8 @@ async def async_import_energy_history(
         
         # Clear global flag to resume HourlyStatsUpdater
         effective_home_id = home_id or intuis_home.id
-        HISTORY_IMPORT_IN_PROGRESS[effective_home_id] = False
+        if DOMAIN in hass.data and HISTORY_IMPORT_KEY in hass.data[DOMAIN]:
+            hass.data[DOMAIN][HISTORY_IMPORT_KEY][effective_home_id] = False
         _LOGGER.info("History import finished - HourlyStatsUpdater resumed for home %s", effective_home_id)
 
     _LOGGER.info(

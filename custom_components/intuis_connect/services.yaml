@@ -131,14 +131,18 @@ set_zone_temperature:
             value: À la maison
           - label: Économie
             value: Économie
-          - label: Comfort
-            value: Comfort
-          - label: Night
-            value: Night
-          - label: Comfort+
-            value: Comfort+
           - label: Eco
             value: Eco
+          - label: Nuit tous etage
+            value: Nuit tous etage
+          - label: Eco tous étages
+            value: Eco tous étages
+          - label: Night
+            value: Night
+          - label: Comfort
+            value: Comfort
+          - label: Comfort+
+            value: Comfort+
     room_name:
       name: Room Name
       description: Select the room to set temperature for.
