@@ -253,6 +253,10 @@
       <input type="password" id="ha-token" placeholder="eyJ0eXAiOiJKV1Q..." style="width:100%; padding:8px; margin-top:4px;">
       <small style="color:#666;">Créez-le dans Profil → Tokens d'accès longue durée</small>
     </label>
+    <label style="display:block; margin: 8px 0 16px 0; font-size: 0.9em; color: #aaa; cursor: pointer;">
+      <input type="checkbox" id="remember-token" style="margin-right:6px;">
+      Se souvenir du token (moins sécurisé — ne pas cocher sur un ordinateur partagé)
+    </label>
     <button id="connect-btn" style="padding: 10px 24px; background: #2196f3; color: white; border: none; border-radius: 6px; cursor: pointer;">
       Connecter
     </button>
@@ -345,39 +349,80 @@
   }
   
   // === HOME ASSISTANT CONNECTION ===
+  // URL is not sensitive — persist in localStorage so users don't re-type it after every restart.
+  // Token: stored in localStorage only if the user explicitly checks "remember token",
+  // otherwise sessionStorage (cleared when the browser tab/session ends).
   let haUrl = localStorage.getItem('intuis_ha_url') || '';
-  let haToken = localStorage.getItem('intuis_ha_token') || '';
+  let haToken = localStorage.getItem('intuis_ha_token_saved') || sessionStorage.getItem('intuis_ha_token') || '';
+  
+  // Pre-fill remember checkbox based on whether token was persisted
+  const _rememberSaved = !!localStorage.getItem('intuis_ha_token_saved');
+  document.addEventListener('DOMContentLoaded', () => {
+    const cb = document.getElementById('remember-token');
+    if (cb) cb.checked = _rememberSaved;
+  });
   
   function getHass() {
     // Try to get hass from parent (when embedded in HA iframe)
     try {
       if (window.parent && window.parent !== window) {
-        console.log('Trying to access parent window...');
         const haEl = window.parent.document.querySelector('home-assistant');
-        console.log('home-assistant element:', haEl);
         if (haEl && haEl.hass) {
-          console.log('Got hass from parent!');
           return haEl.hass;
         }
       }
     } catch (e) {
       // Cross-origin error - we're not in HA iframe
-      console.log('Cross-origin error:', e.message);
     }
     // Fallback to window.hass (for development)
     if (window.hass) {
-      console.log('Using window.hass');
       return window.hass;
     }
     return null;
   }
+
+  function isInHaIframe() {
+    // Quick synchronous check — if we're same-origin inside HA the home-assistant element exists
+    try {
+      if (window.parent && window.parent !== window) {
+        return !!window.parent.document.querySelector('home-assistant');
+      }
+    } catch (e) {
+      // Cross-origin: definitely not in HA iframe
+    }
+    return false;
+  }
   
-  async function waitForHass(maxTries = 30) {
-    for (let i = 0; i < maxTries; i++) {
+  async function waitForHass(maxWaitMs = 5000) {
+    // If we're in the same-origin HA iframe, poll for hass with a hard timeout.
+    // If the element is there but hass never populates (e.g. after a restart),
+    // we give up quickly and fall through to REST mode.
+    const deadline = Date.now() + maxWaitMs;
+    while (Date.now() < deadline) {
       hass = getHass();
-      if (hass) return true;
+      if (hass && hass.states && Object.keys(hass.states).length > 0) {
+        return true;
+      }
       await new Promise(r => setTimeout(r, 200));
     }
+    return false;
+  }
+
+  async function waitForHassIframe(maxWaitMs = 45000) {
+    // In HA iframe after a restart, the WebSocket reconnects before hass is populated.
+    // Wait up to 45s and show a live countdown so the user knows what is happening.
+    const loadingText = loading.querySelector('p');
+    const deadline = Date.now() + maxWaitMs;
+    while (Date.now() < deadline) {
+      hass = getHass();
+      if (hass && hass.states && Object.keys(hass.states).length > 0) {
+        return true;
+      }
+      const remaining = Math.ceil((deadline - Date.now()) / 1000);
+      loadingText.textContent = `En attente de la reconnexion Home Assistant… (${remaining}s)`;
+      await new Promise(r => setTimeout(r, 500));
+    }
+    loadingText.textContent = 'Connexion à Home Assistant…';
     return false;
   }
   
@@ -443,9 +488,11 @@
     document.getElementById('config-dialog').style.display = 'block';
     document.getElementById('ha-url').value = haUrl;
     document.getElementById('ha-token').value = haToken;
+    const cb = document.getElementById('remember-token');
+    if (cb) cb.checked = !!localStorage.getItem('intuis_ha_token_saved');
   }
   
-  document.getElementById('connect-btn')?.addEventListener('click', async () => {
+  (document.getElementById('connect-btn') || {addEventListener:function(){}}).addEventListener('click', async () => {
     haUrl = document.getElementById('ha-url').value.trim().replace(/\/$/, '');
     haToken = document.getElementById('ha-token').value.trim();
     
@@ -454,9 +501,16 @@
       return;
     }
     
-    // Save to localStorage
+    // URL is not sensitive: always persist in localStorage.
+    // Token: persist in localStorage only if "remember" is checked, otherwise sessionStorage only.
     localStorage.setItem('intuis_ha_url', haUrl);
-    localStorage.setItem('intuis_ha_token', haToken);
+    const rememberToken = (document.getElementById('remember-token') || {}).checked;
+    if (rememberToken) {
+      localStorage.setItem('intuis_ha_token_saved', haToken);
+    } else {
+      localStorage.removeItem('intuis_ha_token_saved');
+      sessionStorage.setItem('intuis_ha_token', haToken);
+    }
     
     // Try to connect
     document.getElementById('config-dialog').style.display = 'none';
@@ -482,7 +536,6 @@
     schedules = [];
     rooms = {};
     
-    console.log('=== Intuis Planning Debug ===');
     
     // Find schedule sensors: sensor.intuis_home_schedule_*
     for (const [entityId, state] of Object.entries(hass.states)) {
@@ -490,9 +543,8 @@
       if (entityId.startsWith('sensor.') && 
           entityId.includes('_schedule_') && 
           !entityId.includes('schedule_optimization') &&
-          state.attributes?.weekly_timetable) {
+          (state.attributes && state.attributes.weekly_timetable)) {
         
-        console.log('Found schedule sensor:', entityId);
         
         const attrs = state.attributes;
         
@@ -523,14 +575,13 @@
           weekly_timetable: attrs.weekly_timetable // Keep original for display
         });
         
-        console.log('Added schedule:', attrs.schedule_name, 'ID:', attrs.schedule_id, 'zones:', zones.length, 'timetable days:', Object.keys(attrs.weekly_timetable || {}).length);
       }
     }
     
     // Build room map from climate entities
     for (const [entityId, state] of Object.entries(hass.states)) {
       if (entityId.startsWith('climate.') && entityId.includes('intuis')) {
-        const roomName = state.attributes.friendly_name?.replace('Intuis ', '') || entityId;
+        const roomName = (state.attributes.friendly_name ? state.attributes.friendly_name.replace('Intuis ', '') : entityId);
         const roomId = state.attributes.room_id;
         if (roomId) {
           rooms[roomId] = roomName;
@@ -540,7 +591,7 @@
       // Also get room names from temperature sensors
       if (entityId.startsWith('sensor.') && entityId.includes('intuis') && entityId.includes('temperature')) {
         const roomId = state.attributes.room_id;
-        const roomName = state.attributes.room_name || state.attributes.friendly_name?.replace('Intuis ', '').replace(' Temperature', '');
+        const roomName = state.attributes.room_name || (state.attributes.friendly_name ? state.attributes.friendly_name.replace('Intuis ', '').replace(' Temperature', '') : '');
         if (roomId && roomName && !rooms[roomId]) {
           rooms[roomId] = roomName;
         }
@@ -549,9 +600,8 @@
     
     // Get room names from current_zone sensor
     const currentZone = hass.states['sensor.intuis_home_current_zone'];
-    if (currentZone?.attributes?.room_temperatures) {
+    if ((currentZone && currentZone.attributes && currentZone.attributes.room_temperatures)) {
       // This gives us room IDs, we need to match with climate entities
-      console.log('Current zone room temps:', currentZone.attributes.room_temperatures);
     }
     
     // Try to get room names from climate entities by matching patterns
@@ -577,11 +627,10 @@
           // Skip the home_id (first part, usually numeric)
           if (parts.length >= 2) {
             const roomId = parts[0]; // This might be the room ID
-            const roomName = state.attributes.friendly_name?.replace('Intuis ', '') || 
+            const roomName = (state.attributes.friendly_name ? state.attributes.friendly_name.replace('Intuis ', '') : '') || 
                            parts.slice(1).join(' ').replace(/_/g, ' ');
             if (roomId && roomName) {
               // We don't have the actual room_id, but we can try to match later
-              console.log('Climate entity:', entityId, '-> room name:', roomName);
             }
           }
         }
@@ -598,7 +647,7 @@
             // Try to find the room name from climate entities by matching the room_id
             for (const [entityId, state] of Object.entries(hass.states)) {
               if (entityId.startsWith('climate.') && entityId.includes(rt.room_id)) {
-                rooms[rt.room_id] = state.attributes.friendly_name?.replace('Intuis ', '') || rt.room_id;
+                rooms[rt.room_id] = (state.attributes.friendly_name ? state.attributes.friendly_name.replace('Intuis ', '') : rt.room_id);
                 break;
               }
             }
@@ -611,13 +660,10 @@
       }
     }
     
-    console.log('Total schedules found:', schedules.length);
     
     // Build room ID to name mapping
     buildRoomMapping();
     
-    console.log('Total rooms found:', Object.keys(rooms).length);
-    console.log('Rooms:', rooms);
     
     return schedules;
   }
@@ -637,18 +683,16 @@
     if (schedules.length > 0) {
       const firstSchedule = schedules[0];
       const scheduleState = hass.states[firstSchedule.entity_id];
-      if (scheduleState?.attributes?.room_names) {
+      if ((scheduleState && scheduleState.attributes && scheduleState.attributes.room_names)) {
         rooms = {...scheduleState.attributes.room_names};
-        console.log('✓ Got room_names from schedule sensor:', rooms);
         return rooms;
       }
     }
     
     // Also try current_zone sensor
     const currentZone = hass.states['sensor.intuis_home_current_zone'];
-    if (currentZone?.attributes?.room_names) {
+    if ((currentZone && currentZone.attributes && currentZone.attributes.room_names)) {
       rooms = {...currentZone.attributes.room_names};
-      console.log('✓ Got room_names from current_zone sensor:', rooms);
       return rooms;
     }
     
@@ -658,21 +702,18 @@
       .filter(([id]) => id.startsWith('climate.intuis_'))
       .map(([id, state]) => ({
         entity_id: id,
-        friendly_name: state.attributes.friendly_name?.replace('Intuis ', '') || id,
+        friendly_name: (state.attributes.friendly_name ? state.attributes.friendly_name.replace('Intuis ', '') : id),
         room_id: state.attributes.room_id
       }));
     
-    console.log('Climate entities:', climateEntities);
     
     for (const climate of climateEntities) {
       if (climate.room_id) {
         rooms[climate.room_id] = climate.friendly_name;
-        console.log(`Mapped room ${climate.room_id} -> ${climate.friendly_name}`);
       }
     }
     
     if (Object.keys(rooms).length > 0) {
-      console.log('✓ Got rooms from climate entities:', rooms);
       return rooms;
     }
     
@@ -684,16 +725,14 @@
         if (parts.length >= 3) {
           const roomId = parts[parts.length - 1]; // Last part is room_id
           if (roomId && /^\d+$/.test(roomId)) {
-            const friendlyName = state.attributes.friendly_name?.replace('Intuis ', '') || entityId;
+            const friendlyName = (state.attributes.friendly_name ? state.attributes.friendly_name.replace('Intuis ', '') : entityId);
             rooms[roomId] = friendlyName;
-            console.log(`Extracted room ${roomId} -> ${friendlyName} from entity_id`);
           }
         }
       }
     }
     
     if (Object.keys(rooms).length > 0) {
-      console.log('✓ Got rooms from entity_id parsing:', rooms);
       return rooms;
     }
     
@@ -708,16 +747,14 @@
         }
       }
       
-      console.log('All room IDs from schedules:', [...allRoomIds]);
       
       for (const roomId of allRoomIds) {
         if (!rooms[roomId]) {
           // Try to find a climate entity that contains this room_id in its entity_id
           for (const [entityId, state] of Object.entries(hass.states)) {
             if (entityId.startsWith('climate.intuis_') && entityId.includes(roomId)) {
-              const friendlyName = state.attributes.friendly_name?.replace('Intuis ', '') || entityId;
+              const friendlyName = (state.attributes.friendly_name ? state.attributes.friendly_name.replace('Intuis ', '') : entityId);
               rooms[roomId] = friendlyName;
-              console.log(`Matched ${roomId} -> ${friendlyName} via entity_id search`);
               break;
             }
           }
@@ -726,7 +763,6 @@
     }
     
     if (Object.keys(rooms).length > 0) {
-      console.log('✓ Got rooms from entity_id matching:', rooms);
       return rooms;
     }
       
@@ -735,7 +771,7 @@
       if (entityId.startsWith('sensor.intuis_') && 
           entityId.includes('_temperature') && 
           !entityId.includes('scheduled') &&
-          state.attributes?.room_id) {
+          (state.attributes && state.attributes.room_id)) {
         const roomId = state.attributes.room_id;
         if (!rooms[roomId]) {
           let name = state.attributes.friendly_name || '';
@@ -747,7 +783,6 @@
       }
     }
     
-    console.log('Final room mapping:', rooms);
     return rooms;
   }
   
@@ -771,7 +806,7 @@
       for (const slot of daySlots) {
         const [hours, minutes] = slot.time.split(':').map(Number);
         const m_offset = dayIdx * 1440 + hours * 60 + minutes;
-        const zone_id = zoneNameToId[slot.zone] ?? 0;
+        const zone_id = (zoneNameToId[slot.zone] !== undefined ? zoneNameToId[slot.zone] : 0);
         
         timetable.push({ zone_id, m_offset });
       }
@@ -892,7 +927,7 @@
       
       // Get previous day's last zone for continuity
       const prevSlots = timetable.filter(s => s.m_offset < base);
-      let lastZone = prevSlots.length > 0 ? prevSlots[prevSlots.length - 1].zone_id : (daySlots[0]?.zone_id ?? 0);
+      let lastZone = prevSlots.length > 0 ? prevSlots[prevSlots.length - 1].zone_id : ((daySlots[0] && daySlots[0].zone_id !== undefined ? daySlots[0].zone_id : 0));
       
       // Build segments
       const segments = [];
@@ -931,11 +966,11 @@
         div.className = 'seg';
         div.style.width = `${(seg.end - seg.start) / 14.4}%`;
         div.style.background = hex2rgba(color, 0.4);
-        div.title = `${fmt(seg.start)} - ${fmt(seg.end)}\n${zone?.name || 'Zone ' + seg.zone_id}`;
+        div.title = `${fmt(seg.start)} - ${fmt(seg.end)}\n${(zone && zone.name ? zone.name : 'Zone ' + seg.zone_id)}`;
         
         // Show zone name if segment is wide enough
         if (seg.end - seg.start >= 120) {
-          div.textContent = zone?.name || '';
+          div.textContent = (zone && zone.name ? zone.name : '');
         }
         
         div.onclick = () => openDialog('edit', d, seg);
@@ -1057,7 +1092,7 @@
     } else {
       dStart.value = '08:00';
       dEnd.value = '22:00';
-      dZone.value = currentSchedule.zones[0]?.id || 0;
+      dZone.value = (currentSchedule.zones[0] && currentSchedule.zones[0].id !== undefined ? currentSchedule.zones[0].id : 0);
       document.getElementById('dlgTitle').textContent = 'Ajouter créneau';
     }
     
@@ -1092,7 +1127,6 @@
     // Get zone at end position BEFORE filtering (important!)
     const zoneAfter = getZoneAt(tt, endOffset);
     
-    console.log('applySlotChange:', {startOffset, endOffset, zoneId, zoneAfter});
     
     // Handle week wrap-around
     if (endOffset > startOffset) {
@@ -1123,12 +1157,6 @@
     
     // IMPORTANT: Normalize the timetable (ensure it starts at 0 and covers all days)
     normalizeTimetable();
-    
-    console.log('Updated timetable:', currentSchedule.timetable.map(t => ({
-      day: Math.floor(t.m_offset / 1440),
-      time: `${Math.floor((t.m_offset % 1440) / 60)}:${String(t.m_offset % 60).padStart(2, '0')}`,
-      zone_id: t.zone_id
-    })));
   }
   
   function normalizeTimetable() {
@@ -1160,12 +1188,6 @@
     }
     
     currentSchedule.timetable = merged;
-    
-    console.log('Normalized timetable:', merged.map(t => ({
-      day: Math.floor(t.m_offset / 1440),
-      time: `${Math.floor((t.m_offset % 1440) / 60)}:${String(t.m_offset % 60).padStart(2, '0')}`,
-      zone_id: t.zone_id
-    })));
   }
   
   function getZoneAt(tt, offset) {
@@ -1264,9 +1286,6 @@
       const timetableChanged = timetableDirty && getTimetableChanges().length > 0;
       const tempChanges = getChangedTemps();
       
-      console.log('Timetable changed:', timetableChanged);
-      console.log('Temperature changes:', tempChanges.length);
-      console.log('Current timetable:', JSON.stringify(currentSchedule.timetable, null, 2));
       
       if (tempChanges.length === 0 && !timetableChanged) {
         showFeedback('ℹ️ Aucune modification détectée');
@@ -1292,8 +1311,6 @@
             }))
           );
           
-          console.log('Sending timetable to sync_schedule with schedule_id:', currentSchedule.schedule_id);
-          console.log('Timetable:', timetableJson);
           
           await callService('intuis_connect', 'sync_schedule', {
             schedule_id: currentSchedule.schedule_id,  // Use ID instead of name!
@@ -1318,7 +1335,6 @@
         
         for (const change of tempChanges) {
           try {
-            console.log('Saving temperature with schedule_id:', change.schedule_id, change);
             await callService('intuis_connect', 'set_zone_temperature', {
               schedule_id: change.schedule_id,  // Use ID instead of name!
               zone_name: change.zone_name,
@@ -1413,24 +1429,14 @@
   
   // === INIT ===
   async function initApp() {
-    console.log('=== initApp called ===');
-    console.log('hass object:', hass);
-    console.log('hass.states keys count:', hass?.states ? Object.keys(hass.states).length : 0);
     
-    // Debug: list all intuis entities
-    if (hass?.states) {
-      const intuisEntities = Object.keys(hass.states).filter(k => k.includes('intuis'));
-      console.log('Intuis entities found:', intuisEntities.length);
-      intuisEntities.forEach(e => console.log(' -', e));
-      
+    if ((hass && hass.states)) {
       // Specifically look for schedule sensors
       const scheduleEntities = Object.keys(hass.states).filter(k => 
         k.includes('schedule') && k.includes('intuis') && !k.includes('optimization')
       );
-      console.log('Schedule entities:', scheduleEntities);
       scheduleEntities.forEach(e => {
         const state = hass.states[e];
-        console.log(' -', e, '| weekly_timetable:', !!state.attributes?.weekly_timetable);
       });
     }
     
@@ -1453,24 +1459,48 @@
     captureOriginalTemps();
   }
   
-  // Start
-  console.log('=== Intuis Planning Starting ===');
-  const connected = await waitForHass();
-  console.log('waitForHass result:', connected);
-  console.log('hass after wait:', hass);
-  
-  if (connected) {
-    initApp();
+  // ── Startup ───────────────────────────────────────────────────────────────
+  // Three scenarios:
+  //   A) Same-origin HA iframe → hass object is accessible directly (ideal)
+  //   B) Cross-origin / post-restart: in HA but hass not accessible yet
+  //      → use REST API with the token the user already entered this session
+  //   C) Standalone browser access → need URL + token from user
+
+  const inIframe = isInHaIframe();
+
+  if (inIframe) {
+    // We're inside HA. Try direct hass access — wait up to 45s so a post-restart
+    // WebSocket reconnect has time to complete. The countdown is shown to the user.
+    loading.querySelector('p').textContent = 'Connexion à Home Assistant…';
+    const connected = await waitForHassIframe(45000);
+
+    if (connected) {
+      initApp();
+    } else {
+      // Still nothing after 45s — probably a config problem. Show dialog if we have
+      // saved credentials, otherwise show a clear error message.
+      if (haUrl && haToken) {
+        loading.querySelector('p').textContent = 'Connexion via API REST…';
+        const states = await fetchStatesViaREST();
+        if (states) {
+          hass = { states: states, callService: callServiceREST };
+          initApp();
+        } else {
+          showConfigDialog();
+        }
+      } else {
+        loading.style.display = 'none';
+        app.innerHTML = '<p style="color:orange; text-align:center; padding:40px;">⚠️ Impossible de se connecter à Home Assistant après 45 secondes.<br>Vérifiez que HA est démarré et rafraîchissez la page.</p>';
+        app.style.display = 'block';
+      }
+    }
   } else {
-    // Not in HA iframe - try REST API with saved credentials
+    // Standalone browser: no point waiting for hass.
     if (haUrl && haToken) {
       loading.querySelector('p').textContent = 'Connexion via API REST...';
       const states = await fetchStatesViaREST();
       if (states) {
-        hass = { 
-          states: states,
-          callService: callServiceREST
-        };
+        hass = { states: states, callService: callServiceREST };
         initApp();
       } else {
         showConfigDialog();
