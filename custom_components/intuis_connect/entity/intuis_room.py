@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
+
+_LOGGER = logging.getLogger(__name__)
 
 from ..entity.intuis_module import IntuisModule, NMHIntuisModule
 
@@ -80,9 +83,14 @@ class IntuisRoom:
         # A room is heating if any of its NMH modules has radiator_state == "heating"
         heating = False
         for module in filtered_modules:
-            if isinstance(module, NMHIntuisModule) and module.radiator_state == "heating":
-                heating = True
-                break
+            if isinstance(module, NMHIntuisModule):
+                _LOGGER.debug(
+                    "Room %s module %s radiator_state=%r reachable=%s",
+                    data.get("id"), module.id, module.radiator_state, module.reachable,
+                )
+                if module.radiator_state == "heating":
+                    heating = True
+                    break
 
         return IntuisRoom(
             definition=definition,
