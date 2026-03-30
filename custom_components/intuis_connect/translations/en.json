@@ -166,14 +166,6 @@
           "energy_price_mode": "**Fixed price**: use a constant rate configured here.\n**HA Entity**: read the price from a sensor (Octopus, Amber, template...).",
           "energy_fixed_price": "Rate in local currency/kWh used for calculation in fixed price mode.",
           "energy_price_entity": "Sensor entity providing the price per kWh (entity mode only)."
-        },
-        "selector": {
-          "energy_price_mode": {
-            "options": {
-              "fixed": "Fixed price (€/kWh)",
-              "entity": "Home Assistant entity (dynamic price)"
-            }
-          }
         }
       }
     },
@@ -262,15 +254,15 @@
           "energy_price_mode": "**Fixed price**: use a constant rate configured here.\n**HA Entity**: read the price from a sensor (Octopus, Amber, template...).",
           "energy_fixed_price": "Rate in local currency/kWh. After changing the price, run the Recalculate Cost History service to rewrite historical data.",
           "energy_price_entity": "Sensor entity providing the price per kWh (entity mode only). After changing the price, run the Recalculate Cost History service to rewrite historical data."
-        },
-        "selector": {
-          "energy_price_mode": {
-            "options": {
-              "fixed": "Fixed price (€/kWh)",
-              "entity": "Home Assistant entity (dynamic price)"
-            }
-          }
         }
+      }
+    }
+  },
+  "selector": {
+    "energy_price_mode": {
+      "options": {
+        "fixed": "Fixed price (€/kWh)",
+        "entity": "Home Assistant entity (dynamic price)"
       }
     }
   }
