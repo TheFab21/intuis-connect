@@ -110,7 +110,7 @@ class CostStatsUpdater:
     #  Storage                                                             #
     # ------------------------------------------------------------------ #
 
-    async def _load_storage(self) -> None:
+    async def load_storage(self) -> None:
         if self._loaded:
             return
         stored = await self._store.async_load()
@@ -258,7 +258,7 @@ class CostStatsUpdater:
                 break
         return result
 
-    def _publish_cost_base(self) -> None:
+    def publish_cost_base(self) -> None:
         """Publish latest imported cumulative cost sum to hass.data[DOMAIN]['cost_base'].
 
         Critical invariant: the published value MUST NEVER DECREASE.
@@ -386,7 +386,7 @@ class CostStatsUpdater:
             return 0
 
         async with self._update_lock:
-            await self._load_storage()
+            await self.load_storage()
 
             # Auto-initialize midnight_bases from existing cost LTS if empty.
             # This recovers from storage corruption, fresh installs, or crashes
@@ -592,7 +592,7 @@ class CostStatsUpdater:
             _LOGGER.warning("Cost stats disabled — nothing to recalculate")
             return 0
 
-        await self._load_storage()
+        await self.load_storage()
 
         now_local = datetime.now(self._timezone)
         start_local = now_local - timedelta(days=days)
@@ -793,7 +793,7 @@ class CostStatsUpdater:
         self, midnight_sums_cost: dict[str, dict[str, float]]
     ) -> None:
         """Populate midnight_bases from a history import that also computed cost."""
-        await self._load_storage()
+        await self.load_storage()
         mb_all = self._data.setdefault("midnight_bases", {})
         for cost_sid, by_day in midnight_sums_cost.items():
             mb = mb_all.setdefault(cost_sid, {})

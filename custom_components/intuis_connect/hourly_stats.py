@@ -35,15 +35,8 @@ from homeassistant.components.recorder.statistics import (
     async_import_statistics,
 )
 from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
-from homeassistant.components.recorder.db_schema import (
-    Statistics,
-    StatisticsShortTerm,
-    StatisticsMeta,
-)
 from homeassistant.const import UnitOfEnergy
 from homeassistant.helpers.storage import Store
-from homeassistant.helpers.recorder import session_scope
-from sqlalchemy import delete, select, and_
 
 from .utils.const import DOMAIN, HISTORY_IMPORT_KEY
 
@@ -104,11 +97,11 @@ class HourlyStatsUpdater:
         self._update_lock = asyncio.Lock()  # prevents concurrent async_update() runs
 
         # Optional cost stats updater (set after construction by __init__.py)
-        self._cost_updater = None
+        self.cost_updater = None
 
     # -- Storage -----------------------------------------------------------
 
-    async def _load_storage(self) -> None:
+    async def load_storage(self) -> None:
         if self._loaded:
             return
         stored = await self._store.async_load()
@@ -221,55 +214,6 @@ class HourlyStatsUpdater:
         dt = datetime.fromtimestamp(timestamp_ms / 1000, tz=self._timezone)
         return dt.hour
 
-    # -- Clear statistics --------------------------------------------------
-
-    async def _clear_statistics_in_range(
-        self, statistic_id: str, start_time: datetime, end_time: datetime,
-    ) -> int:
-        """Delete Statistics + StatisticsShortTerm rows in [start, end)."""
-        instance = get_instance(self._hass)
-
-        def _do_clear() -> int:
-            with session_scope(session=instance.get_session()) as session:
-                meta_id = session.execute(
-                    select(StatisticsMeta.id).where(
-                        StatisticsMeta.statistic_id == statistic_id
-                    )
-                ).scalar()
-                if not meta_id:
-                    return 0
-
-                start_ts = start_time.timestamp()
-                end_ts = end_time.timestamp()
-
-                deleted = session.execute(
-                    delete(Statistics).where(and_(
-                        Statistics.metadata_id == meta_id,
-                        Statistics.start_ts >= start_ts,
-                        Statistics.start_ts < end_ts,
-                    ))
-                ).rowcount
-
-                session.execute(
-                    delete(StatisticsShortTerm).where(and_(
-                        StatisticsShortTerm.metadata_id == meta_id,
-                        StatisticsShortTerm.start_ts >= start_ts,
-                        StatisticsShortTerm.start_ts < end_ts,
-                    ))
-                )
-                return deleted
-
-        try:
-            deleted = await instance.async_add_executor_job(_do_clear)
-            if deleted > 0:
-                _LOGGER.debug("%s: cleared %d stats [%s -> %s]",
-                              statistic_id, deleted,
-                              start_time.isoformat(), end_time.isoformat())
-            return deleted
-        except Exception as err:
-            _LOGGER.warning("Failed to clear stats for %s: %s", statistic_id, err)
-            return 0
-
     # -- Main update -------------------------------------------------------
 
     async def async_update(self) -> int:
@@ -287,7 +231,7 @@ class HourlyStatsUpdater:
 
         async with self._update_lock:
 
-            await self._load_storage()
+            await self.load_storage()
 
             # Auto-initialize midnight_bases from DB if empty (first run or storage cleared)
             mb = self._data.get("midnight_bases", {})
@@ -334,10 +278,10 @@ class HourlyStatsUpdater:
                 self._hass.data[DOMAIN]["hourly_stats_ready"] = True
 
                 # Update cost statistics if a cost updater is configured
-                if self._cost_updater is not None and room_hourly_data:
+                if self.cost_updater is not None and room_hourly_data:
                     try:
-                        cost_count = await self._cost_updater.async_update(room_hourly_data)
-                        self._cost_updater._publish_cost_base()
+                        cost_count = await self.cost_updater.async_update(room_hourly_data)
+                        self.cost_updater.publish_cost_base()
                         if cost_count:
                             _LOGGER.info("Imported %d cost statistics", cost_count)
                     except Exception as cost_err:
@@ -546,7 +490,7 @@ class HourlyStatsUpdater:
                 "final_sum": float,
             }}
         """
-        await self._load_storage()
+        await self.load_storage()
 
         now_local = datetime.now(self._timezone)
         today_key = now_local.strftime("%Y-%m-%d")
@@ -601,7 +545,7 @@ class HourlyStatsUpdater:
             statistics_during_period,
         )
 
-        await self._load_storage()
+        await self.load_storage()
 
         now = datetime.now(self._timezone)
         start_time = now - timedelta(days=200)

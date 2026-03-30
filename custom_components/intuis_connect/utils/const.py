@@ -37,7 +37,7 @@ HOMEMEASURE_PATH = "/api/gethomemeasure"
 ROOMMEASURE_PATH = "/api/getroommeasure"
 
 # Energy measure types - request all tariffs to capture all consumption
-ENERGY_MEASURE_TYPES = "sum_energy_elec,sum_energy_elec$0,sum_energy_elec$1,sum_energy_elec$2"
+ENERGY_MEASURE_TYPES = "sum_energy_elec,sum_energy_elec$0,sum_energy_elec$1,sum_energy_elec$2,sum_energy_elec_heating,sum_energy_elec_hot_water"
 
 ENERGY_BASE = f"{BASE_URL}/api"
 GET_SCHEDULE_PATH = "/gethomeschedule"
@@ -214,7 +214,4 @@ DEFAULT_ENERGY_PRICE_MODE = "fixed"
 DEFAULT_ENERGY_FIXED_PRICE = 0.25                 # €/kWh (valeur par défaut raisonnable)
 DEFAULT_ENERGY_PRICE_ENTITY = ""
 
-ENERGY_PRICE_MODE_OPTIONS = {
-    "fixed": "Prix fixe (€/kWh)",
-    "entity": "Entité Home Assistant (prix dynamique)",
-}
+ENERGY_PRICE_MODE_OPTIONS = ["fixed", "entity"]

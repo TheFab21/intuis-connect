@@ -131,7 +131,7 @@ async def _async_migrate_cost_entity_ids(hass, entry, intuis_home) -> None:
         old_entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, old_unique_id)
         if not old_entity_id:
             # Check _2 variant (old unique_id may have been duplicated)
-            old_entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, old_unique_id)
+            old_entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, old_unique_id + "_2")
 
         if not old_entity_id:
             continue
@@ -390,7 +390,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         hass.data[DOMAIN][entry.entry_id]["hourly_stats_updater"] = hourly_stats_updater
         # Load storage NOW so base_kwh is available before sensors start reporting
-        await hourly_stats_updater._load_storage()
+        await hourly_stats_updater.load_storage()
 
         # CostStatsUpdater — wired to HourlyStatsUpdater so cost is updated
         # at the same cadence as energy stats.
@@ -403,9 +403,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 options=dict(entry.options),
                 timezone_str=timezone_str,
             )
-            await cost_updater._load_storage()
-            cost_updater._publish_cost_base()
-            hourly_stats_updater._cost_updater = cost_updater
+            await cost_updater.load_storage()
+            cost_updater.publish_cost_base()
+            hourly_stats_updater.cost_updater = cost_updater
             hass.data[DOMAIN][entry.entry_id]["cost_stats_updater"] = cost_updater
             _LOGGER.info("Energy cost statistics updater enabled")
 
@@ -414,8 +414,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Schedule daily rebase at reset_hour+1 local time.
         # reset_hour is the API's finalization time (default 02:00, configurable).
         # Running 1h after ensures J-1 data is fully available in the API.
-        energy_reset_hour = entry.options.get(CONF_ENERGY_RESET_HOUR, DEFAULT_ENERGY_RESET_HOUR)
-
         _LOGGER.info(
             "Hourly energy statistics updater started (interval: %d min, tz: %s)",
             hourly_stats_interval,
@@ -437,10 +435,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if hourly_stats_updater:
         await hourly_stats_updater.async_stop()
         _LOGGER.debug("Stopped hourly stats updater for entry %s", entry.entry_id)
-    
-    # Cancel daily rebase schedule
-    
-        _LOGGER.debug("Cancelled daily rebase schedule for entry %s", entry.entry_id)
     
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         hass.data[DOMAIN].pop(entry.entry_id)

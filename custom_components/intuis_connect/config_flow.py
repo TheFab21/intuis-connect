@@ -392,7 +392,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
         price_mode_options = [
-            {"value": k, "label": v} for k, v in ENERGY_PRICE_MODE_OPTIONS.items()
+            {"value": v} for v in ENERGY_PRICE_MODE_OPTIONS
         ]
 
         options_schema = vol.Schema(
@@ -770,7 +770,7 @@ class IntuisOptionsFlow(config_entries.OptionsFlow):
             return self.async_create_entry(title="", data=all_options)
 
         price_mode_options = [
-            {"value": k, "label": v} for k, v in ENERGY_PRICE_MODE_OPTIONS.items()
+            {"value": v} for v in ENERGY_PRICE_MODE_OPTIONS
         ]
 
         current_price_entity = self._entry.options.get(CONF_ENERGY_PRICE_ENTITY, DEFAULT_ENERGY_PRICE_ENTITY) or ""
