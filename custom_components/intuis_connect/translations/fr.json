@@ -166,14 +166,6 @@
           "energy_price_mode": "**Prix fixe** : utilisez un tarif constant configuré ici.\n**Entité HA** : lisez le prix depuis un capteur (Octopus, Amber, template...).",
           "energy_fixed_price": "Tarif en monnaie locale/kWh utilisé pour le calcul si le mode est « Prix fixe ».",
           "energy_price_entity": "Entité capteur fournissant le prix en /kWh (mode entité uniquement)."
-        },
-        "selector": {
-          "energy_price_mode": {
-            "options": {
-              "fixed": "Prix fixe (€/kWh)",
-              "entity": "Entité Home Assistant (prix dynamique)"
-            }
-          }
         }
       }
     },
@@ -262,15 +254,15 @@
           "energy_price_mode": "**Prix fixe** : utilisez un tarif constant configuré ici.\n**Entité HA** : lisez le prix depuis un capteur (Octopus, Amber, template...).",
           "energy_fixed_price": "Tarif en monnaie locale/kWh. Après un changement de prix, lancez le service « Recalculer l'historique des coûts » pour réécrire l'historique.",
           "energy_price_entity": "Entité capteur fournissant le prix en /kWh (mode entité uniquement). Après un changement de prix, lancez le service « Recalculer l'historique des coûts » pour réécrire l'historique."
-        },
-        "selector": {
-          "energy_price_mode": {
-            "options": {
-              "fixed": "Prix fixe (€/kWh)",
-              "entity": "Entité Home Assistant (prix dynamique)"
-            }
-          }
         }
+      }
+    }
+  },
+  "selector": {
+    "energy_price_mode": {
+      "options": {
+        "fixed": "Prix fixe (€/kWh)",
+        "entity": "Entité Home Assistant (prix dynamique)"
       }
     }
   }

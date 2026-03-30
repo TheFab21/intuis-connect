@@ -405,7 +405,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_ENERGY_PRICE_MODE,
                     default=DEFAULT_ENERGY_PRICE_MODE,
                 ): SelectSelector(
-                    SelectSelectorConfig(options=price_mode_options, mode=SelectSelectorMode.DROPDOWN)
+                    
                 ),
                 vol.Optional(
                     CONF_ENERGY_FIXED_PRICE,
@@ -785,7 +785,7 @@ class IntuisOptionsFlow(config_entries.OptionsFlow):
                     CONF_ENERGY_PRICE_MODE,
                     default=self._entry.options.get(CONF_ENERGY_PRICE_MODE, DEFAULT_ENERGY_PRICE_MODE),
                 ): SelectSelector(
-                    SelectSelectorConfig(options=price_mode_options, mode=SelectSelectorMode.DROPDOWN)
+                    SelectSelectorConfig(options=price_mode_options, mode=SelectSelectorMode.DROPDOWN, translation_key="energy_price_mode")
                 ),
                 vol.Optional(
                     CONF_ENERGY_FIXED_PRICE,

@@ -318,7 +318,8 @@ class IntuisData:
         # Calculate epoch timestamps using the HOME's timezone (from IntuisHome.timezone),
         # not the HA server timezone. These can differ if the HA server runs in UTC or a
         # different locale from the physical installation.
-        home_tz_str = getattr(self._intuis_home, "timezone", None) or "Europe/Paris"
+        _tz = getattr(self._intuis_home, "timezone", None)
+        home_tz_str = _tz if isinstance(_tz, str) and _tz else "Europe/Paris"
         home_tz = ZoneInfo(home_tz_str)
         now_local = now.astimezone(home_tz)
         today_start = datetime.combine(now_local.date(), datetime.min.time(), tzinfo=home_tz)
