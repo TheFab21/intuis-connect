@@ -231,11 +231,11 @@ data:
 
 ### Usage Modes
 
-**Embedded in Home Assistant** — place the file in `/config/www/` and add it to your dashboard:
+**Embedded in Home Assistant** — the interface is served automatically by the integration. No manual file copy needed. Add it to your dashboard:
 
 ```yaml
 type: iframe
-url: /local/intuis_planning.html
+url: /api/intuis_connect/planning
 aspect_ratio: 100%
 ```
 
@@ -265,19 +265,23 @@ In standalone mode, all communication goes through the HA REST API.
 
 ### Installation
 
-Copy `intuis_planning.html` to your HA config folder:
+No manual file installation needed. The planning interface is bundled with the integration and served automatically at:
 
 ```
-/config/www/intuis_planning.html
+/api/intuis_connect/planning
 ```
 
-Then add a panel in your dashboard:
+The URL is **versioned automatically** via the integration's `manifest.json` — updating the integration via HACS always delivers the latest interface without browser cache issues.
+
+Add it to your dashboard:
 
 ```yaml
 type: iframe
-url: /local/intuis_planning.html
+url: /api/intuis_connect/planning
 aspect_ratio: 100%
 ```
+
+> **Migrating from a previous manual install?** Remove the old `/config/www/planning_intuis/` folder and update your dashboard card URL to `/api/intuis_connect/planning`.
 
 ---
 
@@ -408,7 +412,7 @@ hours_to_show: 168
 
 ```yaml
 type: iframe
-url: /local/intuis_planning.html
+url: /api/intuis_connect/planning
 aspect_ratio: 100%
 ```
 
@@ -461,9 +465,11 @@ When enabled, the integration automatically re-applies manual overrides before t
 - Changes made in the Intuis app may take 2 minutes to sync
 
 ### Intuis Planning not loading
-- Ensure `intuis_planning.html` is in `/config/www/`
+- Verify the integration is loaded (Settings → Devices & Services → Intuis Connect)
+- Check the URL in your dashboard card is `/api/intuis_connect/planning`
 - In standalone mode, verify your HA URL and long-lived access token
 - After a HA restart, the page waits up to 45 seconds before falling back to REST mode
+- If you previously installed the HTML manually, remove `/config/www/planning_intuis/` and update the card URL
 
 ### Authentication errors
 - Re-authenticate by removing and re-adding the integration
