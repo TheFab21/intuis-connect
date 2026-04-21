@@ -192,7 +192,7 @@ async def _async_migrate_cost_entity_ids(hass, entry, intuis_home) -> None:
 
 
 
-_PLANNING_HTML = Path(__file__).parent / "www" / "intuis_planning.html"
+_PLANNING_HTML = Path(__file__).parent / "resources" / "intuis_planning.html"
 
 
 def _get_integration_version() -> str:
