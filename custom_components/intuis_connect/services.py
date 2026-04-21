@@ -1214,6 +1214,10 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 }
                 zones_payload.append(zone_data)
 
+        # Apply override temps if provided by caller (e.g. planning UI)
+        final_away_temp = override_away_temp if override_away_temp is not None else target_schedule.away_temp
+        final_hg_temp = override_hg_temp if override_hg_temp is not None else target_schedule.hg_temp
+
         _LOGGER.info(
             "sync_schedule payload: schedule_id=%s, name=%s, type=%s, "
             "timetable_count=%d, zones_count=%d, away=%s, hg=%s",
@@ -1222,8 +1226,8 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             target_schedule.type,
             len(timetable),
             len(zones_payload),
-            target_schedule.away_temp,
-            target_schedule.hg_temp,
+            final_away_temp,
+            final_hg_temp,
         )
         _LOGGER.debug("Timetable being sent: %s", timetable)
         _LOGGER.debug("Zones being sent: %s", zones_payload)
@@ -1235,9 +1239,8 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 schedule_type=target_schedule.type,
                 timetable=timetable,
                 zones=zones_payload,
-                away_temp=target_schedule.away_temp,
-                hg_temp=target_schedule.hg_temp,
-                
+                away_temp=final_away_temp,
+                hg_temp=final_hg_temp,
             )
 
             # Update local timetable state
@@ -1245,6 +1248,11 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 IntuisTimetable(zone_id=t["zone_id"], m_offset=t["m_offset"])
                 for t in timetable
             ]
+            # Update local temps if overridden
+            if override_away_temp is not None:
+                target_schedule.away_temp = final_away_temp
+            if override_hg_temp is not None:
+                target_schedule.hg_temp = final_hg_temp
 
             # Refresh coordinator
             if coordinator:
