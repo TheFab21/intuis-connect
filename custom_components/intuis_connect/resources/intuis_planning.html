@@ -1293,6 +1293,18 @@
       if (hgInput.value !== '') {
         currentSchedule.hg_temp = parseFloat(hgInput.value);
       }
+      
+      console.log('[Intuis] Save clicked - state:', {
+        schedule: currentSchedule.name,
+        originalAway: originalTemps['__away_temp__'],
+        originalHg: originalTemps['__hg_temp__'],
+        currentAway: currentSchedule.away_temp,
+        currentHg: currentSchedule.hg_temp,
+        awayInput: awayInput.value,
+        hgInput: hgInput.value,
+        dirty: dirty,
+        timetableDirty: timetableDirty
+      });
 
       // Check if timetable changed
       const timetableChanged = timetableDirty && getTimetableChanges().length > 0;
@@ -1331,6 +1343,13 @@
           );
           
           
+          console.log('[Intuis] sync_schedule (timetable):', {
+            schedule_id: currentSchedule.schedule_id,
+            away_temp: currentSchedule.away_temp,
+            hg_temp: currentSchedule.hg_temp,
+            hgInput_value: hgInput.value,
+            awayInput_value: awayInput.value
+          });
           await callService('intuis_connect', 'sync_schedule', {
             schedule_id: currentSchedule.schedule_id,
             timetable: timetableJson,
@@ -1370,7 +1389,7 @@
           showFeedback('\u2705 Temp. absence/hors gel enregistr\u00e9es!', 1500);
           await new Promise(function(r) { setTimeout(r, 800); });
         } catch (err) {
-          console.error('sync_schedule (away/hg) failed:', err);
+          console.error('[Intuis] sync_schedule (away/hg) failed:', err);
           errors.push('Away/HG: ' + err.message);
         }
       }
