@@ -857,6 +857,6 @@ class IntuisIndividualScheduleSensor(CoordinatorEntity, SensorEntity):
                     "zone": zone_name
                 })
         
-        # Remove empty days
-        return {day: slots for day, slots in weekly.items() if slots}
+        # Return all 7 days (even empty) so the schedule card can always access weekly_timetable['Monday'] etc.
+        return weekly
 
