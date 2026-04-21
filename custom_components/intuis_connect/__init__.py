@@ -221,12 +221,15 @@ class IntuisPlanningView(HomeAssistantView):
     async def get(self, request):
         """Return the planning HTML file."""
         from aiohttp.web import Response, HTTPNotFound
+        import asyncio
         if not self._html_path.exists():
             raise HTTPNotFound()
         # Cache-busting: if client sends matching ETag, return 304
         if request.headers.get("If-None-Match") == self._etag:
             return Response(status=304)
-        html = self._html_path.read_text(encoding="utf-8")
+        # Use executor to avoid blocking the event loop
+        loop = asyncio.get_event_loop()
+        html = await loop.run_in_executor(None, self._html_path.read_text, "utf-8")
         return Response(
             body=html,
             content_type="text/html",
