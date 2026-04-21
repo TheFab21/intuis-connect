@@ -194,15 +194,12 @@ async def _async_migrate_cost_entity_ids(hass, entry, intuis_home) -> None:
 
 _PLANNING_HTML = Path(__file__).parent / "resources" / "intuis_planning.html"
 
-
-def _get_integration_version() -> str:
-    """Read version from manifest.json to stay in sync automatically."""
-    import json
-    manifest = Path(__file__).parent / "manifest.json"
-    try:
-        return json.loads(manifest.read_text())["version"]
-    except Exception:
-        return "0"
+# Read version once at import time (avoids blocking call warning in async context)
+try:
+    import json as _json
+    _INTEGRATION_VERSION = _json.loads((Path(__file__).parent / "manifest.json").read_text())["version"]
+except Exception:
+    _INTEGRATION_VERSION = "0"
 
 
 class IntuisPlanningView(HomeAssistantView):
@@ -215,8 +212,7 @@ class IntuisPlanningView(HomeAssistantView):
     def __init__(self, html_path: Path) -> None:
         """Initialize."""
         self._html_path = html_path
-        self._version = _get_integration_version()
-        self._etag = f'"{self._version}"'
+        self._etag = f'"{_INTEGRATION_VERSION}"'
 
     async def get(self, request):
         """Return the planning HTML file."""
