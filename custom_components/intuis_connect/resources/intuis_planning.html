@@ -1286,6 +1286,14 @@
     saveBtn.textContent = '⏳ Enregistrement...';
     
     try {
+      // Sync input field values into currentSchedule NOW (in case oninput was missed)
+      if (awayInput.value !== '') {
+        currentSchedule.away_temp = parseFloat(awayInput.value);
+      }
+      if (hgInput.value !== '') {
+        currentSchedule.hg_temp = parseFloat(hgInput.value);
+      }
+
       // Check if timetable changed
       const timetableChanged = timetableDirty && getTimetableChanges().length > 0;
       const tempChanges = getChangedTemps();
@@ -1294,6 +1302,9 @@
       const awayTempChanged = originalTemps['__away_temp__'] !== currentSchedule.away_temp;
       const hgTempChanged = originalTemps['__hg_temp__'] !== currentSchedule.hg_temp;
       const scheduleMetaChanged = awayTempChanged || hgTempChanged;
+      
+      // If meta changed but dirty was never set (oninput missed), fix it now
+      if (scheduleMetaChanged) { dirty = true; }
       
       if (tempChanges.length === 0 && !timetableChanged && !scheduleMetaChanged) {
         showFeedback('ℹ️ Aucune modification détectée');
