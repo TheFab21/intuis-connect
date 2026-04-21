@@ -81,6 +81,8 @@ ATTR_DAYS = "days"
 ATTR_GRANULARITY = "granularity"
 ATTR_CLEAR_EXISTING = "clear_existing"
 ATTR_TIMETABLE = "timetable"
+ATTR_AWAY_TEMP = "away_temp"
+ATTR_HG_TEMP = "hg_temp"
 
 # Base service schemas (dynamic schemas are built in async_register_services)
 CLEAR_OVERRIDE_SCHEMA = vol.Schema({vol.Required(ATTR_ROOM_ID): str})
@@ -811,6 +813,10 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 }
                 zones_payload.append(zone_data)
 
+        # Use override temps from call if provided, otherwise use schedule's current values
+        final_away_temp = override_away_temp if override_away_temp is not None else target_schedule.away_temp
+        final_hg_temp = override_hg_temp if override_hg_temp is not None else target_schedule.hg_temp
+
         try:
             await api.async_sync_schedule(
                 schedule_id=target_schedule.id,
@@ -818,9 +824,8 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 schedule_type=target_schedule.type,
                 timetable=timetable,
                 zones=zones_payload,
-                away_temp=target_schedule.away_temp,
-                hg_temp=target_schedule.hg_temp,
-                
+                away_temp=final_away_temp,
+                hg_temp=final_hg_temp,
             )
 
             # Update local timetable state
@@ -828,6 +833,11 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 IntuisTimetable(zone_id=t["zone_id"], m_offset=t["m_offset"])
                 for t in timetable
             ]
+            # Update local away/hg temps if overridden
+            if override_away_temp is not None:
+                target_schedule.away_temp = final_away_temp
+            if override_hg_temp is not None:
+                target_schedule.hg_temp = final_hg_temp
 
             # Refresh coordinator
             if coordinator:
@@ -1048,6 +1058,8 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
         schedule_name = call.data.get(ATTR_SCHEDULE_NAME)
         timetable_json = call.data.get(ATTR_TIMETABLE)
         target_home_id = call.data.get(ATTR_HOME_ID)
+        override_away_temp = call.data.get(ATTR_AWAY_TEMP)
+        override_hg_temp = call.data.get(ATTR_HG_TEMP)
 
         if not schedule_id and not schedule_name:
             _LOGGER.error("Either schedule_id or schedule_name must be provided")
@@ -1461,6 +1473,12 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
                 multiline=True,
                 type=TextSelectorType.TEXT,
             )
+        ),
+        vol.Optional(ATTR_AWAY_TEMP): NumberSelector(
+            NumberSelectorConfig(min=5, max=25, step=0.5, unit_of_measurement="°C")
+        ),
+        vol.Optional(ATTR_HG_TEMP): NumberSelector(
+            NumberSelectorConfig(min=5, max=15, step=0.5, unit_of_measurement="°C")
         ),
     })
 
