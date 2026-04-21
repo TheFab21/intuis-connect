@@ -1448,14 +1448,14 @@
   };
   
   // === AWAY/HG CHANGE ===
-  awayInput.onchange = () => {
+  awayInput.oninput = awayInput.onchange = () => {
     if (currentSchedule) {
       currentSchedule.away_temp = parseFloat(awayInput.value);
       markDirty();
     }
   };
   
-  hgInput.onchange = () => {
+  hgInput.oninput = hgInput.onchange = () => {
     if (currentSchedule) {
       currentSchedule.hg_temp = parseFloat(hgInput.value);
       markDirty();
