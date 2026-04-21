@@ -5,6 +5,9 @@ import asyncio
 import datetime
 import logging
 
+from pathlib import Path
+
+from homeassistant.components.http import HomeAssistantView
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -188,6 +191,52 @@ async def _async_migrate_cost_entity_ids(hass, entry, intuis_home) -> None:
 
 
 
+
+_PLANNING_HTML = Path(__file__).parent / "www" / "intuis_planning.html"
+
+
+def _get_integration_version() -> str:
+    """Read version from manifest.json to stay in sync automatically."""
+    import json
+    manifest = Path(__file__).parent / "manifest.json"
+    try:
+        return json.loads(manifest.read_text())["version"]
+    except Exception:
+        return "0"
+
+
+class IntuisPlanningView(HomeAssistantView):
+    """Serve intuis_planning.html with automatic cache-busting based on integration version."""
+
+    url = "/api/intuis_connect/planning"
+    name = "api:intuis_connect:planning"
+    requires_auth = False  # The HTML handles its own HA token auth
+
+    def __init__(self, html_path: Path) -> None:
+        """Initialize."""
+        self._html_path = html_path
+        self._version = _get_integration_version()
+        self._etag = f'"{self._version}"'
+
+    async def get(self, request):
+        """Return the planning HTML file."""
+        from aiohttp.web import Response, HTTPNotFound
+        if not self._html_path.exists():
+            raise HTTPNotFound()
+        # Cache-busting: if client sends matching ETag, return 304
+        if request.headers.get("If-None-Match") == self._etag:
+            return Response(status=304)
+        html = self._html_path.read_text(encoding="utf-8")
+        return Response(
+            body=html,
+            content_type="text/html",
+            charset="utf-8",
+            headers={
+                "ETag": self._etag,
+                "Cache-Control": "no-cache",
+            },
+        )
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Intuis Connect from a config entry."""
     _LOGGER.debug("Setting up entry %s", entry.entry_id)
@@ -321,6 +370,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # ---------- register services -------------------------------------------------
     await async_register_services(hass, entry)
+
+    # ---------- register planning HTML view (auto cache-busting) ------------------
+    # Guard: register only once across all entries (route cannot be registered twice)
+    if not hass.data[DOMAIN].get("_planning_view_registered"):
+        hass.http.register_view(IntuisPlanningView(_PLANNING_HTML))
+        hass.data[DOMAIN]["_planning_view_registered"] = True
 
     # ---------- cancel any previous import and trigger new one if requested --------
     # Cancel any existing import from previous session to release resources
