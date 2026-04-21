@@ -1231,6 +1231,10 @@
       }
     }
     
+    // Also capture away/hg temps
+    originalTemps['__away_temp__'] = currentSchedule.away_temp;
+    originalTemps['__hg_temp__'] = currentSchedule.hg_temp;
+    
     // Deep copy timetable
     originalTimetable = currentSchedule.timetable.map(t => ({...t}));
   }
@@ -1286,8 +1290,12 @@
       const timetableChanged = timetableDirty && getTimetableChanges().length > 0;
       const tempChanges = getChangedTemps();
       
+      // Check if away/hg temps changed
+      const awayTempChanged = originalTemps['__away_temp__'] !== currentSchedule.away_temp;
+      const hgTempChanged = originalTemps['__hg_temp__'] !== currentSchedule.hg_temp;
+      const scheduleMetaChanged = awayTempChanged || hgTempChanged;
       
-      if (tempChanges.length === 0 && !timetableChanged) {
+      if (tempChanges.length === 0 && !timetableChanged && !scheduleMetaChanged) {
         showFeedback('ℹ️ Aucune modification détectée');
         dirty = false;
         timetableDirty = false;
@@ -1313,8 +1321,10 @@
           
           
           await callService('intuis_connect', 'sync_schedule', {
-            schedule_id: currentSchedule.schedule_id,  // Use ID instead of name!
-            timetable: timetableJson
+            schedule_id: currentSchedule.schedule_id,
+            timetable: timetableJson,
+            away_temp: currentSchedule.away_temp,
+            hg_temp: currentSchedule.hg_temp
           });
           
           saved++;
@@ -1326,6 +1336,31 @@
           console.error('sync_schedule failed:', err);
           errors.push(`Planning: ${err.message}`);
           showFeedback(`❌ Erreur planning: ${err.message}`, 3000);
+        }
+      }
+      
+      // Save away/hg temp changes via sync_schedule
+      if (scheduleMetaChanged && !timetableChanged) {
+        try {
+          var metaTimetableJson = JSON.stringify(
+            currentSchedule.timetable.map(function(t) {
+              return { zone_id: t.zone_id, m_offset: t.m_offset };
+            })
+          );
+          await callService('intuis_connect', 'sync_schedule', {
+            schedule_id: currentSchedule.schedule_id,
+            timetable: metaTimetableJson,
+            away_temp: currentSchedule.away_temp,
+            hg_temp: currentSchedule.hg_temp
+          });
+          saved++;
+          originalTemps['__away_temp__'] = currentSchedule.away_temp;
+          originalTemps['__hg_temp__'] = currentSchedule.hg_temp;
+          showFeedback('\u2705 Temp. absence/hors gel enregistr\u00e9es!', 1500);
+          await new Promise(function(r) { setTimeout(r, 800); });
+        } catch (err) {
+          console.error('sync_schedule (away/hg) failed:', err);
+          errors.push('Away/HG: ' + err.message);
         }
       }
       
