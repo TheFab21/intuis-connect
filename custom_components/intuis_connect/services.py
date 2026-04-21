@@ -408,7 +408,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
             List of (entry_id, data) tuples for matching entries.
         """
         entries = []
-        for entry_id, data in hass.data[DOMAIN].items():
+        for entry_id, data in list(hass.data[DOMAIN].items()):
             if not isinstance(data, dict):
                 continue
             intuis_home: IntuisHome = data.get("intuis_home")
@@ -506,7 +506,7 @@ async def async_register_services(hass: HomeAssistant, entry: ConfigEntry) -> No
         target_home_id = call.data.get(ATTR_HOME_ID)
         refreshed_count = 0
 
-        for entry_id, data in hass.data[DOMAIN].items():
+        for entry_id, data in list(hass.data[DOMAIN].items()):
             if not isinstance(data, dict):
                 continue
 
