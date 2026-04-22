@@ -231,12 +231,13 @@ data:
 
 ### Usage Modes
 
-**Embedded in Home Assistant** — the interface is served automatically by the integration. No manual file copy needed. Add it to your dashboard:
+**Embedded in Home Assistant** — the interface is served automatically by the integration. No manual file copy needed.
+
+The **recommended** way is to create a dedicated dashboard (see [Dashboard Examples](#visual-schedule-editor-planning-interface-recommended) below). Alternatively, add it as a card in any existing dashboard:
 
 ```yaml
-type: iframe
+type: webpage
 url: /api/intuis_connect/planning
-aspect_ratio: 100%
 ```
 
 When loaded inside the HA iframe, the page accesses the `hass` object directly — no token required.
@@ -273,12 +274,11 @@ No manual file installation needed. The planning interface is bundled with the i
 
 The URL is **versioned automatically** via the integration's `manifest.json` — updating the integration via HACS always delivers the latest interface without browser cache issues.
 
-Add it to your dashboard:
+Add it to a dedicated dashboard (recommended) or as a card:
 
 ```yaml
-type: iframe
+type: webpage
 url: /api/intuis_connect/planning
-aspect_ratio: 100%
 ```
 
 > **Migrating from a previous manual install?** Remove the old `/config/www/planning_intuis/` folder and update your dashboard card URL to `/api/intuis_connect/planning`.
@@ -408,12 +408,23 @@ entities:
 hours_to_show: 168
 ```
 
-### Visual Schedule Editor (Planning Interface)
+### Visual Schedule Editor (Planning Interface) *(recommended)*
+
+The recommended approach is to create a **dedicated dashboard** for the planning interface:
+
+1. Go to **Settings → Dashboards → + Add Dashboard**
+2. Give it a name (e.g. *Planning Intuis*) and an icon
+3. Open the new dashboard → click **Edit** → **+ Add Card** → choose **Webpage**
+4. Set the URL to `/api/intuis_connect/planning`
+5. Click **Save**
+
+This gives the planning interface its own full-screen page in the sidebar, without competing with other cards for space.
+
+Alternatively, embed it as a card in any existing dashboard:
 
 ```yaml
-type: iframe
+type: webpage
 url: /api/intuis_connect/planning
-aspect_ratio: 100%
 ```
 
 ### Visual Schedule Editor (Card)
