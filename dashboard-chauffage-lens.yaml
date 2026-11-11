@@ -3,6 +3,9 @@
 # À coller dans : Paramètres > Tableaux de bord > (votre dashboard) > Modifier >
 #   menu ... > Éditeur YAML brut (remplace tout le contenu).
 #
+# Intégration main 2.0.1. Pas de carte Coûts : les capteurs _hourly_cost n'existent
+# que si l'option de statistiques de coût est activée dans les options de l'intégration.
+#
 # Les boutons de changement de planning utilisent 'perform-action' (HA 2024.8+).
 # Sur une version antérieure, remplacer 'action: perform-action' par 'action: call-service'
 # et 'perform_action:' par 'service:'.
@@ -543,32 +546,6 @@ views:
     - entity: sensor.salon_energy
       name: Salon
     - entity: sensor.toilettes_visiteurs_energy
-      name: Toilettes visiteurs
-  - type: entities
-    title: Coûts horaires (tarifs à configurer)
-    show_header_toggle: false
-    entities:
-    - entity: sensor.chambre_damis_cost
-      name: Chambre d'amis
-    - entity: sensor.chambre_filles_cost
-      name: Chambre filles
-    - entity: sensor.chambre_parents_cost
-      name: Chambre parents
-    - entity: sensor.couloir_cost
-      name: Couloir
-    - entity: sensor.cuisine_cost
-      name: Cuisine
-    - entity: sensor.entree_cost
-      name: Entrée
-    - entity: sensor.salle_a_manger_cost
-      name: Salle à manger
-    - entity: sensor.salle_de_bain_filles_cost
-      name: Salle de bain filles
-    - entity: sensor.salle_de_bain_parents_cost
-      name: Salle de bain parents
-    - entity: sensor.salon_cost
-      name: Salon
-    - entity: sensor.toilettes_visiteurs_cost
       name: Toilettes visiteurs
 - title: Planning
   path: planning
