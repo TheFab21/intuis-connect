@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.recorder import get_instance, statistics
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_call_later, async_track_time_interval
 
 from .cost_stats import (
@@ -307,7 +307,11 @@ class HourlyStatisticsUpdater:
             async_track_time_interval(self.hass, self._schedule, self.interval),
         ]
 
+    @callback
     def _schedule(self, _now: datetime | None = None) -> None:
+        """Run in the event loop: the timer helpers infer a plain function as
+        blocking and would call it from an executor thread, where
+        hass.async_create_task raises and the tick is never awaited."""
         if self._closed or (self._tick_task and not self._tick_task.done()):
             return
         self._tick_task = self.hass.async_create_task(self._async_tick())
