@@ -31,9 +31,10 @@ def metadata(home_id, room_id, name, *, kind="energy", currency="EUR"):
         "has_sum": True,
         "unit_of_measurement": "kWh" if kind == "energy" else currency,
     }
+    # has_mean is declared by StatisticMetaData on every supported recorder,
+    # alongside mean_type on the newer one. Omitting it left the column unset.
+    result["has_mean"] = False
     if hasattr(models, "StatisticMeanType"):
         result.update(mean_type=models.StatisticMeanType.NONE,
                       unit_class="energy" if kind == "energy" else None)
-    else:
-        result["has_mean"] = False
     return result
