@@ -1,819 +1,1116 @@
-# Dashboard chauffage — maison « Lens »
-# Généré pour l'intégration Intuis Connect (11 pièces, cartes natives Home Assistant).
-# À coller dans : Paramètres > Tableaux de bord > (votre dashboard) > Modifier >
-#   menu ... > Éditeur YAML brut (remplace tout le contenu).
+# Tableau de bord chauffage — Lens
+# Adapté pour intuis_connect 2.1.1 (upstream 2.1.0 + correctifs énergie).
 #
-# Intégration main 2.0.1. Pas de carte Coûts : les capteurs _hourly_cost n'existent
-# que si l'option de statistiques de coût est activée dans les options de l'intégration.
+# Les identifiants d'entités sont inchangés : le renommage a été abandonné,
+# Home Assistant ne migrant pas les entity_id sur un changement de nom.
 #
-# Les boutons de changement de planning utilisent 'perform-action' (HA 2024.8+).
-# Sur une version antérieure, remplacer 'action: perform-action' par 'action: call-service'
-# et 'perform_action:' par 'service:'.
+# Deux choses à faire avant que la vue Énergie fonctionne :
+#   1. générer les identifiants de statistiques externes (voir le bloc ENERGIE ci-dessous)
+#   2. remplacer les lignes « REMPLACER_… » par ce que le modèle produit
+
 views:
-- title: Pilotage
-  path: pilotage
-  icon: mdi:home-thermometer
-  cards:
-  - type: entities
-    title: Maison — Lens
-    show_header_toggle: false
-    entities:
-    - entity: select.intuis_home_active_schedule
-      name: Planning actif
-      icon: mdi:calendar-check
-    - entity: sensor.intuis_home_current_zone
-      name: Zone en cours
-      icon: mdi:map-marker-radius
-    - entity: sensor.intuis_home_next_zone_change
-      name: Prochain changement
-      icon: mdi:clock-fast
-    - entity: sensor.intuis_home_therm_mode
-      name: Mode thermique
-      icon: mdi:thermostat-cog
-    - type: divider
-    - entity: sensor.intuis_home_energy_today
-      name: Énergie aujourd'hui
-      icon: mdi:lightning-bolt
-  - type: grid
-    columns: 2
-    square: false
+  # ===================================================================
+  - title: Pilotage
+    path: pilotage
+    icon: mdi:home-thermometer
     cards:
-    - type: button
-      name: Absent semaine
-      icon: mdi:briefcase-clock
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: select.select_option
-        target:
-          entity_id: select.intuis_home_active_schedule
-        data:
-          option: Absent Semaine
-    - type: button
-      name: À la maison — toutes pièces
-      icon: mdi:home-heart
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: select.select_option
-        target:
-          entity_id: select.intuis_home_active_schedule
-        data:
-          option: A La Maison Toutes Pièces
-    - type: button
-      name: À la maison — haut
-      icon: mdi:home-floor-2
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: select.select_option
-        target:
-          entity_id: select.intuis_home_active_schedule
-        data:
-          option: A La Maison Haut
-    - type: button
-      name: Pas utilisé
-      icon: mdi:home-off-outline
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: select.select_option
-        target:
-          entity_id: select.intuis_home_active_schedule
-        data:
-          option: 'Pas Utilisé '
-  - type: grid
-    columns: 2
-    square: false
+      - type: entities
+        title: Maison — Lens
+        show_header_toggle: false
+        entities:
+          - entity: select.intuis_home_active_schedule
+            name: Planning actif
+            icon: mdi:calendar-check
+          - entity: sensor.intuis_home_current_zone
+            name: Zone en cours
+            icon: mdi:map-marker-radius
+          - entity: sensor.intuis_home_next_zone_change
+            name: Prochain changement
+            icon: mdi:clock-fast
+          - entity: sensor.intuis_home_therm_mode
+            name: Mode thermique
+            icon: mdi:thermostat-cog
+          - type: divider
+          - entity: sensor.intuis_home_energy_today
+            name: Énergie aujourd'hui
+            icon: mdi:lightning-bolt
+
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: button
+            name: Absent semaine
+            icon: mdi:briefcase-clock
+            show_state: false
+            tap_action:
+              action: perform-action
+              perform_action: select.select_option
+              target:
+                entity_id: select.intuis_home_active_schedule
+              data:
+                option: Absent Semaine
+          - type: button
+            name: À la maison — toutes pièces
+            icon: mdi:home-heart
+            show_state: false
+            tap_action:
+              action: perform-action
+              perform_action: select.select_option
+              target:
+                entity_id: select.intuis_home_active_schedule
+              data:
+                option: A La Maison Toutes Pièces
+          - type: button
+            name: À la maison — haut
+            icon: mdi:home-floor-2
+            show_state: false
+            tap_action:
+              action: perform-action
+              perform_action: select.select_option
+              target:
+                entity_id: select.intuis_home_active_schedule
+              data:
+                option: A La Maison Haut
+          - type: button
+            name: Pas utilisé
+            icon: mdi:home-off-outline
+            show_state: false
+            tap_action:
+              action: perform-action
+              perform_action: select.select_option
+              target:
+                entity_id: select.intuis_home_active_schedule
+              data:
+                # Attention : l'option du cloud comporte une espace finale.
+                option: 'Pas Utilisé '
+
+      # Les tuiles exposent maintenant les présélections. L'intégration en
+      # publie quatre : home (programme), away (absent), boost, eco (hors-gel).
+      # const.py : PRESET_SCHEDULE = "home", PRESET_FROST_PROTECT = "eco".
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: climate.chambre_damis_chambre_damis_climate
+            name: Chambre d'amis
+            icon: mdi:bed-king-outline
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.chambre_filles_chambre_filles_climate
+            name: Chambre filles
+            icon: mdi:bed-double-outline
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.chambre_parents_chambre_parents_climate
+            name: Chambre parents
+            icon: mdi:bed-queen-outline
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.couloir_couloir_climate
+            name: Couloir
+            icon: mdi:door-sliding
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.cuisine_cuisine_climate
+            name: Cuisine
+            icon: mdi:countertop
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.entree_entree_climate
+            name: Entrée
+            icon: mdi:door-open
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.salle_a_manger_salle_a_manger_climate
+            name: Salle à manger
+            icon: mdi:table-furniture
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.salle_de_bain_filles_salle_de_bain_filles_climate
+            name: Salle de bain filles
+            icon: mdi:shower
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.salle_de_bain_parents_salle_de_bain_parents_climate
+            name: Salle de bain parents
+            icon: mdi:shower-head
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.salon_salon_climate
+            name: Salon
+            icon: mdi:sofa-outline
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: tile
+            entity: climate.toilettes_visiteurs_toilettes_visiteurs_climate
+            name: Toilettes visiteurs
+            icon: mdi:toilet
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [auto, heat, 'off']
+              - type: target-temperature
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+
+  # ===================================================================
+  - title: Pièces
+    path: pieces
+    icon: mdi:floor-plan
     cards:
-    - type: tile
-      entity: climate.chambre_damis
-      name: Chambre d'amis
-      icon: mdi:bed-king-outline
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.chambre_filles
-      name: Chambre filles
-      icon: mdi:bed-double-outline
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.chambre_parents
-      name: Chambre parents
-      icon: mdi:bed-queen-outline
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.couloir
-      name: Couloir
-      icon: mdi:door-sliding
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.cuisine
-      name: Cuisine
-      icon: mdi:countertop
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.entree
-      name: Entrée
-      icon: mdi:door-open
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.salle_a_manger
-      name: Salle à manger
-      icon: mdi:table-furniture
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.salle_de_bain_filles
-      name: Salle de bain filles
-      icon: mdi:shower
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.salle_de_bain_parents
-      name: Salle de bain parents
-      icon: mdi:shower-head
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.salon
-      name: Salon
-      icon: mdi:sofa-outline
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-    - type: tile
-      entity: climate.toilettes_visiteurs
-      name: Toilettes visiteurs
-      icon: mdi:toilet
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-- title: Pièces
-  path: pieces
-  icon: mdi:floor-plan
-  cards:
-  - type: vertical-stack
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.chambre_damis_chambre_damis_climate
+            name: Chambre d'amis
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.chambre_damis_chambre_damis_climate
+            name: Chambre d'amis
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.chambre_damis_temperature
+                name: Température mesurée
+              - entity: sensor.chambre_damis_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.chambre_damis_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.chambre_damis_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.chambre_damis_presence
+                name: Présence
+              - entity: binary_sensor.chambre_damis_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.chambre_damis_anticipation
+                name: Anticipation
+              - entity: binary_sensor.chambre_damis_84_33_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.chambre_damis_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.chambre_filles_chambre_filles_climate
+            name: Chambre filles
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.chambre_filles_chambre_filles_climate
+            name: Chambre filles
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.chambre_filles_temperature
+                name: Température mesurée
+              - entity: sensor.chambre_filles_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.chambre_filles_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.chambre_filles_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.chambre_filles_presence
+                name: Présence
+              - entity: binary_sensor.chambre_filles_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.chambre_filles_anticipation
+                name: Anticipation
+              - entity: binary_sensor.chambre_filles_c6_a5_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.chambre_filles_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.chambre_parents_chambre_parents_climate
+            name: Chambre parents
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.chambre_parents_chambre_parents_climate
+            name: Chambre parents
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.chambre_parents_temperature
+                name: Température mesurée
+              - entity: sensor.chambre_parents_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.chambre_parents_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.chambre_parents_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.chambre_parents_presence
+                name: Présence
+              - entity: binary_sensor.chambre_parents_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.chambre_parents_anticipation
+                name: Anticipation
+              - entity: binary_sensor.chambre_parents_53_34_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.chambre_parents_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.couloir_couloir_climate
+            name: Couloir
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.couloir_couloir_climate
+            name: Couloir
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.couloir_temperature
+                name: Température mesurée
+              - entity: sensor.couloir_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.couloir_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.couloir_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.couloir_presence
+                name: Présence
+              - entity: binary_sensor.couloir_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.couloir_anticipation
+                name: Anticipation
+              - entity: binary_sensor.couloir_84_3d_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.couloir_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.cuisine_cuisine_climate
+            name: Cuisine
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.cuisine_cuisine_climate
+            name: Cuisine
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.cuisine_temperature
+                name: Température mesurée
+              - entity: sensor.cuisine_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.cuisine_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.cuisine_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.cuisine_presence
+                name: Présence
+              - entity: binary_sensor.cuisine_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.cuisine_anticipation
+                name: Anticipation
+              - entity: binary_sensor.cuisine_88_59_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.cuisine_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.entree_entree_climate
+            name: Entrée
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.entree_entree_climate
+            name: Entrée
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.entree_temperature
+                name: Température mesurée
+              - entity: sensor.entree_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.entree_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.entree_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.entree_presence
+                name: Présence
+              - entity: binary_sensor.entree_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.entree_anticipation
+                name: Anticipation
+              - entity: binary_sensor.entree_87_33_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.entree_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.salle_a_manger_salle_a_manger_climate
+            name: Salle à manger
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.salle_a_manger_salle_a_manger_climate
+            name: Salle à manger
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.salle_a_manger_temperature
+                name: Température mesurée
+              - entity: sensor.salle_a_manger_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.salle_a_manger_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.salle_a_manger_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.salle_a_manger_presence
+                name: Présence
+              - entity: binary_sensor.salle_a_manger_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.salle_a_manger_anticipation
+                name: Anticipation
+              - entity: binary_sensor.salle_a_manger_d2_36_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.salle_a_manger_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.salle_de_bain_filles_salle_de_bain_filles_climate
+            name: Salle de bain filles
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.salle_de_bain_filles_salle_de_bain_filles_climate
+            name: Salle de bain filles
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.salle_de_bain_filles_temperature
+                name: Température mesurée
+              - entity: sensor.salle_de_bain_filles_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.salle_de_bain_filles_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.salle_de_bain_filles_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.salle_de_bain_filles_presence
+                name: Présence
+              - entity: binary_sensor.salle_de_bain_filles_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.salle_de_bain_filles_anticipation
+                name: Anticipation
+              - entity: binary_sensor.salle_de_bain_filles_d6_5d_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.salle_de_bain_filles_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.salle_de_bain_parents_salle_de_bain_parents_climate
+            name: Salle de bain parents
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.salle_de_bain_parents_salle_de_bain_parents_climate
+            name: Salle de bain parents
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.salle_de_bain_parents_temperature
+                name: Température mesurée
+              - entity: sensor.salle_de_bain_parents_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.salle_de_bain_parents_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.salle_de_bain_parents_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.salle_de_bain_parents_presence
+                name: Présence
+              - entity: binary_sensor.salle_de_bain_parents_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.salle_de_bain_parents_anticipation
+                name: Anticipation
+              - entity: binary_sensor.salle_de_bain_parents_7c_4c_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.salle_de_bain_parents_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.salon_salon_climate
+            name: Salon
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.salon_salon_climate
+            name: Salon
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.salon_temperature
+                name: Température mesurée
+              - entity: sensor.salon_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.salon_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.salon_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.salon_presence
+                name: Présence
+              - entity: binary_sensor.salon_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.salon_anticipation
+                name: Anticipation
+              - entity: binary_sensor.salon_9d_e1_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.salon_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+      - type: vertical-stack
+        cards:
+          - type: thermostat
+            entity: climate.toilettes_visiteurs_toilettes_visiteurs_climate
+            name: Toilettes visiteurs
+          # Les présélections ne sont pas accessibles depuis la carte thermostat.
+          - type: tile
+            entity: climate.toilettes_visiteurs_toilettes_visiteurs_climate
+            name: Toilettes visiteurs
+            features:
+              - type: climate-preset-modes
+                style: icons
+                preset_modes: [home, away, boost, eco]
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.toilettes_visiteurs_temperature
+                name: Température mesurée
+              - entity: sensor.toilettes_visiteurs_scheduled_temperature
+                name: Consigne programmée
+              - entity: sensor.toilettes_visiteurs_heating_minutes
+                name: Temps de chauffe du jour
+              - entity: sensor.toilettes_visiteurs_override_expires
+                name: Fin de dérogation
+              - type: divider
+              - entity: binary_sensor.toilettes_visiteurs_presence
+                name: Présence
+              - entity: binary_sensor.toilettes_visiteurs_open_window
+                name: Fenêtre ouverte
+              - entity: binary_sensor.toilettes_visiteurs_anticipation
+                name: Anticipation
+              - entity: binary_sensor.toilettes_visiteurs_47_ac_reachable
+                name: Module joignable
+              - type: divider
+              - entity: sensor.toilettes_visiteurs_energy
+                name: Énergie du jour
+                secondary_info: last-updated
+
+  # ===================================================================
+  - title: Énergie
+    path: energie
+    icon: mdi:lightning-bolt
     cards:
-    - type: thermostat
-      entity: climate.chambre_damis
-      name: Chambre d'amis
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.chambre_damis_temperature
-        name: Température mesurée
-      - entity: sensor.chambre_damis_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.chambre_damis_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.chambre_damis_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.chambre_damis_presence
-        name: Présence
-      - entity: binary_sensor.chambre_damis_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.chambre_damis_anticipation
-        name: Anticipation
-      - entity: binary_sensor.chambre_damis_84_33_reachable
-        name: Module joignable
-  - type: vertical-stack
+      # ---------------------------------------------------------------
+      # BLOC ENERGIE — séries externes horaires
+      #
+      # Ces séries n'ont PAS d'entité : leur identifiant est un condensé
+      # sha256 que rien dans Home Assistant n'épelle. Chaque capteur
+      # sensor.<piece>_energy le publie dans son attribut
+      # « hourly_statistic_id ».
+      #
+      # Pour générer les lignes ci-dessous, colle ceci dans
+      # Outils de développement -> Modèle, puis recopie la sortie :
+      #
+      #   {% for s in states.sensor
+      #        | selectattr('attributes.hourly_statistic_id', 'defined')
+      #        | sort(attribute='name') %}
+      #   - entity: {{ s.attributes.hourly_statistic_id }}
+      #     name: {{ s.name | replace(' Energy', '') }}
+      #   {% endfor %}
+      #
+      # Remplace alors chaque ligne « REMPLACER_ENERGIE_… » par
+      # l'identifiant de la pièce correspondante.
+      # ---------------------------------------------------------------
+      - type: statistics-graph
+        title: Détail horaire par pièce — 48 h
+        period: hour
+        stat_types: [change]
+        chart_type: bar
+        days_to_show: 2
+        entities:
+          - entity: REMPLACER_ENERGIE_CHAMBRE_DAMIS
+            name: Chambre d'amis
+          - entity: REMPLACER_ENERGIE_CHAMBRE_FILLES
+            name: Chambre filles
+          - entity: REMPLACER_ENERGIE_CHAMBRE_PARENTS
+            name: Chambre parents
+          - entity: REMPLACER_ENERGIE_COULOIR
+            name: Couloir
+          - entity: REMPLACER_ENERGIE_CUISINE
+            name: Cuisine
+          - entity: REMPLACER_ENERGIE_ENTREE
+            name: Entrée
+          - entity: REMPLACER_ENERGIE_SALLE_A_MANGER
+            name: Salle à manger
+          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_FILLES
+            name: Salle de bain filles
+          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_PARENTS
+            name: Salle de bain parents
+          - entity: REMPLACER_ENERGIE_SALON
+            name: Salon
+          - entity: REMPLACER_ENERGIE_TOILETTES_VISITEURS
+            name: Toilettes visiteurs
+
+      - type: statistics-graph
+        title: Consommation quotidienne par pièce — 30 jours
+        period: day
+        stat_types: [change]
+        chart_type: bar
+        days_to_show: 30
+        entities:
+          - entity: REMPLACER_ENERGIE_CHAMBRE_DAMIS
+            name: Chambre d'amis
+          - entity: REMPLACER_ENERGIE_CHAMBRE_FILLES
+            name: Chambre filles
+          - entity: REMPLACER_ENERGIE_CHAMBRE_PARENTS
+            name: Chambre parents
+          - entity: REMPLACER_ENERGIE_COULOIR
+            name: Couloir
+          - entity: REMPLACER_ENERGIE_CUISINE
+            name: Cuisine
+          - entity: REMPLACER_ENERGIE_ENTREE
+            name: Entrée
+          - entity: REMPLACER_ENERGIE_SALLE_A_MANGER
+            name: Salle à manger
+          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_FILLES
+            name: Salle de bain filles
+          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_PARENTS
+            name: Salle de bain parents
+          - entity: REMPLACER_ENERGIE_SALON
+            name: Salon
+          - entity: REMPLACER_ENERGIE_TOILETTES_VISITEURS
+            name: Toilettes visiteurs
+
+      - type: statistics-graph
+        title: Total maison — 90 jours
+        period: day
+        stat_types: [change]
+        chart_type: bar
+        days_to_show: 90
+        entities:
+          - entity: intuis_connect:energy_729266f6dc2fd6733db38e0df433c1d7
+            name: Maison
+
+      # ---------------------------------------------------------------
+      # BLOC COUT — à supprimer si l'option « statistiques de coût »
+      # est désactivée dans les options de l'intégration.
+      # Les capteurs sensor.<piece>_hourly_cost publient les deux
+      # identifiants dans « statistic_id » et « energy_statistic_id ».
+      #
+      #   {% for s in states.sensor
+      #        | selectattr('attributes.statistic_id', 'defined')
+      #        | sort(attribute='name') %}
+      #   - entity: {{ s.attributes.statistic_id }}
+      #     name: {{ s.name | replace(' Hourly Cost', '') }}
+      #   {% endfor %}
+      # ---------------------------------------------------------------
+      - type: statistics-graph
+        title: Coût quotidien par pièce — 30 jours
+        period: day
+        stat_types: [change]
+        chart_type: bar
+        days_to_show: 30
+        entities:
+          - entity: REMPLACER_COUT_CHAMBRE_DAMIS
+            name: Chambre d'amis
+          - entity: REMPLACER_COUT_CHAMBRE_FILLES
+            name: Chambre filles
+          - entity: REMPLACER_COUT_CHAMBRE_PARENTS
+            name: Chambre parents
+          - entity: REMPLACER_COUT_COULOIR
+            name: Couloir
+          - entity: REMPLACER_COUT_CUISINE
+            name: Cuisine
+          - entity: REMPLACER_COUT_ENTREE
+            name: Entrée
+          - entity: REMPLACER_COUT_SALLE_A_MANGER
+            name: Salle à manger
+          - entity: REMPLACER_COUT_SALLE_DE_BAIN_FILLES
+            name: Salle de bain filles
+          - entity: REMPLACER_COUT_SALLE_DE_BAIN_PARENTS
+            name: Salle de bain parents
+          - entity: REMPLACER_COUT_SALON
+            name: Salon
+          - entity: REMPLACER_COUT_TOILETTES_VISITEURS
+            name: Toilettes visiteurs
+
+      # ---------------------------------------------------------------
+      # Série des entités (recorder). Conservée pour comparaison :
+      # elle reste corrompue autour du 11 novembre, deux écrivains
+      # ayant alimenté le même statistic_id ce jour-là.
+      # ---------------------------------------------------------------
+      - type: statistics-graph
+        title: Entités quotidiennes (référence, trou le 11/11)
+        period: day
+        stat_types: [change]
+        chart_type: line
+        days_to_show: 30
+        entities:
+          - entity: sensor.chambre_damis_energy
+            name: Chambre d'amis
+          - entity: sensor.chambre_filles_energy
+            name: Chambre filles
+          - entity: sensor.chambre_parents_energy
+            name: Chambre parents
+          - entity: sensor.couloir_energy
+            name: Couloir
+          - entity: sensor.cuisine_energy
+            name: Cuisine
+          - entity: sensor.entree_energy
+            name: Entrée
+          - entity: sensor.salle_a_manger_energy
+            name: Salle à manger
+          - entity: sensor.salle_de_bain_filles_energy
+            name: Salle de bain filles
+          - entity: sensor.salle_de_bain_parents_energy
+            name: Salle de bain parents
+          - entity: sensor.salon_energy
+            name: Salon
+          - entity: sensor.toilettes_visiteurs_energy
+            name: Toilettes visiteurs
+
+      - type: entities
+        title: Compteurs cumulés
+        show_header_toggle: false
+        entities:
+          - entity: sensor.intuis_home_energy_today
+            name: Énergie maison aujourd'hui
+          - type: divider
+          - entity: sensor.chambre_damis_energy
+            name: Chambre d'amis
+          - entity: sensor.chambre_filles_energy
+            name: Chambre filles
+          - entity: sensor.chambre_parents_energy
+            name: Chambre parents
+          - entity: sensor.couloir_energy
+            name: Couloir
+          - entity: sensor.cuisine_energy
+            name: Cuisine
+          - entity: sensor.entree_energy
+            name: Entrée
+          - entity: sensor.salle_a_manger_energy
+            name: Salle à manger
+          - entity: sensor.salle_de_bain_filles_energy
+            name: Salle de bain filles
+          - entity: sensor.salle_de_bain_parents_energy
+            name: Salle de bain parents
+          - entity: sensor.salon_energy
+            name: Salon
+          - entity: sensor.toilettes_visiteurs_energy
+            name: Toilettes visiteurs
+
+  # ===================================================================
+  - title: Planning
+    path: planning
+    icon: mdi:calendar-clock
     cards:
-    - type: thermostat
-      entity: climate.chambre_filles
-      name: Chambre filles
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.chambre_filles_temperature
-        name: Température mesurée
-      - entity: sensor.chambre_filles_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.chambre_filles_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.chambre_filles_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.chambre_filles_presence
-        name: Présence
-      - entity: binary_sensor.chambre_filles_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.chambre_filles_anticipation
-        name: Anticipation
-      - entity: binary_sensor.chambre_filles_c6_a5_reachable
-        name: Module joignable
-  - type: vertical-stack
+      # L'éditeur embarqué est servi par planning_view.py sur cette URL.
+      # Elle est inchangée en 2.1.0 et ne demande pas d'authentification :
+      # une iframe de tableau de bord ne peut pas porter de jeton.
+      - type: iframe
+        url: /api/intuis_connect/planning
+        aspect_ratio: 140%
+        title: Éditeur de planning
+
+      - type: calendar
+        initial_view: dayGridMonth
+        entities:
+          - calendar.intuis_home_schedule_absent_semaine
+          - calendar.intuis_home_schedule_a_la_maison_toutes_pieces
+          # Le suffixe « _2 » vient d'un enregistrement en double antérieur.
+          # Si une entité sans suffixe apparaît après le redémarrage,
+          # supprime l'ancienne dans le registre et retire le « _2 » ici.
+          - calendar.intuis_home_schedule_a_la_maison_haut_2
+          - calendar.intuis_home_schedule_pas_utilise
+
+      - type: entities
+        title: Absent semaine — zone « À la maison »
+        show_header_toggle: false
+        entities:
+          - entity: number.schedule_absent_semaine_a_la_maison_chambre_damis
+            name: Chambre d'amis
+          - entity: number.schedule_absent_semaine_a_la_maison_chambre_filles
+            name: Chambre filles
+          - entity: number.schedule_absent_semaine_a_la_maison_chambre_parents
+            name: Chambre parents
+          - entity: number.schedule_absent_semaine_a_la_maison_couloir
+            name: Couloir
+          - entity: number.schedule_absent_semaine_a_la_maison_cuisine
+            name: Cuisine
+          - entity: number.schedule_absent_semaine_a_la_maison_entree
+            name: Entrée
+          - entity: number.schedule_absent_semaine_a_la_maison_salle_a_manger
+            name: Salle à manger
+          - entity: number.schedule_absent_semaine_a_la_maison_salle_de_bain_filles
+            name: Salle de bain filles
+          - entity: number.schedule_absent_semaine_a_la_maison_salle_de_bain_parents
+            name: Salle de bain parents
+          - entity: number.schedule_absent_semaine_a_la_maison_salon
+            name: Salon
+          - entity: number.schedule_absent_semaine_a_la_maison_toilettes_visiteurs
+            name: Toilettes visiteurs
+
+      - type: entities
+        title: Absent semaine — zone « Douche »
+        show_header_toggle: false
+        entities:
+          - entity: number.schedule_absent_semaine_douche_chambre_damis
+            name: Chambre d'amis
+          - entity: number.schedule_absent_semaine_douche_chambre_filles
+            name: Chambre filles
+          - entity: number.schedule_absent_semaine_douche_chambre_parents
+            name: Chambre parents
+          - entity: number.schedule_absent_semaine_douche_couloir
+            name: Couloir
+          - entity: number.schedule_absent_semaine_douche_cuisine
+            name: Cuisine
+          - entity: number.schedule_absent_semaine_douche_entree
+            name: Entrée
+          - entity: number.schedule_absent_semaine_douche_salle_a_manger
+            name: Salle à manger
+          - entity: number.schedule_absent_semaine_douche_salle_de_bain_filles
+            name: Salle de bain filles
+          - entity: number.schedule_absent_semaine_douche_salle_de_bain_parents
+            name: Salle de bain parents
+          - entity: number.schedule_absent_semaine_douche_salon
+            name: Salon
+          - entity: number.schedule_absent_semaine_douche_toilettes_visiteurs
+            name: Toilettes visiteurs
+
+      - type: entities
+        title: Absent semaine — zone « Économie »
+        show_header_toggle: false
+        entities:
+          - entity: number.schedule_absent_semaine_economie_chambre_damis
+            name: Chambre d'amis
+          - entity: number.schedule_absent_semaine_economie_chambre_filles
+            name: Chambre filles
+          - entity: number.schedule_absent_semaine_economie_chambre_parents
+            name: Chambre parents
+          - entity: number.schedule_absent_semaine_economie_couloir
+            name: Couloir
+          - entity: number.schedule_absent_semaine_economie_cuisine
+            name: Cuisine
+          - entity: number.schedule_absent_semaine_economie_entree
+            name: Entrée
+          - entity: number.schedule_absent_semaine_economie_salle_a_manger
+            name: Salle à manger
+          - entity: number.schedule_absent_semaine_economie_salle_de_bain_filles
+            name: Salle de bain filles
+          - entity: number.schedule_absent_semaine_economie_salle_de_bain_parents
+            name: Salle de bain parents
+          - entity: number.schedule_absent_semaine_economie_salon
+            name: Salon
+          - entity: number.schedule_absent_semaine_economie_toilettes_visiteurs
+            name: Toilettes visiteurs
+
+      - type: entities
+        title: Absent semaine — zone « Nuit »
+        show_header_toggle: false
+        entities:
+          - entity: number.schedule_absent_semaine_nuit_chambre_damis
+            name: Chambre d'amis
+          - entity: number.schedule_absent_semaine_nuit_chambre_filles
+            name: Chambre filles
+          - entity: number.schedule_absent_semaine_nuit_chambre_parents
+            name: Chambre parents
+          - entity: number.schedule_absent_semaine_nuit_couloir
+            name: Couloir
+          - entity: number.schedule_absent_semaine_nuit_cuisine
+            name: Cuisine
+          - entity: number.schedule_absent_semaine_nuit_entree
+            name: Entrée
+          - entity: number.schedule_absent_semaine_nuit_salle_a_manger
+            name: Salle à manger
+          - entity: number.schedule_absent_semaine_nuit_salle_de_bain_filles
+            name: Salle de bain filles
+          - entity: number.schedule_absent_semaine_nuit_salle_de_bain_parents
+            name: Salle de bain parents
+          - entity: number.schedule_absent_semaine_nuit_salon
+            name: Salon
+          - entity: number.schedule_absent_semaine_nuit_toilettes_visiteurs
+            name: Toilettes visiteurs
+
+  # ===================================================================
+  - title: Diagnostic
+    path: diagnostic
+    icon: mdi:stethoscope
     cards:
-    - type: thermostat
-      entity: climate.chambre_parents
-      name: Chambre parents
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.chambre_parents_temperature
-        name: Température mesurée
-      - entity: sensor.chambre_parents_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.chambre_parents_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.chambre_parents_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.chambre_parents_presence
-        name: Présence
-      - entity: binary_sensor.chambre_parents_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.chambre_parents_anticipation
-        name: Anticipation
-      - entity: binary_sensor.chambre_parents_53_34_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.couloir
-      name: Couloir
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.couloir_temperature
-        name: Température mesurée
-      - entity: sensor.couloir_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.couloir_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.couloir_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.couloir_presence
-        name: Présence
-      - entity: binary_sensor.couloir_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.couloir_anticipation
-        name: Anticipation
-      - entity: binary_sensor.couloir_84_3d_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.cuisine
-      name: Cuisine
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.cuisine_temperature
-        name: Température mesurée
-      - entity: sensor.cuisine_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.cuisine_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.cuisine_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.cuisine_presence
-        name: Présence
-      - entity: binary_sensor.cuisine_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.cuisine_anticipation
-        name: Anticipation
-      - entity: binary_sensor.cuisine_88_59_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.entree
-      name: Entrée
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.entree_temperature
-        name: Température mesurée
-      - entity: sensor.entree_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.entree_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.entree_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.entree_presence
-        name: Présence
-      - entity: binary_sensor.entree_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.entree_anticipation
-        name: Anticipation
-      - entity: binary_sensor.entree_87_33_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.salle_a_manger
-      name: Salle à manger
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.salle_a_manger_temperature
-        name: Température mesurée
-      - entity: sensor.salle_a_manger_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.salle_a_manger_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.salle_a_manger_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.salle_a_manger_presence
-        name: Présence
-      - entity: binary_sensor.salle_a_manger_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.salle_a_manger_anticipation
-        name: Anticipation
-      - entity: binary_sensor.salle_a_manger_d2_36_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.salle_de_bain_filles
-      name: Salle de bain filles
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.salle_de_bain_filles_temperature
-        name: Température mesurée
-      - entity: sensor.salle_de_bain_filles_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.salle_de_bain_filles_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.salle_de_bain_filles_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.salle_de_bain_filles_presence
-        name: Présence
-      - entity: binary_sensor.salle_de_bain_filles_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.salle_de_bain_filles_anticipation
-        name: Anticipation
-      - entity: binary_sensor.salle_de_bain_filles_d6_5d_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.salle_de_bain_parents
-      name: Salle de bain parents
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.salle_de_bain_parents_temperature
-        name: Température mesurée
-      - entity: sensor.salle_de_bain_parents_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.salle_de_bain_parents_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.salle_de_bain_parents_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.salle_de_bain_parents_presence
-        name: Présence
-      - entity: binary_sensor.salle_de_bain_parents_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.salle_de_bain_parents_anticipation
-        name: Anticipation
-      - entity: binary_sensor.salle_de_bain_parents_7c_4c_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.salon
-      name: Salon
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.salon_temperature
-        name: Température mesurée
-      - entity: sensor.salon_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.salon_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.salon_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.salon_presence
-        name: Présence
-      - entity: binary_sensor.salon_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.salon_anticipation
-        name: Anticipation
-      - entity: binary_sensor.salon_9d_e1_reachable
-        name: Module joignable
-  - type: vertical-stack
-    cards:
-    - type: thermostat
-      entity: climate.toilettes_visiteurs
-      name: Toilettes visiteurs
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: sensor.toilettes_visiteurs_temperature
-        name: Température mesurée
-      - entity: sensor.toilettes_visiteurs_scheduled_temperature
-        name: Consigne programmée
-      - entity: sensor.toilettes_visiteurs_heating_minutes
-        name: Temps de chauffe du jour
-      - entity: sensor.toilettes_visiteurs_override_expires
-        name: Fin de dérogation
-      - type: divider
-      - entity: binary_sensor.toilettes_visiteurs_presence
-        name: Présence
-      - entity: binary_sensor.toilettes_visiteurs_open_window
-        name: Fenêtre ouverte
-      - entity: binary_sensor.toilettes_visiteurs_anticipation
-        name: Anticipation
-      - entity: binary_sensor.toilettes_visiteurs_47_ac_reachable
-        name: Module joignable
-- title: Énergie
-  path: energie
-  icon: mdi:lightning-bolt
-  cards:
-  - type: statistics-graph
-    title: Consommation horaire — total maison
-    period: hour
-    stat_types:
-    - change
-    chart_type: bar
-    days_to_show: 3
-    entities:
-    - intuis_connect:energy_729266f6dc2fd6733db38e0df433c1d7
-  - type: statistics-graph
-    title: Coût horaire — total maison
-    period: hour
-    stat_types:
-    - change
-    chart_type: bar
-    days_to_show: 3
-    entities:
-    - intuis_connect:cost_729266f6dc2fd6733db38e0df433c1d7
-  - type: statistics-graph
-    title: Consommation quotidienne par pièce
-    period: day
-    stat_types:
-    - change
-    chart_type: bar
-    days_to_show: 30
-    entities:
-    - intuis_connect:energy_ae366fc8ecab9cfadcda4a20e06aced5
-    - intuis_connect:energy_245a05f7781a0fe5a0e3985c28f87131
-    - intuis_connect:energy_31ca63e5a749f1eb1fb19541a434f507
-    - intuis_connect:energy_11176ac36e1e9c472405391e83b9a831
-    - intuis_connect:energy_3d06888dd09d9e2b43d9e94351d6dbca
-    - intuis_connect:energy_7f82433b0c146446ff0c565e90ce72d1
-    - intuis_connect:energy_5c87a9f77e9a914fc5ac94eae2484895
-    - intuis_connect:energy_147dc73b6e1769bdf051b79a7306b0fa
-    - intuis_connect:energy_4b32e9026bbe3c8b5533714fc9682666
-    - intuis_connect:energy_61aef8adbcd08c6e6c1a957f5fdf910e
-    - intuis_connect:energy_fe511d42945d493beca4c0d28ef8850a
-  - type: statistics-graph
-    title: Coût quotidien par pièce
-    period: day
-    stat_types:
-    - change
-    chart_type: bar
-    days_to_show: 30
-    entities:
-    - intuis_connect:cost_ae366fc8ecab9cfadcda4a20e06aced5
-    - intuis_connect:cost_245a05f7781a0fe5a0e3985c28f87131
-    - intuis_connect:cost_31ca63e5a749f1eb1fb19541a434f507
-    - intuis_connect:cost_11176ac36e1e9c472405391e83b9a831
-    - intuis_connect:cost_3d06888dd09d9e2b43d9e94351d6dbca
-    - intuis_connect:cost_7f82433b0c146446ff0c565e90ce72d1
-    - intuis_connect:cost_5c87a9f77e9a914fc5ac94eae2484895
-    - intuis_connect:cost_147dc73b6e1769bdf051b79a7306b0fa
-    - intuis_connect:cost_4b32e9026bbe3c8b5533714fc9682666
-    - intuis_connect:cost_61aef8adbcd08c6e6c1a957f5fdf910e
-    - intuis_connect:cost_fe511d42945d493beca4c0d28ef8850a
-  - type: entities
-    title: Compteurs journaliers des capteurs
-    show_header_toggle: false
-    entities:
-    - entity: sensor.intuis_home_energy_today
-      name: Énergie maison aujourd'hui
-    - type: divider
-    - entity: sensor.chambre_damis_energy
-      name: Chambre d'amis
-    - entity: sensor.chambre_filles_energy
-      name: Chambre filles
-    - entity: sensor.chambre_parents_energy
-      name: Chambre parents
-    - entity: sensor.couloir_energy
-      name: Couloir
-    - entity: sensor.cuisine_energy
-      name: Cuisine
-    - entity: sensor.entree_energy
-      name: Entrée
-    - entity: sensor.salle_a_manger_energy
-      name: Salle à manger
-    - entity: sensor.salle_de_bain_filles_energy
-      name: Salle de bain filles
-    - entity: sensor.salle_de_bain_parents_energy
-      name: Salle de bain parents
-    - entity: sensor.salon_energy
-      name: Salon
-    - entity: sensor.toilettes_visiteurs_energy
-      name: Toilettes visiteurs
-- title: Planning
-  path: planning
-  icon: mdi:calendar-clock
-  cards:
-  - type: iframe
-    url: /api/intuis_connect/planning
-    aspect_ratio: 140%
-    title: Éditeur de planning
-  - type: calendar
-    initial_view: dayGridMonth
-    entities:
-    - calendar.intuis_home_schedule_absent_semaine
-    - calendar.intuis_home_schedule_a_la_maison_toutes_pieces
-    - calendar.intuis_home_schedule_a_la_maison_haut_2
-    - calendar.intuis_home_schedule_pas_utilise
-  - type: entities
-    title: Absent semaine — zone « À la maison »
-    show_header_toggle: false
-    entities:
-    - entity: number.schedule_absent_semaine_a_la_maison_chambre_damis
-      name: Chambre d'amis
-    - entity: number.schedule_absent_semaine_a_la_maison_chambre_filles
-      name: Chambre filles
-    - entity: number.schedule_absent_semaine_a_la_maison_chambre_parents
-      name: Chambre parents
-    - entity: number.schedule_absent_semaine_a_la_maison_couloir
-      name: Couloir
-    - entity: number.schedule_absent_semaine_a_la_maison_cuisine
-      name: Cuisine
-    - entity: number.schedule_absent_semaine_a_la_maison_entree
-      name: Entrée
-    - entity: number.schedule_absent_semaine_a_la_maison_salle_a_manger
-      name: Salle à manger
-    - entity: number.schedule_absent_semaine_a_la_maison_salle_de_bain_filles
-      name: Salle de bain filles
-    - entity: number.schedule_absent_semaine_a_la_maison_salle_de_bain_parents
-      name: Salle de bain parents
-    - entity: number.schedule_absent_semaine_a_la_maison_salon
-      name: Salon
-    - entity: number.schedule_absent_semaine_a_la_maison_toilettes_visiteurs
-      name: Toilettes visiteurs
-  - type: entities
-    title: Absent semaine — zone « Douche »
-    show_header_toggle: false
-    entities:
-    - entity: number.schedule_absent_semaine_douche_chambre_damis
-      name: Chambre d'amis
-    - entity: number.schedule_absent_semaine_douche_chambre_filles
-      name: Chambre filles
-    - entity: number.schedule_absent_semaine_douche_chambre_parents
-      name: Chambre parents
-    - entity: number.schedule_absent_semaine_douche_couloir
-      name: Couloir
-    - entity: number.schedule_absent_semaine_douche_cuisine
-      name: Cuisine
-    - entity: number.schedule_absent_semaine_douche_entree
-      name: Entrée
-    - entity: number.schedule_absent_semaine_douche_salle_a_manger
-      name: Salle à manger
-    - entity: number.schedule_absent_semaine_douche_salle_de_bain_filles
-      name: Salle de bain filles
-    - entity: number.schedule_absent_semaine_douche_salle_de_bain_parents
-      name: Salle de bain parents
-    - entity: number.schedule_absent_semaine_douche_salon
-      name: Salon
-    - entity: number.schedule_absent_semaine_douche_toilettes_visiteurs
-      name: Toilettes visiteurs
-  - type: entities
-    title: Absent semaine — zone « Économie »
-    show_header_toggle: false
-    entities:
-    - entity: number.schedule_absent_semaine_economie_chambre_damis
-      name: Chambre d'amis
-    - entity: number.schedule_absent_semaine_economie_chambre_filles
-      name: Chambre filles
-    - entity: number.schedule_absent_semaine_economie_chambre_parents
-      name: Chambre parents
-    - entity: number.schedule_absent_semaine_economie_couloir
-      name: Couloir
-    - entity: number.schedule_absent_semaine_economie_cuisine
-      name: Cuisine
-    - entity: number.schedule_absent_semaine_economie_entree
-      name: Entrée
-    - entity: number.schedule_absent_semaine_economie_salle_a_manger
-      name: Salle à manger
-    - entity: number.schedule_absent_semaine_economie_salle_de_bain_filles
-      name: Salle de bain filles
-    - entity: number.schedule_absent_semaine_economie_salle_de_bain_parents
-      name: Salle de bain parents
-    - entity: number.schedule_absent_semaine_economie_salon
-      name: Salon
-    - entity: number.schedule_absent_semaine_economie_toilettes_visiteurs
-      name: Toilettes visiteurs
-  - type: entities
-    title: Absent semaine — zone « Nuit »
-    show_header_toggle: false
-    entities:
-    - entity: number.schedule_absent_semaine_nuit_chambre_damis
-      name: Chambre d'amis
-    - entity: number.schedule_absent_semaine_nuit_chambre_filles
-      name: Chambre filles
-    - entity: number.schedule_absent_semaine_nuit_chambre_parents
-      name: Chambre parents
-    - entity: number.schedule_absent_semaine_nuit_couloir
-      name: Couloir
-    - entity: number.schedule_absent_semaine_nuit_cuisine
-      name: Cuisine
-    - entity: number.schedule_absent_semaine_nuit_entree
-      name: Entrée
-    - entity: number.schedule_absent_semaine_nuit_salle_a_manger
-      name: Salle à manger
-    - entity: number.schedule_absent_semaine_nuit_salle_de_bain_filles
-      name: Salle de bain filles
-    - entity: number.schedule_absent_semaine_nuit_salle_de_bain_parents
-      name: Salle de bain parents
-    - entity: number.schedule_absent_semaine_nuit_salon
-      name: Salon
-    - entity: number.schedule_absent_semaine_nuit_toilettes_visiteurs
-      name: Toilettes visiteurs
-- title: Diagnostic
-  path: diagnostic
-  icon: mdi:stethoscope
-  cards:
-  - type: entities
-    title: Passerelle
-    show_header_toggle: false
-    entities:
-    - entity: sensor.intuis_home_gateway_wifi_strength
-      name: Signal WiFi
-    - entity: sensor.intuis_home_gateway_firmware
-      name: Firmware
-    - entity: sensor.intuis_home_gateway_uptime
-      name: Temps de fonctionnement
-  - type: entities
-    title: Modules — joignabilité
-    show_header_toggle: false
-    entities:
-    - entity: binary_sensor.chambre_damis_84_33_reachable
-      name: Chambre d'amis
-    - entity: binary_sensor.chambre_filles_c6_a5_reachable
-      name: Chambre filles
-    - entity: binary_sensor.chambre_parents_53_34_reachable
-      name: Chambre parents
-    - entity: binary_sensor.couloir_84_3d_reachable
-      name: Couloir
-    - entity: binary_sensor.cuisine_88_59_reachable
-      name: Cuisine
-    - entity: binary_sensor.entree_87_33_reachable
-      name: Entrée
-    - entity: binary_sensor.salle_a_manger_d2_36_reachable
-      name: Salle à manger
-    - entity: binary_sensor.salle_de_bain_filles_d6_5d_reachable
-      name: Salle de bain filles
-    - entity: binary_sensor.salle_de_bain_parents_7c_4c_reachable
-      name: Salle de bain parents
-    - entity: binary_sensor.salon_9d_e1_reachable
-      name: Salon
-    - entity: binary_sensor.toilettes_visiteurs_47_ac_reachable
-      name: Toilettes visiteurs
-  - type: entities
-    title: Modules — dernière communication
-    show_header_toggle: false
-    entities:
-    - entity: sensor.chambre_damis_84_33_last_seen
-      name: Chambre d'amis
-    - entity: sensor.chambre_filles_c6_a5_last_seen
-      name: Chambre filles
-    - entity: sensor.chambre_parents_53_34_last_seen
-      name: Chambre parents
-    - entity: sensor.couloir_84_3d_last_seen
-      name: Couloir
-    - entity: sensor.cuisine_88_59_last_seen
-      name: Cuisine
-    - entity: sensor.entree_87_33_last_seen
-      name: Entrée
-    - entity: sensor.salle_a_manger_d2_36_last_seen
-      name: Salle à manger
-    - entity: sensor.salle_de_bain_filles_d6_5d_last_seen
-      name: Salle de bain filles
-    - entity: sensor.salle_de_bain_parents_7c_4c_last_seen
-      name: Salle de bain parents
-    - entity: sensor.salon_9d_e1_last_seen
-      name: Salon
-    - entity: sensor.toilettes_visiteurs_47_ac_last_seen
-      name: Toilettes visiteurs
-  - type: entities
-    title: Modules — firmware
-    show_header_toggle: false
-    entities:
-    - entity: sensor.chambre_damis_84_33_firmware
-      name: Chambre d'amis
-    - entity: sensor.chambre_filles_c6_a5_firmware
-      name: Chambre filles
-    - entity: sensor.chambre_parents_53_34_firmware
-      name: Chambre parents
-    - entity: sensor.couloir_84_3d_firmware
-      name: Couloir
-    - entity: sensor.cuisine_88_59_firmware
-      name: Cuisine
-    - entity: sensor.entree_87_33_firmware
-      name: Entrée
-    - entity: sensor.salle_a_manger_d2_36_firmware
-      name: Salle à manger
-    - entity: sensor.salle_de_bain_filles_d6_5d_firmware
-      name: Salle de bain filles
-    - entity: sensor.salle_de_bain_parents_7c_4c_firmware
-      name: Salle de bain parents
-    - entity: sensor.salon_9d_e1_firmware
-      name: Salon
-    - entity: sensor.toilettes_visiteurs_47_ac_firmware
-      name: Toilettes visiteurs
-  - type: entities
-    title: Réglages du domicile
-    show_header_toggle: false
-    entities:
-    - entity: sensor.intuis_home_name
-      name: Nom
-    - entity: sensor.intuis_home_city
-      name: Ville
-    - entity: sensor.intuis_home_timezone
-      name: Fuseau horaire
-    - entity: sensor.intuis_home_currency_code
-      name: Devise
-    - type: divider
-    - entity: sensor.intuis_home_absence_detection
-      name: Détection d'absence
-    - entity: sensor.intuis_home_presence_threshold
-      name: Seuil de présence
-    - entity: sensor.intuis_home_anticipation
-      name: Anticipation
-    - entity: sensor.intuis_home_open_window
-      name: Détection fenêtre ouverte
-    - entity: sensor.intuis_home_schedule_optimization
-      name: Optimisation du planning
-    - entity: sensor.intuis_home_therm_setpoint_default_duration
-      name: Durée de dérogation par défaut
-    - entity: sensor.intuis_home_temp_lowering_mode
-      name: Mode d'abaissement
-    - entity: sensor.intuis_home_therm_heating_priority
-      name: Priorité de chauffe
-    - entity: sensor.intuis_home_offload
-      name: Délestage
+      - type: markdown
+        content: >
+          **Diagnostics de l'intégration** — nouveauté 2.1.0. Paramètres →
+          Appareils et services → Intuis Connect → ⋮ → *Télécharger les
+          diagnostics*. L'export contient tous les plannings chargés, zones
+          inutilisées comprises, sans identifiants cloud ni jetons.
+
+
+          **Fil pilote** — les pièces sans sonde de température sont
+          désormais détectées et pilotées par ordre (confort / éco /
+          hors-gel) plutôt que par consigne. Aucune des onze pièces de
+          Lens n'est dans ce cas : toutes remontent une température.
+
+
+          **Mesure d'énergie** — les pièces dont le cloud répond « pas de
+          thermostat relais » (erreur 21) sont maintenant ignorées
+          proprement au lieu de faire échouer le cycle horaire.
+
+      - type: entities
+        title: Passerelle
+        show_header_toggle: false
+        entities:
+          - entity: sensor.intuis_home_gateway_wifi_strength
+            name: Signal WiFi
+          - entity: sensor.intuis_home_gateway_firmware
+            name: Firmware
+          - entity: sensor.intuis_home_gateway_uptime
+            name: Temps de fonctionnement
+
+      - type: entities
+        title: Modules — joignabilité
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.chambre_damis_84_33_reachable
+            name: Chambre d'amis
+          - entity: binary_sensor.chambre_filles_c6_a5_reachable
+            name: Chambre filles
+          - entity: binary_sensor.chambre_parents_53_34_reachable
+            name: Chambre parents
+          - entity: binary_sensor.couloir_84_3d_reachable
+            name: Couloir
+          - entity: binary_sensor.cuisine_88_59_reachable
+            name: Cuisine
+          - entity: binary_sensor.entree_87_33_reachable
+            name: Entrée
+          - entity: binary_sensor.salle_a_manger_d2_36_reachable
+            name: Salle à manger
+          - entity: binary_sensor.salle_de_bain_filles_d6_5d_reachable
+            name: Salle de bain filles
+          - entity: binary_sensor.salle_de_bain_parents_7c_4c_reachable
+            name: Salle de bain parents
+          - entity: binary_sensor.salon_9d_e1_reachable
+            name: Salon
+          - entity: binary_sensor.toilettes_visiteurs_47_ac_reachable
+            name: Toilettes visiteurs
+
+      - type: entities
+        title: Modules — dernière communication
+        show_header_toggle: false
+        entities:
+          - entity: sensor.chambre_damis_84_33_last_seen
+            name: Chambre d'amis
+          - entity: sensor.chambre_filles_c6_a5_last_seen
+            name: Chambre filles
+          - entity: sensor.chambre_parents_53_34_last_seen
+            name: Chambre parents
+          - entity: sensor.couloir_84_3d_last_seen
+            name: Couloir
+          - entity: sensor.cuisine_88_59_last_seen
+            name: Cuisine
+          - entity: sensor.entree_87_33_last_seen
+            name: Entrée
+          - entity: sensor.salle_a_manger_d2_36_last_seen
+            name: Salle à manger
+          - entity: sensor.salle_de_bain_filles_d6_5d_last_seen
+            name: Salle de bain filles
+          - entity: sensor.salle_de_bain_parents_7c_4c_last_seen
+            name: Salle de bain parents
+          - entity: sensor.salon_9d_e1_last_seen
+            name: Salon
+          - entity: sensor.toilettes_visiteurs_47_ac_last_seen
+            name: Toilettes visiteurs
+
+      - type: entities
+        title: Modules — firmware
+        show_header_toggle: false
+        entities:
+          - entity: sensor.chambre_damis_84_33_firmware
+            name: Chambre d'amis
+          - entity: sensor.chambre_filles_c6_a5_firmware
+            name: Chambre filles
+          - entity: sensor.chambre_parents_53_34_firmware
+            name: Chambre parents
+          - entity: sensor.couloir_84_3d_firmware
+            name: Couloir
+          - entity: sensor.cuisine_88_59_firmware
+            name: Cuisine
+          - entity: sensor.entree_87_33_firmware
+            name: Entrée
+          - entity: sensor.salle_a_manger_d2_36_firmware
+            name: Salle à manger
+          - entity: sensor.salle_de_bain_filles_d6_5d_firmware
+            name: Salle de bain filles
+          - entity: sensor.salle_de_bain_parents_7c_4c_firmware
+            name: Salle de bain parents
+          - entity: sensor.salon_9d_e1_firmware
+            name: Salon
+          - entity: sensor.toilettes_visiteurs_47_ac_firmware
+            name: Toilettes visiteurs
+
+      - type: entities
+        title: Réglages du domicile
+        show_header_toggle: false
+        entities:
+          - entity: sensor.intuis_home_name
+            name: Nom
+          - entity: sensor.intuis_home_city
+            name: Ville
+          - entity: sensor.intuis_home_timezone
+            name: Fuseau horaire
+          - entity: sensor.intuis_home_currency_code
+            name: Devise
+          - type: divider
+          - entity: sensor.intuis_home_absence_detection
+            name: Détection d'absence
+          - entity: sensor.intuis_home_presence_threshold
+            name: Seuil de présence
+          - entity: sensor.intuis_home_anticipation
+            name: Anticipation
+          - entity: sensor.intuis_home_open_window
+            name: Détection fenêtre ouverte
+          - entity: sensor.intuis_home_schedule_optimization
+            name: Optimisation du planning
+          - entity: sensor.intuis_home_therm_setpoint_default_duration
+            name: Durée de dérogation par défaut
+          - entity: sensor.intuis_home_temp_lowering_mode
+            name: Mode d'abaissement
+          - entity: sensor.intuis_home_therm_heating_priority
+            name: Priorité de chauffe
+          - entity: sensor.intuis_home_offload
+            name: Délestage
+          - type: divider
+          - entity: sensor.intuis_home_temperature_control_mode
+            name: Mode de régulation
+          - entity: sensor.intuis_home_contract_power_unit
+            name: Unité de puissance du contrat
