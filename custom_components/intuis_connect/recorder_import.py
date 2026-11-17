@@ -17,6 +17,7 @@ import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+import logging
 import math
 import threading
 from typing import Any
@@ -31,6 +32,8 @@ from homeassistant.components.recorder.tasks import RecorderTask
 from sqlalchemy import delete, select, update
 
 from .utils.const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 HOUR = 3600
 
@@ -250,10 +253,26 @@ def _replace_external_in_transaction(
             # field existed, or under an older room name, would otherwise keep
             # its first value for good. unit_class in particular has to read
             # "energy" for the energy dashboard to list the series at all.
-            for key in ("name", "unit_class", "mean_type", "has_mean"):
-                if key in meta_data and getattr(meta, key, None) != meta_data[key]:
-                    setattr(meta, key, meta_data[key])
+            changed = [
+                key
+                for key in ("name", "unit_class", "mean_type", "has_mean")
+                if key in meta_data and getattr(meta, key, None) != meta_data[key]
+            ]
+            for key in changed:
+                setattr(meta, key, meta_data[key])
             session.flush()
+            # The energy dashboard lists a statistic only when unit_class reads
+            # "energy", and nothing else reports what the row actually holds.
+            _LOGGER.debug(
+                "External metadata %s: unit_class=%r unit=%r has_sum=%s "
+                "source=%r (updated: %s)",
+                statistic_id,
+                meta.unit_class,
+                meta.unit_of_measurement,
+                meta.has_sum,
+                meta.source,
+                ", ".join(changed) or "nothing",
+            )
         final_sum, cleared, adjusted = _replace_windows(
             session, (Statistics,), meta.id, windows, cancelled, baseline
         )
