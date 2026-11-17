@@ -42,19 +42,42 @@ aucune vue que l'horaire ne donne pas, et coûte toute la fragilité ci-dessous.
 
 ## 2. Les défauts, par gravité
 
-### 2.1 La fenêtre périodique est ancrée sur la dernière heure écrite
+### 2.1 Le cumul est relatif, sans jamais être réancré
 
-`async_update_window` (`hourly_stats.py:72-82`) part de `end - 48 h`, puis
-recule jusqu'à `dernière heure + 1 h` pour la pièce la plus en retard, borné à
-7 jours. `async_last_hour` renvoie la ligne **la plus récente**.
+C'est le défaut central, et il n'a rien à voir avec la largeur de la fenêtre.
 
-Quand la série est à jour, la fenêtre vaut donc exactement les 48 dernières
-heures. **Une heure confirmée par le cloud plus de 48 h après coup n'est jamais
-rattrapée** : elle est derrière la dernière ligne écrite, donc hors fenêtre pour
-toujours. C'est précisément le cas que la latence Intuis produit.
+`async_replace_external_history` poursuit les sommes « depuis la ligne qui
+précède la période ». L'ancrage est donc **relatif** : chaque heure écrite
+s'appuie sur la précédente, et rien ne redérive jamais le niveau absolu du
+cumul à partir d'une source sûre. Une heure manquée, une valeur révisée par le
+cloud, une fenêtre mal couverte : l'écart entre dans la somme et y reste pour
+toujours.
 
-L'ancrage devrait porter sur le **plus ancien trou**, pas sur la dernière
-ligne.
+Le flux Node-RED de référence (`TheFab21/Time-Planning-intuis`) ne souffre pas
+de ce défaut, alors qu'il utilise une fenêtre horaire comparable — de minuit
+local J-1 à maintenant. Ce qui le sauve est ailleurs :
+
+- il maintient `base_kwh`, le cumul arrêté à **la fin du jour J-2** ;
+- une fois par jour, il avance cette base de la consommation de J-2 lue à
+  l'échelle **`1day`**, c'est-à-dire la valeur consolidée du cloud ;
+- chaque heure importée vaut alors `base du jour + cumul depuis minuit local`,
+  donc une valeur **absolue**, recalculable à l'identique.
+
+Le rebase est idempotent : une clé `rebase_j2_done_<jour>` persistée en
+contexte fichier, posée seulement après un succès.
+
+Autrement dit, la fenêtre de 48 h est parfaitement suffisante **à condition**
+qu'une réconciliation quotidienne la rattrape derrière. Le flux a cette
+réconciliation ; l'intégration n'en a aucune. C'est la différence à combler,
+pas la largeur de la fenêtre.
+
+Deux conséquences secondaires de l'ancrage relatif :
+
+- un réimport d'une plage chevauchante peut décaler toute la suite, puisque le
+  point de départ dépend de la ligne qui précède et non d'une référence
+  absolue ;
+- le total maison hérite du même défaut, alors que le rebase quotidien le
+  donnerait directement et sans dépendre des trous horaires.
 
 ### 2.2 L'horizon de clôture est de quinze minutes
 
@@ -143,22 +166,25 @@ l'entité. L'une ou l'autre, jamais les deux.
 La première option est préférable : elle garde l'entité utilisable dans les
 cartes natives et les automatisations, sans contrainte sur le passé.
 
-### 3.2 Un filigrane par série
+### 3.2 Un rebase quotidien, comme dans le flux Node-RED
 
-Chaque série porte deux repères persistés :
+Le mécanisme à reprendre tel quel, parce qu'il tourne en production sur cette
+API depuis longtemps :
 
-- `confirmed_through` : toutes les heures jusque-là sont définitivement closes,
-  plus jamais relues ;
-- `open_from` : la plus ancienne heure encore susceptible d'arriver.
+- une passe quotidienne lit l'échelle `1day` pour **J-2**, valeur consolidée ;
+- elle en déduit le cumul arrêté à la fin de J-2, par pièce ;
+- la passe horaire couvre **J-1 et aujourd'hui**, et chaque heure vaut
+  `base de la journée + cumul depuis minuit local`, une valeur absolue ;
+- l'avance de la base est protégée par une clé « déjà fait » datée, posée
+  seulement en cas de succès.
 
-Le cycle relit `[open_from, closed_hour_end(now))`, borné par une profondeur
-maximale configurable. `confirmed_through` n'avance que lorsqu'une heure est
-confirmée **et** plus ancienne que l'horizon de décantation. Une heure qui
-arrive en retard est donc rattrapée tant qu'elle est devant `confirmed_through`,
-quelle que soit la date de la dernière ligne écrite.
+Le gain est double. Les trous horaires de J-1 et d'aujourd'hui cessent d'être
+critiques, puisque le rebase de J-2 les absorbe le lendemain. Et un réimport
+devient idempotent, puisque la somme ne dépend plus de la ligne précédente mais
+d'une base datée.
 
-Cela remplace à la fois `UPDATE_WINDOW`, `CATCH_UP_WINDOW` et le `min(last+1h)`
-actuel, et règle 2.1 d'un seul coup.
+Le choix de J-2 plutôt que J-1 est délibéré : il laisse au cloud une journée
+pleine pour consolider.
 
 ### 3.3 Un horizon de décantation explicite
 
@@ -203,8 +229,8 @@ la perdre.
 
 1. **Mise à jour des métadonnées existantes.** Sans elle, rien de ce qui suit
    n'atteint une installation en service.
-2. **Filigranes et horizon de décantation**, en gardant les séries existantes.
-   Gain immédiat sur les trous dus à la latence.
+2. **Rebase quotidien à J-2**, en gardant les séries existantes. C'est l'étape
+   qui rend le cumul auto-réparateur et qui absorbe la latence du cloud.
 3. **Statut honnête** : « aucune heure confirmée » cesse d'être une erreur.
 4. **Coûts découplés**, pilotés par leur filigrane.
 5. **Retrait de la voie journalière** : plus aucune écriture dans
