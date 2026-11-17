@@ -6,6 +6,7 @@ import logging
 import math
 import time
 from datetime import datetime, timedelta
+from collections.abc import Sequence
 from typing import Any, Callable
 
 import aiohttp
@@ -17,6 +18,8 @@ from ..utils.const import (
     HOMESDATA_PATH,
     HOMESTATUS_PATH,
     SETSTATE_PATH,
+    HOMEMEASURE_PATH,
+    HOME_MEASURE_TYPE,
     ROOMMEASURE_PATH,
     ENERGY_MEASURE_TYPES,
     CLIENT_ID,
@@ -805,6 +808,167 @@ class IntuisAPI:
         if not samples:
             raise EnergyDataUnavailable("No measured energy in cloud response")
         return samples
+
+    @staticmethod
+    def _parse_home_measure(
+        data: Any, *, step: int
+    ) -> dict[str, list[tuple[int, float]]]:
+        """Samples per room of one gethomemeasure answer.
+
+        The home endpoint answers every room in a single request, grouped
+        under body.home.rooms. One request instead of one per room is what
+        keeps the cloud from rate limiting a home with many rooms.
+
+        A room without any measure block is absent from the result, never a
+        fabricated zero, so callers keep treating it as a gap. Timestamps are
+        returned as the cloud sends them: it stamps a period inside itself, so
+        callers map each one to the period that contains it.
+        """
+        if not isinstance(data, dict) or data.get("error"):
+            raise APIError("Energy API returned an error or malformed response")
+        home = (data.get("body") or {}).get("home")
+        if not isinstance(home, dict) or not isinstance(home.get("rooms"), list):
+            raise APIError("Home measure response must carry body.home.rooms")
+        result: dict[str, list[tuple[int, float]]] = {}
+        for room in home["rooms"]:
+            if not isinstance(room, dict):
+                raise APIError("Malformed room in home measure")
+            room_id = room.get("id")
+            if not isinstance(room_id, str) or not room_id:
+                raise APIError("Room in home measure has no usable id")
+            measures = room.get("measures")
+            if not isinstance(measures, list) or not measures:
+                continue
+            samples: list[tuple[int, float]] = []
+            for measure in measures:
+                if not isinstance(measure, dict) or not isinstance(
+                    measure.get("value"), list
+                ):
+                    raise APIError("Malformed measure in home measure")
+                begin = measure.get("beg_time")
+                block_step = measure.get("step_time", step)
+                if (
+                    isinstance(begin, bool)
+                    or not isinstance(begin, (int, float))
+                    or not math.isfinite(begin)
+                    or begin < 0
+                    or int(begin) != begin
+                    or block_step != step
+                ):
+                    raise APIError("Invalid home measure timestamps or step")
+                for index, values in enumerate(measure["value"]):
+                    if not isinstance(values, list):
+                        raise APIError("Malformed home measure sample")
+                    total = 0.0
+                    measured = False
+                    for value in values:
+                        if value is None:
+                            continue
+                        if isinstance(value, bool) or not isinstance(
+                            value, (int, float)
+                        ):
+                            raise APIError("Energy must be a numeric measurement")
+                        if not math.isfinite(value) or value < 0:
+                            raise APIError("Energy must be finite and nonnegative")
+                        total += value
+                        measured = True
+                    if measured:
+                        samples.append((int(begin + index * block_step), total))
+            if samples:
+                result[room_id] = samples
+        return result
+
+    async def _async_home_measure(
+        self,
+        rooms: Sequence[tuple[str, str]],
+        date_begin: int,
+        date_end: int,
+        *,
+        scale: str,
+        step: int,
+        floor_to_step: bool,
+    ) -> dict[str, list[tuple[int, float]]]:
+        """One request for every room, chunked like the per-room endpoint.
+
+        The payload mirrors TheFab21's Node-RED flow, which this cloud has
+        answered for a long time: a JSON body carrying the home and each
+        room with its bridge.
+        """
+        if not rooms:
+            return {}
+        if (
+            type(date_begin) is not int
+            or type(date_end) is not int
+            or date_begin < 0
+            or date_end <= date_begin
+            or date_end - date_begin > 731 * 86400
+        ):
+            raise APIError("Invalid home measure request range")
+        chunk_span = 42 * 86400 if step == 3600 else 731 * 86400
+        gathered: dict[str, dict[int, float]] = {}
+        chunk = date_begin
+        while chunk < date_end:
+            end = min(chunk + chunk_span, date_end)
+            payload = {
+                "date_begin": chunk,
+                "date_end": end,
+                "scale": scale,
+                "app_identifier": "app_muller",
+                "home": {
+                    "id": self.home_id,
+                    "rooms": [
+                        {"id": room_id, "bridge": bridge, "type": HOME_MEASURE_TYPE}
+                        for room_id, bridge in rooms
+                    ],
+                },
+            }
+            async with await self._async_request(
+                "post", HOMEMEASURE_PATH, json=payload
+            ) as resp:
+                try:
+                    data = await resp.json()
+                except (ValueError, aiohttp.ClientError) as err:
+                    raise APIError("Invalid home measure response") from err
+            try:
+                per_room = self._parse_home_measure(data, step=step)
+            except EnergyDataUnavailable:
+                per_room = {}
+            for room_id, samples in per_room.items():
+                bucket = gathered.setdefault(room_id, {})
+                for timestamp, wh in samples:
+                    # Hours are keyed by the hour containing the stamp; days
+                    # keep theirs, stamped at local noon, for the caller to
+                    # map onto its own local day.
+                    key = timestamp - timestamp % step if floor_to_step else timestamp
+                    if not date_begin <= key < date_end:
+                        continue
+                    if key in bucket and bucket[key] != wh:
+                        raise APIError("Conflicting home measurements")
+                    bucket[key] = wh
+            chunk = end
+        return {
+            room_id: sorted(values.items()) for room_id, values in gathered.items()
+        }
+
+    async def async_get_home_energy_hourly(
+        self, rooms: Sequence[tuple[str, str]], date_begin: int, date_end: int
+    ) -> dict[str, list[tuple[int, float]]]:
+        """Measured hours of [date_begin, date_end) for every room at once."""
+        return await self._async_home_measure(
+            rooms, date_begin, date_end, scale="1hour", step=3600, floor_to_step=True
+        )
+
+    async def async_get_home_energy_daily(
+        self, rooms: Sequence[tuple[str, str]], date_begin: int, date_end: int
+    ) -> dict[str, list[tuple[int, float]]]:
+        """Measured days of [date_begin, date_end) for every room at once.
+
+        Daily samples are stamped at local noon, so they are returned as sent
+        and callers map each one to the local day containing it.
+        """
+        return await self._async_home_measure(
+            rooms, date_begin, date_end, scale="1day", step=86400, floor_to_step=False
+        )
 
     async def async_get_room_energy_daily(
         self, room_id: str, date_begin: int, date_end: int

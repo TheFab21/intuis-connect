@@ -159,12 +159,27 @@ async def async_rebase_levels(
     plan = base.plan(now, zone)
     if plan is None:
         return {"rebase": "up to date"}
+    try:
+        bulk = await api.async_get_home_energy_daily(
+            bridged_rooms(intuis_home, rooms), plan.begin, plan.end
+        )
+    except RateLimitError as err:
+        # Falling back would issue one request per room, the opposite of what
+        # a rate limit asks for.
+        _LOGGER.warning("Energy rebase postponed, rate limited: %s", err)
+        return {"rebase": "postponed", "error": str(err)}
+    except (APIError, CannotConnect, InvalidAuth, ValueError, OSError) as err:
+        _LOGGER.info("Home daily measure unavailable, asking room by room: %s", err)
+        bulk = None
     added: dict[str, float] = {}
     for room_id, room_name in rooms:
         try:
-            samples = await api.async_get_room_energy_daily(
-                room_id, plan.begin, plan.end - 1
-            )
+            if bulk is None:
+                samples = await api.async_get_room_energy_daily(
+                    room_id, plan.begin, plan.end - 1
+                )
+            else:
+                samples = bulk.get(room_id, [])
             totals = daily_totals(samples, zone, plan.first, plan.last)
         except EnergyDataUnavailable:
             # Settled days the cloud never measured add nothing, like the flow.
@@ -181,7 +196,8 @@ async def async_rebase_levels(
                 plan.days,
             )
         added[room_id] = sum(totals.values())
-        await asyncio.sleep(API_DELAY_SECONDS)
+        if bulk is None:
+            await asyncio.sleep(API_DELAY_SECONDS)
     base.advance(plan.last, added)
     await manager.async_save()
     _LOGGER.debug("Energy level advanced through %s: %s", plan.last, added)
@@ -191,6 +207,14 @@ async def async_rebase_levels(
         "days": plan.days,
         "added_kwh": round(sum(added.values()), 3),
     }
+
+
+def bridged_rooms(intuis_home: IntuisHome, rooms) -> list[tuple[str, str]]:
+    """(room_id, bridge) pairs the home endpoint needs for one bulk request."""
+    return [
+        (room_id, getattr(intuis_home.rooms.get(room_id), "bridge_id", "") or "")
+        for room_id, _ in rooms
+    ]
 
 
 def entry_cost_options(options: Any) -> dict[str, Any] | None:
@@ -261,12 +285,29 @@ async def async_import_hourly_history(
                 )
             except Exception as err:  # noqa: BLE001 - costs never block energy
                 cost_errors.append(f"Costs: {err}")
+        bulk: dict[str, list[tuple[int, float]]] | None = None
+        if rooms:
+            try:
+                bulk = await api.async_get_home_energy_hourly(
+                    bridged_rooms(intuis_home, rooms), start, end
+                )
+            except RateLimitError:
+                # One request per room is the opposite of what a 429 asks for.
+                raise
+            except (APIError, CannotConnect, InvalidAuth, ValueError, OSError) as err:
+                _LOGGER.info(
+                    "Home hourly measure unavailable, asking room by room: %s", err
+                )
         for room_id, room_name in rooms:
             if manager._cancelled:
                 raise asyncio.CancelledError
             manager.current_room = room_name
             try:
-                values = await api.async_get_room_energy_hourly(room_id, start, end)
+                values = (
+                    bulk.get(room_id, [])
+                    if bulk is not None
+                    else await api.async_get_room_energy_hourly(room_id, start, end)
+                )
                 samples = stage_hourly(values, start, end)
                 if manager._cancelled:
                     raise asyncio.CancelledError
@@ -312,7 +353,7 @@ async def async_import_hourly_history(
                     cost_errors.append(f"{room_name} cost: {err}")
                     _LOGGER.warning("Hourly cost failed for %s: %s", room_name, err)
             manager.rooms_completed += 1
-            if manager.rooms_completed < len(rooms):
+            if bulk is None and manager.rooms_completed < len(rooms):
                 await asyncio.sleep(API_DELAY_SECONDS)
         if room_filter is None and rooms:
             missing = [name for rid, name in rooms if rid not in confirmed]
