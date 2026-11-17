@@ -11,6 +11,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 import logging
 from typing import TYPE_CHECKING, Any
+from zoneinfo import ZoneInfo
 
 from homeassistant.components.recorder import get_instance, statistics
 from homeassistant.config_entries import ConfigEntry
@@ -25,6 +26,12 @@ from .cost_stats import (
     cost_metadata,
     hourly_costs,
 )
+from .energy_base import (
+    EnergyBase,
+    daily_totals,
+    local_midnight,
+    settled_day,
+)
 from .external_statistics import metadata, statistic_id
 from .hourly_series import (
     HOUR,
@@ -35,7 +42,13 @@ from .hourly_series import (
     stage_hourly,
     sum_hourly,
 )
-from .intuis_api.api import APIError, CannotConnect, InvalidAuth, RateLimitError
+from .intuis_api.api import (
+    APIError,
+    CannotConnect,
+    EnergyDataUnavailable,
+    InvalidAuth,
+    RateLimitError,
+)
 from .recorder_import import HistoryReplacementError, async_replace_external_history
 from .utils.const import CONF_COST_STATISTICS
 
@@ -48,6 +61,8 @@ _LOGGER = logging.getLogger(__name__)
 UPDATE_WINDOW = 48 * HOUR
 CATCH_UP_WINDOW = 7 * 24 * HOUR
 FIRST_UPDATE_DELAY = 60  # seconds; lets the recorder and first refresh settle
+# How far back a seed looks for the series' own value at a day boundary.
+SEED_LOOKBACK_DAYS = 30
 
 
 def room_metadata(home_id: str, room_id: str, room_name: str) -> dict[str, Any]:
@@ -69,6 +84,31 @@ async def async_last_hour(hass: HomeAssistant, sid: str) -> int | None:
     return int(start.timestamp() if isinstance(start, datetime) else start)
 
 
+async def async_sum_at(hass: HomeAssistant, sid: str, boundary: datetime) -> float:
+    """Cumulative sum of the last hour that ends at or before ``boundary``.
+
+    Seeding the level needs the series' own value at a day boundary, not its
+    latest value: taking the latest would count the hours after the boundary
+    twice once they are rewritten against the level.
+    """
+    rows = await get_instance(hass).async_add_executor_job(
+        statistics.statistics_during_period,
+        hass,
+        boundary - timedelta(days=SEED_LOOKBACK_DAYS),
+        boundary,
+        {sid},
+        "hour",
+        None,
+        {"sum"},
+    )
+    series = rows.get(sid) or []
+    for row in reversed(series):
+        value = row.get("sum")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return float(value)
+    return 0.0
+
+
 async def async_update_window(
     hass: HomeAssistant, home_id: str, room_ids: list[str], now: datetime
 ) -> tuple[int, int]:
@@ -80,6 +120,77 @@ async def async_update_window(
         if last is not None:
             start = min(start, last + HOUR)
     return max(start, end - CATCH_UP_WINDOW), end
+
+
+async def async_rebase_levels(
+    hass: HomeAssistant,
+    api: IntuisAPI,
+    intuis_home: IntuisHome,
+    manager: HistoryImportManager,
+    zone: ZoneInfo,
+    now: datetime,
+) -> dict[str, Any]:
+    """Advance the absolute level from the cloud's consolidated daily measure.
+
+    Adapted from TheFab21's Node-RED flow: the hourly series alone carries an
+    error forward for good, so a once-a-day pass re-anchors it on the 1day
+    value of a settled local day. Idempotent by the stored settled day; the
+    level is committed only once every room answered, since a partial advance
+    would understate the rooms it skipped.
+    """
+    from .history_import import API_DELAY_SECONDS
+
+    base = EnergyBase(manager._state)
+    rooms = energy_rooms(intuis_home)
+    home_id = intuis_home.id
+    if not rooms:
+        return {"rebase": "no rooms"}
+    if base.needs_reseed(now, zone):
+        through = settled_day(now, zone)
+        boundary = local_midnight(through + timedelta(days=1), zone)
+        levels = {
+            room_id: await async_sum_at(hass, statistic_id(home_id, room_id), boundary)
+            for room_id, _ in rooms
+        }
+        base.seed(through, levels)
+        await manager.async_save()
+        _LOGGER.debug("Energy level seeded through %s: %s", through, levels)
+        return {"rebase": "seeded", "through": through.isoformat()}
+    plan = base.plan(now, zone)
+    if plan is None:
+        return {"rebase": "up to date"}
+    added: dict[str, float] = {}
+    for room_id, room_name in rooms:
+        try:
+            samples = await api.async_get_room_energy_daily(
+                room_id, plan.begin, plan.end - 1
+            )
+            totals = daily_totals(samples, zone, plan.first, plan.last)
+        except EnergyDataUnavailable:
+            # Settled days the cloud never measured add nothing, like the flow.
+            totals = {}
+        except (APIError, CannotConnect, InvalidAuth, ValueError, OSError) as err:
+            # Nothing is committed: the whole catch-up is retried next cycle.
+            _LOGGER.warning("Energy rebase postponed for %s: %s", room_name, err)
+            return {"rebase": "postponed", "error": f"{room_name}: {err}"}
+        if len(totals) < plan.days:
+            _LOGGER.info(
+                "%s: %d of %d settled days had no measurement",
+                room_name,
+                plan.days - len(totals),
+                plan.days,
+            )
+        added[room_id] = sum(totals.values())
+        await asyncio.sleep(API_DELAY_SECONDS)
+    base.advance(plan.last, added)
+    await manager.async_save()
+    _LOGGER.debug("Energy level advanced through %s: %s", plan.last, added)
+    return {
+        "rebase": "advanced",
+        "through": plan.last.isoformat(),
+        "days": plan.days,
+        "added_kwh": round(sum(added.values()), 3),
+    }
 
 
 def entry_cost_options(options: Any) -> dict[str, Any] | None:
@@ -98,6 +209,7 @@ async def async_import_hourly_history(
     room_filter: str | None = None,
     home_id: str | None = None,
     cost_options: dict[str, Any] | None = None,
+    baselines: dict[str, float] | None = None,
 ) -> dict:
     """Fetch, stage, then replace one external series transaction per room.
 
@@ -162,6 +274,7 @@ async def async_import_hourly_history(
                     hass,
                     room_metadata(home_id, room_id, room_name),
                     hourly_windows(samples),
+                    baselines.get(room_id) if baselines else None,
                 )
                 confirmed[room_id] = samples
                 results["rooms_imported"] += 1
@@ -323,18 +436,37 @@ class HourlyStatisticsUpdater:
             _LOGGER.warning("Hourly statistics update failed", exc_info=True)
 
     async def async_update(self) -> bool:
-        """Reserve the entry's manager; a running manual import defers this cycle."""
+        """Reserve the entry's manager; a running manual import defers this cycle.
+
+        The daily rebase runs first, under the same reservation, so the hours
+        written next are anchored on a level the cloud has settled instead of
+        on whatever row happens to precede them.
+        """
         from .history_import import async_get_import_manager
 
         if self._closed:
             return False
         manager = await async_get_import_manager(self.hass, self.entry.entry_id)
+        now = datetime.now(timezone.utc)
+        room_ids = [room_id for room_id, _ in energy_rooms(self.intuis_home)]
+        zone = None
+        try:
+            zone = ZoneInfo(self.api.home_timezone)
+            await manager.async_run_exclusive(
+                async_rebase_levels(
+                    self.hass, self.api, self.intuis_home, manager, zone, now
+                )
+            )
+        except Exception:  # noqa: BLE001 - the hourly pass must still run
+            _LOGGER.warning("Energy rebase failed; hours stay relative", exc_info=True)
+        if self._closed:
+            return False
         start, end = await async_update_window(
-            self.hass,
-            self.intuis_home.id,
-            [room_id for room_id, _ in energy_rooms(self.intuis_home)],
-            datetime.now(timezone.utc),
+            self.hass, self.intuis_home.id, room_ids, now
         )
+        baselines = self._anchored_window(manager, zone, room_ids, end)
+        if baselines is not None:
+            start, baselines = baselines
         if self._closed:
             return False
         started = manager.start(
@@ -345,10 +477,37 @@ class HourlyStatisticsUpdater:
             end=end,
             home_id=self.intuis_home.id,
             cost_options=entry_cost_options(self.entry.options),
+            baselines=baselines,
         )
         if not started:
             _LOGGER.debug("Hourly update deferred: import running or entry unloading")
         return started
+
+    def _anchored_window(
+        self,
+        manager: HistoryImportManager,
+        zone: ZoneInfo | None,
+        room_ids: list[str],
+        end: int,
+    ) -> tuple[int, dict[str, float]] | None:
+        """Window starting at the settled level, when every room has one.
+
+        All or nothing: anchoring some rooms and not others would mix absolute
+        and relative sums inside one home total.
+        """
+        if zone is None or not room_ids:
+            return None
+        base = EnergyBase(manager._state)
+        start = base.hourly_start(zone)
+        if start is None or start >= end:
+            return None
+        levels: dict[str, float] = {}
+        for room_id in room_ids:
+            level = base.level(room_id)
+            if level is None:
+                return None
+            levels[room_id] = level
+        return start, levels
 
     async def async_close(self) -> None:
         """Stop scheduling before the import manager drains its job."""
