@@ -491,6 +491,24 @@ views:
   icon: mdi:lightning-bolt
   cards:
   - type: statistics-graph
+    title: Consommation horaire — total maison
+    period: hour
+    stat_types:
+    - change
+    chart_type: bar
+    days_to_show: 3
+    entities:
+    - intuis_connect:energy_729266f6dc2fd6733db38e0df433c1d7
+  - type: statistics-graph
+    title: Coût horaire — total maison
+    period: hour
+    stat_types:
+    - change
+    chart_type: bar
+    days_to_show: 3
+    entities:
+    - intuis_connect:cost_729266f6dc2fd6733db38e0df433c1d7
+  - type: statistics-graph
     title: Consommation quotidienne par pièce
     period: day
     stat_types:
@@ -498,28 +516,38 @@ views:
     chart_type: bar
     days_to_show: 30
     entities:
-    - sensor.chambre_damis_energy
-    - sensor.chambre_filles_energy
-    - sensor.chambre_parents_energy
-    - sensor.couloir_energy
-    - sensor.cuisine_energy
-    - sensor.entree_energy
-    - sensor.salle_a_manger_energy
-    - sensor.salle_de_bain_filles_energy
-    - sensor.salle_de_bain_parents_energy
-    - sensor.salon_energy
-    - sensor.toilettes_visiteurs_energy
+    - intuis_connect:energy_ae366fc8ecab9cfadcda4a20e06aced5
+    - intuis_connect:energy_245a05f7781a0fe5a0e3985c28f87131
+    - intuis_connect:energy_31ca63e5a749f1eb1fb19541a434f507
+    - intuis_connect:energy_11176ac36e1e9c472405391e83b9a831
+    - intuis_connect:energy_3d06888dd09d9e2b43d9e94351d6dbca
+    - intuis_connect:energy_7f82433b0c146446ff0c565e90ce72d1
+    - intuis_connect:energy_5c87a9f77e9a914fc5ac94eae2484895
+    - intuis_connect:energy_147dc73b6e1769bdf051b79a7306b0fa
+    - intuis_connect:energy_4b32e9026bbe3c8b5533714fc9682666
+    - intuis_connect:energy_61aef8adbcd08c6e6c1a957f5fdf910e
+    - intuis_connect:energy_fe511d42945d493beca4c0d28ef8850a
   - type: statistics-graph
-    title: Total maison — 90 jours
+    title: Coût quotidien par pièce
     period: day
     stat_types:
     - change
     chart_type: bar
-    days_to_show: 90
+    days_to_show: 30
     entities:
-    - sensor.intuis_home_energy_today
+    - intuis_connect:cost_ae366fc8ecab9cfadcda4a20e06aced5
+    - intuis_connect:cost_245a05f7781a0fe5a0e3985c28f87131
+    - intuis_connect:cost_31ca63e5a749f1eb1fb19541a434f507
+    - intuis_connect:cost_11176ac36e1e9c472405391e83b9a831
+    - intuis_connect:cost_3d06888dd09d9e2b43d9e94351d6dbca
+    - intuis_connect:cost_7f82433b0c146446ff0c565e90ce72d1
+    - intuis_connect:cost_5c87a9f77e9a914fc5ac94eae2484895
+    - intuis_connect:cost_147dc73b6e1769bdf051b79a7306b0fa
+    - intuis_connect:cost_4b32e9026bbe3c8b5533714fc9682666
+    - intuis_connect:cost_61aef8adbcd08c6e6c1a957f5fdf910e
+    - intuis_connect:cost_fe511d42945d493beca4c0d28ef8850a
   - type: entities
-    title: Compteurs cumulés
+    title: Compteurs journaliers des capteurs
     show_header_toggle: false
     entities:
     - entity: sensor.intuis_home_energy_today
