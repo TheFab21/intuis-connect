@@ -933,6 +933,19 @@ class IntuisAPI:
                     ],
                 },
             }
+            if self._debug:
+                # The flow this mirrors is answered 200 for the same body, so
+                # a 404 here has to be read against what we actually send.
+                _LOGGER.debug(
+                    "Home measure request: scale=%s home=%r rooms=%d first=%r "
+                    "begin=%s end=%s",
+                    scale,
+                    payload["home"]["id"],
+                    len(payload["home"]["rooms"]),
+                    payload["home"]["rooms"][0] if payload["home"]["rooms"] else None,
+                    chunk,
+                    end,
+                )
             try:
                 response = await self._async_request(
                     "post", HOMEMEASURE_PATH, json=payload
