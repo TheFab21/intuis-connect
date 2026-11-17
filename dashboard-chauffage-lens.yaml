@@ -713,6 +713,41 @@ views:
           - entity: intuis_connect:energy_7f82433b0c146446ff0c565e90ce72d1
             name: Toilettes visiteurs
 
+      # ---------------------------------------------------------------
+      # Coûts. Même condensé que l'énergie, seul le préfixe change :
+      # statistic_id() ne hache que [home_id, room_id].
+      # Unité : la devise du domicile (CHF), portée par les métadonnées.
+      # ---------------------------------------------------------------
+      - type: statistics-graph
+        title: Coût quotidien par pièce — 30 jours
+        period: day
+        stat_types: [change]
+        chart_type: bar
+        days_to_show: 30
+        entities:
+          - entity: intuis_connect:cost_245a05f7781a0fe5a0e3985c28f87131
+            name: Chambre d'amis
+          - entity: intuis_connect:cost_11176ac36e1e9c472405391e83b9a831
+            name: Chambre filles
+          - entity: intuis_connect:cost_fe511d42945d493beca4c0d28ef8850a
+            name: Chambre parents
+          - entity: intuis_connect:cost_3d06888dd09d9e2b43d9e94351d6dbca
+            name: Couloir
+          - entity: intuis_connect:cost_61aef8adbcd08c6e6c1a957f5fdf910e
+            name: Cuisine
+          - entity: intuis_connect:cost_ae366fc8ecab9cfadcda4a20e06aced5
+            name: Entrée
+          - entity: intuis_connect:cost_147dc73b6e1769bdf051b79a7306b0fa
+            name: Salle à manger
+          - entity: intuis_connect:cost_31ca63e5a749f1eb1fb19541a434f507
+            name: Salle de bain filles
+          - entity: intuis_connect:cost_4b32e9026bbe3c8b5533714fc9682666
+            name: Salle de bain parents
+          - entity: intuis_connect:cost_5c87a9f77e9a914fc5ac94eae2484895
+            name: Salon
+          - entity: intuis_connect:cost_7f82433b0c146446ff0c565e90ce72d1
+            name: Toilettes visiteurs
+
       - type: statistics-graph
         title: Total maison — 90 jours
         period: day
@@ -721,6 +756,16 @@ views:
         days_to_show: 90
         entities:
           - entity: intuis_connect:energy_729266f6dc2fd6733db38e0df433c1d7
+            name: Maison
+
+      - type: statistics-graph
+        title: Coût maison — 90 jours
+        period: day
+        stat_types: [change]
+        chart_type: bar
+        days_to_show: 90
+        entities:
+          - entity: intuis_connect:cost_729266f6dc2fd6733db38e0df433c1d7
             name: Maison
 
       # ---------------------------------------------------------------
@@ -786,6 +831,44 @@ views:
           - entity: sensor.salon_energy
             name: Salon
           - entity: sensor.toilettes_visiteurs_energy
+            name: Toilettes visiteurs
+
+      # Coûts cumulés acquittés. Ces entity_id sont DÉDUITS du motif de
+      # slug des capteurs d'énergie (apostrophe typographique supprimée
+      # sans séparateur : « Chambre d'amis » -> chambre_damis).
+      # Si une ligne affiche « Entité non disponible », relève le vrai id :
+      #   {% for s in states.sensor
+      #        | selectattr('attributes.statistic_id', 'defined') %}
+      #   {{ s.entity_id }}
+      #   {% endfor %}
+      - type: entities
+        title: Coûts cumulés
+        show_header_toggle: false
+        entities:
+          - entity: sensor.intuis_home_hourly_cost
+            name: Maison
+          - type: divider
+          - entity: sensor.chambre_damis_hourly_cost
+            name: Chambre d'amis
+          - entity: sensor.chambre_filles_hourly_cost
+            name: Chambre filles
+          - entity: sensor.chambre_parents_hourly_cost
+            name: Chambre parents
+          - entity: sensor.couloir_hourly_cost
+            name: Couloir
+          - entity: sensor.cuisine_hourly_cost
+            name: Cuisine
+          - entity: sensor.entree_hourly_cost
+            name: Entrée
+          - entity: sensor.salle_a_manger_hourly_cost
+            name: Salle à manger
+          - entity: sensor.salle_de_bain_filles_hourly_cost
+            name: Salle de bain filles
+          - entity: sensor.salle_de_bain_parents_hourly_cost
+            name: Salle de bain parents
+          - entity: sensor.salon_hourly_cost
+            name: Salon
+          - entity: sensor.toilettes_visiteurs_hourly_cost
             name: Toilettes visiteurs
 
   # ===================================================================
