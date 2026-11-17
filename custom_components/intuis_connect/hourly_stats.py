@@ -144,6 +144,7 @@ async def async_rebase_levels(
     rooms = energy_rooms(intuis_home)
     home_id = intuis_home.id
     if not rooms:
+        _LOGGER.debug("Energy rebase: no rooms with equipment")
         return {"rebase": "no rooms"}
     if base.needs_reseed(now, zone):
         through = settled_day(now, zone)
@@ -158,6 +159,10 @@ async def async_rebase_levels(
         return {"rebase": "seeded", "through": through.isoformat()}
     plan = base.plan(now, zone)
     if plan is None:
+        # Logged too: silence here was mistaken for the rebase never running.
+        _LOGGER.debug(
+            "Energy rebase up to date, level settled through %s", base.settled_through
+        )
         return {"rebase": "up to date"}
     bulk = None
     try:
