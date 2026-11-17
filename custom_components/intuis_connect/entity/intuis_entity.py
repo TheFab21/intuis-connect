@@ -13,14 +13,9 @@ IntuisDataUpdateCoordinator = DataUpdateCoordinator[dict[str, Any]]
 class IntuisEntity(Entity):
     """Base class for Intuis entities."""
 
-    def __init__(self, coordinator: IntuisDataUpdateCoordinator, room: IntuisRoom, home_id: str, name: str | None,
+    def __init__(self, coordinator: IntuisDataUpdateCoordinator, room: IntuisRoom, home_id: str, name: str,
                  entity_type: str) -> None:
-        """Initialize the Intuis entity.
-
-        A name of None belongs to an entity that carries has_entity_name and
-        is its device's primary one: Home Assistant then names it after the
-        device alone, instead of composing the two.
-        """
+        """Initialize the Intuis entity."""
         Entity.__init__(self)
         self._coordinator = coordinator
         self._room = room

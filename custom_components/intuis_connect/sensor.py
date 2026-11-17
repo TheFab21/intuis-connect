@@ -73,7 +73,6 @@ class IntuisCostSensor(SensorEntity):
     """
 
     _attr_should_poll = False
-    _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_suggested_display_precision = 2
     _attr_icon = "mdi:cash"
@@ -90,10 +89,7 @@ class IntuisCostSensor(SensorEntity):
         self._home_id = home_id
         self._room_id = room_id
         self._attr_native_unit_of_measurement = currency
-        # The device already carries the room, so the name must not repeat it:
-        # with has_entity_name the two are composed, which is what produced
-        # "Chambre D'amis Chambre D'amis Hourly Cost".
-        self._attr_name = "Hourly Cost"
+        self._attr_name = f"{label} Hourly Cost"
         if room_id is None:
             self._attr_unique_id = f"intuis_{home_id}_home_hourly_cost"
             self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, f"{home_id}_home")})
