@@ -165,10 +165,11 @@ async def async_rebase_levels(
         )
         return {"rebase": "up to date"}
     bulk = None
+    paired = bridged_rooms(intuis_home, rooms)
     try:
-        if api.home_measure_supported:
+        if paired and api.home_measure_supported:
             bulk = await api.async_get_home_energy_daily(
-                bridged_rooms(intuis_home, rooms), plan.begin, plan.end
+                paired, plan.begin, plan.end
             )
     except RateLimitError as err:
         # Falling back would issue one request per room, the opposite of what
@@ -216,12 +217,46 @@ async def async_rebase_levels(
     }
 
 
+def home_bridge(intuis_home: IntuisHome) -> str:
+    """The gateway the home reports through, empty when none is known.
+
+    A room carries a bridge only once a module of its own has reported one,
+    and that is not always true of the home object a cycle holds. The flow
+    this mirrors sends one gateway for every room, so the first one found
+    anywhere in the home serves them all.
+    """
+    rooms = getattr(intuis_home, "rooms", None) or {}
+    for room in rooms.values():
+        if bridge := getattr(room, "bridge_id", "") or "":
+            return bridge
+    for room in rooms.values():
+        for module in getattr(room, "modules", None) or ():
+            if bridge := getattr(module, "bridge", "") or "":
+                return bridge
+    return ""
+
+
 def bridged_rooms(intuis_home: IntuisHome, rooms) -> list[tuple[str, str]]:
-    """(room_id, bridge) pairs the home endpoint needs for one bulk request."""
-    return [
-        (room_id, getattr(intuis_home.rooms.get(room_id), "bridge_id", "") or "")
+    """(room_id, bridge) pairs the home endpoint needs for one bulk request.
+
+    Empty when no gateway is known: the endpoint answers 404 to a room whose
+    bridge is blank, so asking would only cost a failed request.
+    """
+    fallback = home_bridge(intuis_home)
+    paired = [
+        (
+            room_id,
+            (getattr(rooms_of(intuis_home).get(room_id), "bridge_id", "") or "")
+            or fallback,
+        )
         for room_id, _ in rooms
     ]
+    return paired if all(bridge for _, bridge in paired) else []
+
+
+def rooms_of(intuis_home: IntuisHome) -> dict:
+    """Rooms of a home, tolerating one that carries none."""
+    return getattr(intuis_home, "rooms", None) or {}
 
 
 def entry_cost_options(options: Any) -> dict[str, Any] | None:
@@ -293,11 +328,10 @@ async def async_import_hourly_history(
             except Exception as err:  # noqa: BLE001 - costs never block energy
                 cost_errors.append(f"Costs: {err}")
         bulk: dict[str, list[tuple[int, float]]] | None = None
-        if rooms and api.home_measure_supported:
+        paired = bridged_rooms(intuis_home, rooms)
+        if paired and api.home_measure_supported:
             try:
-                bulk = await api.async_get_home_energy_hourly(
-                    bridged_rooms(intuis_home, rooms), start, end
-                )
+                bulk = await api.async_get_home_energy_hourly(paired, start, end)
             except RateLimitError:
                 # One request per room is the opposite of what a 429 asks for.
                 raise

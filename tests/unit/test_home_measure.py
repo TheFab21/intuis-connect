@@ -101,3 +101,51 @@ def test_a_block_whose_step_differs_is_refused() -> None:
         IntuisAPI._parse_home_measure(
             answer([{"id": "r1", "measures": [block([[1]], step=1800)]}]), step=HOUR
         )
+
+
+class _Room:
+    def __init__(self, bridge_id: str = "", modules: list | None = None) -> None:
+        self.bridge_id = bridge_id
+        self.modules = modules or []
+
+
+class _Module:
+    def __init__(self, bridge: str = "") -> None:
+        self.bridge = bridge
+
+
+class _Home:
+    def __init__(self, rooms: dict | None = None) -> None:
+        self.rooms = rooms if rooms is not None else {}
+
+
+GATEWAY = "70:ee:50:44:26:13"
+ROOMS = [("r1", "Entrée"), ("r2", "Salon")]
+
+
+def test_a_room_without_a_bridge_borrows_the_home_gateway() -> None:
+    """A home reports through one gateway, which the flow sends for every room."""
+    from custom_components.intuis_connect.hourly_stats import bridged_rooms
+
+    home = _Home(
+        {
+            "r1": _Room(modules=[_Module(), _Module(GATEWAY)]),
+            "r2": _Room(),
+        }
+    )
+    assert bridged_rooms(home, ROOMS) == [("r1", GATEWAY), ("r2", GATEWAY)]
+
+
+def test_a_bridge_known_on_one_room_serves_the_others() -> None:
+    from custom_components.intuis_connect.hourly_stats import bridged_rooms
+
+    home = _Home({"r1": _Room(bridge_id=GATEWAY), "r2": _Room()})
+    assert bridged_rooms(home, ROOMS) == [("r1", GATEWAY), ("r2", GATEWAY)]
+
+
+def test_no_gateway_anywhere_means_no_bulk_request() -> None:
+    """The endpoint answers 404 to a blank bridge; asking would only cost one."""
+    from custom_components.intuis_connect.hourly_stats import bridged_rooms
+
+    assert bridged_rooms(_Home({"r1": _Room(), "r2": _Room()}), ROOMS) == []
+    assert bridged_rooms(_Home(), ROOMS) == []
