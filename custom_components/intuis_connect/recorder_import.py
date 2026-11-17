@@ -245,6 +245,15 @@ def _replace_external_in_transaction(
             raise HistoryReplacementError(
                 "Existing external statistics metadata is incompatible; history was preserved"
             )
+        else:
+            # Identity stays fixed, description follows: a row created before a
+            # field existed, or under an older room name, would otherwise keep
+            # its first value for good. unit_class in particular has to read
+            # "energy" for the energy dashboard to list the series at all.
+            for key in ("name", "unit_class", "mean_type", "has_mean"):
+                if key in meta_data and getattr(meta, key, None) != meta_data[key]:
+                    setattr(meta, key, meta_data[key])
+            session.flush()
         final_sum, cleared, adjusted = _replace_windows(
             session, (Statistics,), meta.id, windows, cancelled, baseline
         )
