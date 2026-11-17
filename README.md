@@ -1,5 +1,29 @@
 # Intuis Connect – Home Assistant Integration
 
+> [!WARNING]
+> **Deprecated / Intégration dépréciée — 15 November 2026**
+>
+> **v2.1.0 is the stable release of the previously published beta. This cloud
+> integration is now deprecated.** The maintainer has migrated to local Zigbee
+> control and no longer has a compatible Intuis cloud installation for testing.
+> Future fixes and Home Assistant/cloud compatibility are not guaranteed.
+> Contributions validated on compatible installations remain welcome.
+>
+> Existing installations can continue to use the integration while the cloud API
+> remains compatible. No shutdown date is set. For compatible **nativ / Intuis
+> 3.0 radiators**, migrate to **Zigbee2MQTT and Home Assistant**. Reported working
+> firmware includes **3.0.8** and, on a different hardware variant, **2.0.5**;
+> compatibility is not established for all older modules or pilot-wire systems.
+>
+> **Export every schedule before disconnecting the first radiator.** Follow the
+> [migration guide / procédure de bascule vers Zigbee (FR)](docs/16-zigbee-migration.md).
+>
+> **FR : cette intégration cloud est dépréciée.** Le mainteneur ne dispose plus
+> d'installation cloud compatible pour les essais. La maintenance future n'est
+> pas garantie ; les contributions testées restent les bienvenues. Les
+> installations existantes peuvent continuer à fonctionner tant que l'API cloud
+> reste compatible. Exporter les plannings avant toute migration.
+
 > **Full control of your Muller / Campa / Intuis electric radiators** with Netatmo "Intuitiv" modules – climate control, energy tracking, schedule management, and more.
 
 [![HACS Badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
@@ -100,6 +124,10 @@
 | **Eco**   | Minimum temperature for frost protection (mapped to HA Eco preset) |
 
 Manual, Away and Boost durations and the Away/Boost temperatures are configurable in the integration options. Frost protection uses the current defaults of 7°C and 365 days. Climate commands are shown as assumed state for at most 120 seconds while awaiting confirmation; subsequent cloud updates determine the displayed mode. See [heating state and persistence](docs/09-heating-overrides.md).
+
+Detected pilot-wire rooms expose Comfort, Eco and Frost protection orders instead
+of a temperature dial. Auto resumes the schedule; Heat selects manual Comfort.
+See [pilot-wire detection, behaviour and validation limits](docs/15-pilot-wire.md).
 
 ---
 

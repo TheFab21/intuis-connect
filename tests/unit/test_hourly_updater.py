@@ -20,7 +20,10 @@ from custom_components.intuis_connect.hourly_stats import (
     async_import_hourly_history,
     async_update_window,
 )
-from custom_components.intuis_connect.intuis_api.api import CannotConnect
+from custom_components.intuis_connect.intuis_api.api import (
+    CannotConnect,
+    NoRoomMeasureDevice,
+)
 from custom_components.intuis_connect.utils.const import (
     CONF_HOURLY_STATISTICS,
     CONF_HOURLY_STATISTICS_INTERVAL,
@@ -117,6 +120,24 @@ async def test_incomplete_room_keeps_last_complete_home_total(
         0.9,
     ]
     assert await series(live_recorder, statistic_id("home", None)) == total
+
+
+async def test_room_without_measure_device_is_skipped_from_home_total(
+    ha_hass, live_recorder, monkeypatch
+):
+    # A pilot-wire room has no measuring device: it is neither an error nor a
+    # room missing from the home total.
+    api, home, manager = await importer(
+        ha_hass, monkeypatch, [wh(0, (500, 0)), NoRoomMeasureDevice("no relay")]
+    )
+    result = await run(ha_hass, api, home, manager, 0, 2)
+    assert result["errors"] == [] and result["rooms_imported"] == 1
+    assert result["status"] == "completed" and result["home_total"] == "complete"
+    assert await series(live_recorder, statistic_id("home", "b")) is None
+    assert [r[1:] for r in await series(live_recorder, statistic_id("home", None))] == [
+        (0.5, 0.5),
+        (0, 0.5),
+    ]
 
 
 async def test_room_filter_never_writes_the_home_total(
@@ -244,6 +265,31 @@ async def test_updater_defers_to_running_import_and_stops_on_close(
     updater.async_start()
     await updater.async_close()
     assert not await updater.async_update() and manager.start.call_count == 2
+
+
+async def test_timer_starts_the_update_in_the_event_loop(
+    ha_hass, ha_entry_factory, monkeypatch
+):
+    # Home Assistant runs a timer listener that is not a callback in an executor
+    # thread, where hass.async_create_task is refused: the update never started.
+    monkeypatch.setattr(
+        "custom_components.intuis_connect.hourly_stats.FIRST_UPDATE_DELAY", 0
+    )
+    entry = ha_entry_factory(home_id="home")
+    home = SimpleNamespace(id="home", name="House", rooms={})
+    updater = HourlyStatisticsUpdater(ha_hass, entry, "api", home, 120)
+    started = asyncio.Event()
+
+    async def update():
+        started.set()
+        return True
+
+    monkeypatch.setattr(updater, "async_update", update)
+    updater.async_start()
+    try:
+        await asyncio.wait_for(started.wait(), 5)
+    finally:
+        await updater.async_close()
 
 
 async def test_two_entries_update_independently(ha_hass, ha_entry_factory, monkeypatch):
