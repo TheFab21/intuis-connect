@@ -121,6 +121,15 @@ class _Home:
 
 GATEWAY = "70:ee:50:44:26:13"
 ROOMS = [("r1", "Entrée"), ("r2", "Salon")]
+ENTRY = "entry1"
+
+
+class _Hass:
+    """Only the coordinator lookup bridged_rooms performs."""
+
+    def __init__(self, modules: list | None = None) -> None:
+        coordinator = type("C", (), {"data": {"modules": modules or []}})()
+        self.data = {"intuis_connect": {ENTRY: {"coordinator": coordinator}}}
 
 
 def test_a_room_without_a_bridge_borrows_the_home_gateway() -> None:
@@ -133,19 +142,36 @@ def test_a_room_without_a_bridge_borrows_the_home_gateway() -> None:
             "r2": _Room(),
         }
     )
-    assert bridged_rooms(home, ROOMS) == [("r1", GATEWAY), ("r2", GATEWAY)]
+    assert bridged_rooms(_Hass(), ENTRY, home, ROOMS) == [
+        ("r1", GATEWAY),
+        ("r2", GATEWAY),
+    ]
+
+
+def test_the_gateway_is_read_from_the_refreshed_coordinator_modules() -> None:
+    """The home object built at setup carries no bridge; the modules do."""
+    from custom_components.intuis_connect.hourly_stats import bridged_rooms
+
+    hass = _Hass(modules=[_Module(), _Module(GATEWAY)])
+    assert bridged_rooms(hass, ENTRY, _Home({"r1": _Room(), "r2": _Room()}), ROOMS) == [
+        ("r1", GATEWAY),
+        ("r2", GATEWAY),
+    ]
 
 
 def test_a_bridge_known_on_one_room_serves_the_others() -> None:
     from custom_components.intuis_connect.hourly_stats import bridged_rooms
 
     home = _Home({"r1": _Room(bridge_id=GATEWAY), "r2": _Room()})
-    assert bridged_rooms(home, ROOMS) == [("r1", GATEWAY), ("r2", GATEWAY)]
+    assert bridged_rooms(_Hass(), ENTRY, home, ROOMS) == [
+        ("r1", GATEWAY),
+        ("r2", GATEWAY),
+    ]
 
 
 def test_no_gateway_anywhere_means_no_bulk_request() -> None:
     """The endpoint answers 404 to a blank bridge; asking would only cost one."""
     from custom_components.intuis_connect.hourly_stats import bridged_rooms
 
-    assert bridged_rooms(_Home({"r1": _Room(), "r2": _Room()}), ROOMS) == []
-    assert bridged_rooms(_Home(), ROOMS) == []
+    assert bridged_rooms(_Hass(), ENTRY, _Home({"r1": _Room()}), ROOMS) == []
+    assert bridged_rooms(_Hass(), ENTRY, _Home(), ROOMS) == []
