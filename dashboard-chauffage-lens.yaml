@@ -650,8 +650,8 @@ views:
       #     name: {{ s.name | replace(' Energy', '') }}
       #   {% endfor %}
       #
-      # Remplace alors chaque ligne « REMPLACER_ENERGIE_… » par
-      # l'identifiant de la pièce correspondante.
+      # Les identifiants ci-dessous ont été relevés le 17/11/2026.
+      # Ils ne changent que si une pièce est recréée côté cloud.
       # ---------------------------------------------------------------
       - type: statistics-graph
         title: Détail horaire par pièce — 48 h
@@ -660,27 +660,27 @@ views:
         chart_type: bar
         days_to_show: 2
         entities:
-          - entity: REMPLACER_ENERGIE_CHAMBRE_DAMIS
+          - entity: intuis_connect:energy_245a05f7781a0fe5a0e3985c28f87131
             name: Chambre d'amis
-          - entity: REMPLACER_ENERGIE_CHAMBRE_FILLES
+          - entity: intuis_connect:energy_11176ac36e1e9c472405391e83b9a831
             name: Chambre filles
-          - entity: REMPLACER_ENERGIE_CHAMBRE_PARENTS
+          - entity: intuis_connect:energy_fe511d42945d493beca4c0d28ef8850a
             name: Chambre parents
-          - entity: REMPLACER_ENERGIE_COULOIR
+          - entity: intuis_connect:energy_3d06888dd09d9e2b43d9e94351d6dbca
             name: Couloir
-          - entity: REMPLACER_ENERGIE_CUISINE
+          - entity: intuis_connect:energy_61aef8adbcd08c6e6c1a957f5fdf910e
             name: Cuisine
-          - entity: REMPLACER_ENERGIE_ENTREE
+          - entity: intuis_connect:energy_ae366fc8ecab9cfadcda4a20e06aced5
             name: Entrée
-          - entity: REMPLACER_ENERGIE_SALLE_A_MANGER
+          - entity: intuis_connect:energy_147dc73b6e1769bdf051b79a7306b0fa
             name: Salle à manger
-          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_FILLES
+          - entity: intuis_connect:energy_31ca63e5a749f1eb1fb19541a434f507
             name: Salle de bain filles
-          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_PARENTS
+          - entity: intuis_connect:energy_4b32e9026bbe3c8b5533714fc9682666
             name: Salle de bain parents
-          - entity: REMPLACER_ENERGIE_SALON
+          - entity: intuis_connect:energy_5c87a9f77e9a914fc5ac94eae2484895
             name: Salon
-          - entity: REMPLACER_ENERGIE_TOILETTES_VISITEURS
+          - entity: intuis_connect:energy_7f82433b0c146446ff0c565e90ce72d1
             name: Toilettes visiteurs
 
       - type: statistics-graph
@@ -690,27 +690,27 @@ views:
         chart_type: bar
         days_to_show: 30
         entities:
-          - entity: REMPLACER_ENERGIE_CHAMBRE_DAMIS
+          - entity: intuis_connect:energy_245a05f7781a0fe5a0e3985c28f87131
             name: Chambre d'amis
-          - entity: REMPLACER_ENERGIE_CHAMBRE_FILLES
+          - entity: intuis_connect:energy_11176ac36e1e9c472405391e83b9a831
             name: Chambre filles
-          - entity: REMPLACER_ENERGIE_CHAMBRE_PARENTS
+          - entity: intuis_connect:energy_fe511d42945d493beca4c0d28ef8850a
             name: Chambre parents
-          - entity: REMPLACER_ENERGIE_COULOIR
+          - entity: intuis_connect:energy_3d06888dd09d9e2b43d9e94351d6dbca
             name: Couloir
-          - entity: REMPLACER_ENERGIE_CUISINE
+          - entity: intuis_connect:energy_61aef8adbcd08c6e6c1a957f5fdf910e
             name: Cuisine
-          - entity: REMPLACER_ENERGIE_ENTREE
+          - entity: intuis_connect:energy_ae366fc8ecab9cfadcda4a20e06aced5
             name: Entrée
-          - entity: REMPLACER_ENERGIE_SALLE_A_MANGER
+          - entity: intuis_connect:energy_147dc73b6e1769bdf051b79a7306b0fa
             name: Salle à manger
-          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_FILLES
+          - entity: intuis_connect:energy_31ca63e5a749f1eb1fb19541a434f507
             name: Salle de bain filles
-          - entity: REMPLACER_ENERGIE_SALLE_DE_BAIN_PARENTS
+          - entity: intuis_connect:energy_4b32e9026bbe3c8b5533714fc9682666
             name: Salle de bain parents
-          - entity: REMPLACER_ENERGIE_SALON
+          - entity: intuis_connect:energy_5c87a9f77e9a914fc5ac94eae2484895
             name: Salon
-          - entity: REMPLACER_ENERGIE_TOILETTES_VISITEURS
+          - entity: intuis_connect:energy_7f82433b0c146446ff0c565e90ce72d1
             name: Toilettes visiteurs
 
       - type: statistics-graph
@@ -722,49 +722,6 @@ views:
         entities:
           - entity: intuis_connect:energy_729266f6dc2fd6733db38e0df433c1d7
             name: Maison
-
-      # ---------------------------------------------------------------
-      # BLOC COUT — à supprimer si l'option « statistiques de coût »
-      # est désactivée dans les options de l'intégration.
-      # Les capteurs sensor.<piece>_hourly_cost publient les deux
-      # identifiants dans « statistic_id » et « energy_statistic_id ».
-      #
-      #   {% for s in states.sensor
-      #        | selectattr('attributes.statistic_id', 'defined')
-      #        | sort(attribute='name') %}
-      #   - entity: {{ s.attributes.statistic_id }}
-      #     name: {{ s.name | replace(' Hourly Cost', '') }}
-      #   {% endfor %}
-      # ---------------------------------------------------------------
-      - type: statistics-graph
-        title: Coût quotidien par pièce — 30 jours
-        period: day
-        stat_types: [change]
-        chart_type: bar
-        days_to_show: 30
-        entities:
-          - entity: REMPLACER_COUT_CHAMBRE_DAMIS
-            name: Chambre d'amis
-          - entity: REMPLACER_COUT_CHAMBRE_FILLES
-            name: Chambre filles
-          - entity: REMPLACER_COUT_CHAMBRE_PARENTS
-            name: Chambre parents
-          - entity: REMPLACER_COUT_COULOIR
-            name: Couloir
-          - entity: REMPLACER_COUT_CUISINE
-            name: Cuisine
-          - entity: REMPLACER_COUT_ENTREE
-            name: Entrée
-          - entity: REMPLACER_COUT_SALLE_A_MANGER
-            name: Salle à manger
-          - entity: REMPLACER_COUT_SALLE_DE_BAIN_FILLES
-            name: Salle de bain filles
-          - entity: REMPLACER_COUT_SALLE_DE_BAIN_PARENTS
-            name: Salle de bain parents
-          - entity: REMPLACER_COUT_SALON
-            name: Salon
-          - entity: REMPLACER_COUT_TOILETTES_VISITEURS
-            name: Toilettes visiteurs
 
       # ---------------------------------------------------------------
       # Série des entités (recorder). Conservée pour comparaison :
