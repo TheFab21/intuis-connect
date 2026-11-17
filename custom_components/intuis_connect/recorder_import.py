@@ -253,9 +253,11 @@ def _replace_external_in_transaction(
             # field existed, or under an older room name, would otherwise keep
             # its first value for good. unit_class in particular has to read
             # "energy" for the energy dashboard to list the series at all.
+            # name is deliberately left alone: a series keeps the name it was
+            # created with, so renaming a room does not split its history.
             changed = [
                 key
-                for key in ("name", "unit_class", "mean_type", "has_mean")
+                for key in ("unit_class", "mean_type", "has_mean")
                 if key in meta_data and getattr(meta, key, None) != meta_data[key]
             ]
             for key in changed:
@@ -267,7 +269,7 @@ def _replace_external_in_transaction(
                 "External metadata %s: unit_class=%r unit=%r has_sum=%s "
                 "source=%r (updated: %s)",
                 statistic_id,
-                meta.unit_class,
+                getattr(meta, "unit_class", None),
                 meta.unit_of_measurement,
                 meta.has_sum,
                 meta.source,
