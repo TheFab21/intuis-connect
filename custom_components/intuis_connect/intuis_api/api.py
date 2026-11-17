@@ -217,6 +217,8 @@ class IntuisAPI:
 
         # Rate limiting configuration
         self._rate_limit_delay = rate_limit_delay
+        # Cleared for the session once this cloud answers 404 to /gethomemeasure.
+        self._home_measure_supported = True
         self._circuit_breaker = RateLimitCircuitBreaker(
             threshold=circuit_threshold,
             base_cooldown=30.0,
@@ -809,6 +811,15 @@ class IntuisAPI:
             raise EnergyDataUnavailable("No measured energy in cloud response")
         return samples
 
+    @property
+    def home_measure_supported(self) -> bool:
+        """False once this cloud answered 404 to the home endpoint.
+
+        Callers ask before gathering every room in one request, so a cloud
+        without it costs one failed request per session, not one per cycle.
+        """
+        return self._home_measure_supported
+
     @staticmethod
     def _parse_home_measure(
         data: Any, *, step: int
@@ -922,9 +933,21 @@ class IntuisAPI:
                     ],
                 },
             }
-            async with await self._async_request(
-                "post", HOMEMEASURE_PATH, json=payload
-            ) as resp:
+            try:
+                response = await self._async_request(
+                    "post", HOMEMEASURE_PATH, json=payload
+                )
+            except APIError as err:
+                if "404" in str(err):
+                    # This cloud does not serve the home endpoint. Asking again
+                    # every cycle would only add a failed request to each one.
+                    self._home_measure_supported = False
+                    _LOGGER.info(
+                        "Home measure endpoint answered 404; using the per-room "
+                        "endpoint for this session"
+                    )
+                raise
+            async with response as resp:
                 try:
                     data = await resp.json()
                 except (ValueError, aiohttp.ClientError) as err:

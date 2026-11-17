@@ -159,10 +159,12 @@ async def async_rebase_levels(
     plan = base.plan(now, zone)
     if plan is None:
         return {"rebase": "up to date"}
+    bulk = None
     try:
-        bulk = await api.async_get_home_energy_daily(
-            bridged_rooms(intuis_home, rooms), plan.begin, plan.end
-        )
+        if api.home_measure_supported:
+            bulk = await api.async_get_home_energy_daily(
+                bridged_rooms(intuis_home, rooms), plan.begin, plan.end
+            )
     except RateLimitError as err:
         # Falling back would issue one request per room, the opposite of what
         # a rate limit asks for.
@@ -286,7 +288,7 @@ async def async_import_hourly_history(
             except Exception as err:  # noqa: BLE001 - costs never block energy
                 cost_errors.append(f"Costs: {err}")
         bulk: dict[str, list[tuple[int, float]]] | None = None
-        if rooms:
+        if rooms and api.home_measure_supported:
             try:
                 bulk = await api.async_get_home_energy_hourly(
                     bridged_rooms(intuis_home, rooms), start, end
