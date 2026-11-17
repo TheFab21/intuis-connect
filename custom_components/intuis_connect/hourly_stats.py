@@ -468,6 +468,12 @@ async def async_import_hourly_history(
         results["errors"].append(str(err))
         _LOGGER.exception("Hourly import failed")
     finally:
+        if baselines is None and results["rooms_imported"]:
+            # This import rebuilt absolute sums of its own; a level captured
+            # before it no longer describes them, so the next cycle re-seeds.
+            EnergyBase(manager._state).invalidate()
+            await manager.async_save()
+            _LOGGER.debug("Energy level invalidated after a manual hourly import")
         manager._running = False
         manager.current_room = None
         if manager._task is asyncio.current_task():

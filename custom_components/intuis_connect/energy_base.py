@@ -132,6 +132,17 @@ class EnergyBase:
             if isinstance(value, (int, float)) and math.isfinite(value)
         }
 
+    def invalidate(self) -> None:
+        """Forget the level so the next cycle seeds it from the series again.
+
+        An import that rewrites a series end to end rebuilds its absolute
+        sums, which leaves a level captured beforehand describing values that
+        no longer exist. Forcing it back in would land the whole difference on
+        one hour.
+        """
+        self._state["settled_through"] = None
+        self._state["levels"] = {}
+
     def plan(self, now: datetime, zone: ZoneInfo) -> RebasePlan | None:
         """Days to add to reach the settled day, or None when up to date.
 

@@ -160,3 +160,19 @@ def test_the_level_lives_in_the_managers_persisted_state() -> None:
         "levels": {"r1": 12.5},
     }
     assert EnergyBase(state).level("r1") == 12.5
+
+
+def test_invalidating_forgets_the_level_so_the_next_cycle_seeds_again() -> None:
+    """An import that rebuilds a series leaves a level describing values that
+    no longer exist; forcing it back in lands the difference on one hour."""
+    base = EnergyBase({})
+    base.seed(settled_day(NOW, ZONE), {"r1": 646.083})
+    assert base.needs_reseed(NOW, ZONE) is False
+
+    base.invalidate()
+
+    assert base.settled_through is None
+    assert base.level("r1") is None
+    assert base.hourly_start(ZONE) is None
+    assert base.plan(NOW, ZONE) is None
+    assert base.needs_reseed(NOW, ZONE) is True
