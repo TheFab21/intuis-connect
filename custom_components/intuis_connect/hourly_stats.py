@@ -534,11 +534,17 @@ class HourlyStatisticsUpdater:
         zone = None
         try:
             zone = ZoneInfo(self.api.home_timezone)
-            await manager.async_run_exclusive(
+            outcome = await manager.async_run_exclusive(
                 async_rebase_levels(
                     self.hass, self.api, self.intuis_home, manager, zone, now
                 )
             )
+            if outcome is None:
+                # async_run_exclusive closes the coroutine without running it,
+                # so the rebase itself cannot report this.
+                _LOGGER.debug(
+                    "Energy rebase deferred: import running or entry unloading"
+                )
         except Exception:  # noqa: BLE001 - the hourly pass must still run
             _LOGGER.warning("Energy rebase failed; hours stay relative", exc_info=True)
         if self._closed:
