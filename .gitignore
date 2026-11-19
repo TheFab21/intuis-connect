@@ -15,3 +15,6 @@ test/
 intuis_decompiled/
 
 custom_components/configuration.yml
+# Configuration personnelle, non publiable : contient e-mail et IP privées.
+flows-intuis-corrige.json
+flows*.json
