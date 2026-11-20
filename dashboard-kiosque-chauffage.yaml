@@ -84,36 +84,45 @@ views:
   - type: grid
     column_span: 4
     cards:
-    - type: button
-      name: ● Chauffage
-      icon: mdi:radiator
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/chauffage
+    - type: horizontal-stack
       grid_options:
-        columns: 4
-        rows: 1
-    - type: button
-      name: Températures
-      icon: mdi:thermometer-lines
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/temperatures
-      grid_options:
-        columns: 4
-        rows: 1
-    - type: button
-      name: Énergie
-      icon: mdi:lightning-bolt
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/energie
-      grid_options:
-        columns: 4
-        rows: 1
+        columns: full
+      cards:
+      - type: button
+        name: ● Chauffage
+        icon: mdi:radiator
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/chauffage
+      - type: button
+        name: Eau chaude
+        icon: mdi:water-boiler
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/eau-chaude
+      - type: button
+        name: Médias
+        icon: mdi:music
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: Températures
+        icon: mdi:thermometer-lines
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/temperatures
+      - type: button
+        name: Énergie
+        icon: mdi:lightning-bolt
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/energie
   - type: grid
     column_span: 2
     cards:
@@ -599,6 +608,912 @@ views:
         - 'off'
       grid_options:
         columns: 12
+- title: Eau chaude
+  path: eau-chaude
+  icon: mdi:water-boiler
+  type: sections
+  max_columns: 4
+  badges: *id001
+  sections:
+  - type: grid
+    column_span: 4
+    cards:
+    - type: horizontal-stack
+      grid_options:
+        columns: full
+      cards:
+      - type: button
+        name: Chauffage
+        icon: mdi:radiator
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/chauffage
+      - type: button
+        name: ● Eau chaude
+        icon: mdi:water-boiler
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/eau-chaude
+      - type: button
+        name: Médias
+        icon: mdi:music
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: Températures
+        icon: mdi:thermometer-lines
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/temperatures
+      - type: button
+        name: Énergie
+        icon: mdi:lightning-bolt
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/energie
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Chauffe-eau
+      icon: mdi:water-boiler
+    - type: thermostat
+      entity: climate.temperature_eau_chaude
+      name: Eau chaude
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - heat
+        - 'off'
+      - type: climate-preset-modes
+        style: dropdown
+      grid_options:
+        columns: 12
+    - type: markdown
+      content: '## Chauffe-eau — Cave
+
+
+        {% set p = states(''sensor.compteur_switch_chauffe_eau_total_active_power'') | float(0) %}
+
+        {% set relay = states(''switch.compteur_switch_chauffe_eau'') %}
+
+        {% set act = state_attr(''climate.temperature_eau_chaude'',''hvac_action'') %}
+
+        {% set tw = state_attr(''climate.temperature_eau_chaude'',''current_temperature'') | float(0) %}
+
+        {% set sp = state_attr(''climate.temperature_eau_chaude'',''temperature'') | float(0) %}
+
+
+        **État :**
+
+        {% if relay in [''unavailable'',''unknown''] %} ⚠️ **Relais injoignable**
+
+        {% elif states(''sensor.shellyplusuni_boiler_temperature_2'') in [''unavailable'',''unknown''] %} ⚠️ **Sonde
+        eau injoignable**
+
+        {% elif act == ''heating'' and p < 50 %} ⚠️ **Demande de chauffe mais 0 W** (coupure / résistance ?)
+
+        {% elif p > 200 and tw < 50 %} 🔥 En chauffe — {{ p | round(0) }} W (eau {{ tw }} °C)
+
+        {% elif p > 200 %} 🔥 En chauffe — {{ p | round(0) }} W
+
+        {% else %} 💤 Au repos — eau {{ tw }} °C / consigne {{ sp }} °C
+
+        {% endif %}
+
+
+        ---
+
+
+        {% if is_state(''input_boolean.chauffe_eau_auto_armed'',''on'') %}
+
+        🧪 **Cycle anti-légionelle EN COURS** — fin prévue {{ as_timestamp(states(''input_datetime.chauffe_eau_off_at''))
+        | timestamp_custom(''%d/%m à %H:%M'', true) }}
+
+        {% else %}
+
+        {% set last = states(''input_datetime.chauffe_eau_eau_chaude_le'') %}
+
+        {% if last in [''unknown'',''unavailable'',''none'',''''] %}
+
+        🟢 Pas de cycle — *horodatage eau chaude pas encore initialisé*
+
+        {% else %}
+
+        {% set days = (as_timestamp(now()) - as_timestamp(last)) / 86400 %}
+
+        🟢 Pas de cycle — dernière eau ≥ 40 °C il y a **{{ days | round(1) }} j**, prochain cycle dans **{{ (30 -
+        days) | round(1) }} j**
+
+        {% endif %}
+
+        {% endif %}
+
+        '
+      grid_options:
+        columns: 12
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Mesures
+      icon: mdi:gauge
+    - type: gauge
+      entity: sensor.shellyplusuni_boiler_temperature_2
+      name: Eau
+      unit: °C
+      min: 10
+      max: 65
+      needle: true
+      severity:
+        red: 0
+        yellow: 40
+        green: 50
+      grid_options:
+        columns: 6
+    - type: gauge
+      entity: sensor.compteur_switch_chauffe_eau_total_active_power
+      name: Puissance
+      unit: W
+      min: 0
+      max: 5000
+      needle: true
+      severity:
+        red: 0
+        yellow: 200
+        green: 3000
+      grid_options:
+        columns: 6
+    - type: tile
+      entity: input_boolean.chauffe_eau_auto_armed
+      name: Cycle anti-légionelle
+      icon: mdi:bacteria-outline
+      grid_options:
+        columns: 6
+      tap_action: &id002
+        action: more-info
+      icon_tap_action: &id003
+        action: none
+    - type: tile
+      entity: input_datetime.chauffe_eau_off_at
+      name: Fin de cycle prévue
+      grid_options:
+        columns: 6
+      tap_action: *id002
+      icon_tap_action: *id003
+    - type: tile
+      entity: input_datetime.chauffe_eau_eau_chaude_le
+      name: Dernière eau ≥ 40 °C
+      grid_options:
+        columns: 6
+      tap_action: *id002
+      icon_tap_action: *id003
+    - type: tile
+      entity: switch.compteur_switch_chauffe_eau
+      name: Relais (lecture seule)
+      icon: mdi:flash
+      grid_options:
+        columns: 6
+      tap_action: *id002
+      icon_tap_action: *id003
+  - type: grid
+    column_span: 4
+    cards:
+    - type: heading
+      heading: Température et puissance — 48 h
+      icon: mdi:chart-line
+    - type: history-graph
+      hours_to_show: 48
+      grid_options:
+        columns: full
+      entities:
+      - entity: sensor.shellyplusuni_boiler_temperature_2
+        name: Eau chaude
+      - entity: sensor.compteur_switch_chauffe_eau_total_active_power
+        name: Puissance
+- title: Médias
+  path: medias
+  icon: mdi:music
+  type: sections
+  max_columns: 4
+  badges: *id001
+  sections:
+  - type: grid
+    column_span: 4
+    cards:
+    - type: horizontal-stack
+      grid_options:
+        columns: full
+      cards:
+      - type: button
+        name: Chauffage
+        icon: mdi:radiator
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/chauffage
+      - type: button
+        name: Eau chaude
+        icon: mdi:water-boiler
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/eau-chaude
+      - type: button
+        name: ● Médias
+        icon: mdi:music
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: Températures
+        icon: mdi:thermometer-lines
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/temperatures
+      - type: button
+        name: Énergie
+        icon: mdi:lightning-bolt
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/energie
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Eversolo
+      icon: mdi:speaker
+    - type: media-control
+      entity: media_player.eversolo_dmp_a6
+      grid_options:
+        columns: 12
+    - show_name: true
+      show_icon: true
+      type: button
+      name: Volume −
+      icon: mdi:volume-minus
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: media_player.volume_down
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+      hold_action:
+        action: none
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      show_name: true
+      show_icon: true
+      name: '[[[ return entity.attributes.volume_level == null ? ''Volume'' : Math.round(entity.attributes.volume_level
+        * 100) + '' %''; ]]]'
+      icon: '[[[ return entity.attributes.is_volume_muted ? ''mdi:volume-off'' : ''mdi:volume-high''; ]]]'
+      tap_action:
+        action: perform-action
+        perform_action: media_player.volume_mute
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          is_volume_muted: '[[[ return !entity.attributes.is_volume_muted; ]]]'
+      hold_action:
+        action: none
+      grid_options:
+        columns: 4
+    - show_name: true
+      show_icon: true
+      type: button
+      name: Volume +
+      icon: mdi:volume-plus
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: media_player.volume_up
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+      hold_action:
+        action: none
+      grid_options:
+        columns: 4
+    - type: heading
+      heading: Radios
+      heading_style: subtitle
+      icon: mdi:radio
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: RTS Option Musique
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/RTS_OptionMusique_Logo.png/330px-RTS_OptionMusique_Logo.png
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: https://stream.srg-ssr.ch/srgssr/option-musique/aac/96
+          extra:
+            title: RTS Option Musique
+      state:
+      - operator: template
+        value: '[[[ const t=''option-musique'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: FIP HiFi
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/FIP_logo_2021.svg/500px-FIP_logo_2021.svg.png
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: https://icecast.radiofrance.fr/fip-hifi.aac
+          extra:
+            title: FIP HiFi
+      state:
+      - operator: template
+        value: '[[[ const t=''fip-hifi'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: Radio Paradise Main
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: /local/radio/rpmain.png
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: https://stream.radioparadise.com/aac-320
+          extra:
+            title: Radio Paradise Main Mix
+      state:
+      - operator: template
+        value: '[[[ const t=''aac-320'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: Radio Paradise World
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: /local/radio/rpglobal.png
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: https://stream.radioparadise.com/world-etc-320
+          extra:
+            title: Radio Paradise World/Etc
+      state:
+      - operator: template
+        value: '[[[ const t=''world-etc'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: RadioMonster TopHits
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://play-lh.googleusercontent.com/3ZDTCl9VfsxVNU5NiCPOujQglpG_EFaDmLPpnbnlSmHxJ5DhtKQY-lBS1OUh8gquec5VH68LfmORRuTWQyda=w240-h480
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: http://ic.radiomonster.fm/tophits.ultra
+          extra:
+            title: RadioMonster TopHits
+      state:
+      - operator: template
+        value: '[[[ const t=''tophits'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: RadioMonster Evergreens
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: /local/radio/monsterever.png
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: http://ic.radiomonster.fm/evergreens.ultra
+          extra:
+            title: RadioMonster Evergreens
+      state:
+      - operator: template
+        value: '[[[ const t=''evergreens'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: Nova La Nuit
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/05/NOVA-nova-400x496-1-t-1006x1006.png
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
+          extra:
+            title: Nova La Nuit
+      state:
+      - operator: template
+        value: '[[[ const t=''nova-ln'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      name: Nova Classics
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/04/NOVA-CLASSICS-400x496-1-t-1006x1006.png
+      tap_action:
+        action: perform-action
+        perform_action: media_player.play_media
+        target:
+          entity_id: media_player.dmp_a6
+        data:
+          media_content_type: music
+          media_content_id: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
+          extra:
+            title: Nova Classics
+      state:
+      - operator: template
+        value: '[[[ const t=''nova-vnt'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
+          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
+          ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 100px
+        - padding: 8px
+        - border-radius: 14px
+        entity_picture:
+        - width: 56px
+        - height: 56px
+        - object-fit: contain
+        name:
+        - font-size: 12px
+      grid_options:
+        columns: 4
+    - show_name: true
+      show_icon: true
+      type: button
+      name: Arrêter la radio
+      icon: mdi:stop
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: media_player.media_stop
+        target:
+          entity_id: media_player.dmp_a6
+      hold_action:
+        action: none
+      grid_options:
+        columns: 6
+    - show_name: true
+      show_icon: true
+      type: button
+      name: Lecture / Pause
+      icon: mdi:play-pause
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: media_player.media_play_pause
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+      hold_action:
+        action: none
+      grid_options:
+        columns: 6
+    - type: heading
+      heading: Entrées
+      heading_style: subtitle
+      icon: mdi:import
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: Lecteur interne
+      icon: mdi:disc-player
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: Lecteur interne
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''Lecteur interne''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: Bluetooth
+      icon: mdi:bluetooth-audio
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: Entrée Bluetooth
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''Entrée Bluetooth''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: USB-B
+      icon: mdi:usb-port
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: Entrée USB-B
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''Entrée USB-B''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: TuneIn
+      icon: mdi:radio
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: TuneIn Radio
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''TuneIn Radio''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Salon — TV et Apple TV
+      icon: mdi:television
+    - type: media-control
+      entity: media_player.apple_tv_salon
+      grid_options:
+        columns: 12
+    - type: button
+      name: Menu
+      icon: mdi:arrow-u-left-top
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: menu
+      grid_options:
+        columns: 4
+    - type: button
+      name: Haut
+      icon: mdi:chevron-up
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: up
+      grid_options:
+        columns: 4
+    - type: button
+      name: Accueil
+      icon: mdi:home
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: home
+      grid_options:
+        columns: 4
+    - type: button
+      name: Gauche
+      icon: mdi:chevron-left
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: left
+      grid_options:
+        columns: 4
+    - type: button
+      name: OK
+      icon: mdi:circle-medium
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: select
+      grid_options:
+        columns: 4
+    - type: button
+      name: Droite
+      icon: mdi:chevron-right
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: right
+      grid_options:
+        columns: 4
+    - type: button
+      name: Lecture
+      icon: mdi:play-pause
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: play_pause
+      grid_options:
+        columns: 4
+    - type: button
+      name: Bas
+      icon: mdi:chevron-down
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: down
+      grid_options:
+        columns: 4
+    - type: button
+      name: Recul 10 s
+      icon: mdi:rewind-10
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.apple_tv_salon
+        data:
+          command: skip_backward
+      grid_options:
+        columns: 4
+    - type: media-control
+      entity: media_player.tv_samsung_led40
+      grid_options:
+        columns: 12
 - title: Températures
   path: temperatures
   icon: mdi:thermometer-lines
@@ -609,36 +1524,45 @@ views:
   - type: grid
     column_span: 4
     cards:
-    - type: button
-      name: Chauffage
-      icon: mdi:radiator
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/chauffage
+    - type: horizontal-stack
       grid_options:
-        columns: 4
-        rows: 1
-    - type: button
-      name: ● Températures
-      icon: mdi:thermometer-lines
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/temperatures
-      grid_options:
-        columns: 4
-        rows: 1
-    - type: button
-      name: Énergie
-      icon: mdi:lightning-bolt
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/energie
-      grid_options:
-        columns: 4
-        rows: 1
+        columns: full
+      cards:
+      - type: button
+        name: Chauffage
+        icon: mdi:radiator
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/chauffage
+      - type: button
+        name: Eau chaude
+        icon: mdi:water-boiler
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/eau-chaude
+      - type: button
+        name: Médias
+        icon: mdi:music
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: ● Températures
+        icon: mdi:thermometer-lines
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/temperatures
+      - type: button
+        name: Énergie
+        icon: mdi:lightning-bolt
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/energie
   - type: grid
     column_span: 4
     cards:
@@ -715,36 +1639,45 @@ views:
   - type: grid
     column_span: 4
     cards:
-    - type: button
-      name: Chauffage
-      icon: mdi:radiator
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/chauffage
+    - type: horizontal-stack
       grid_options:
-        columns: 4
-        rows: 1
-    - type: button
-      name: Températures
-      icon: mdi:thermometer-lines
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/temperatures
-      grid_options:
-        columns: 4
-        rows: 1
-    - type: button
-      name: ● Énergie
-      icon: mdi:lightning-bolt
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/energie
-      grid_options:
-        columns: 4
-        rows: 1
+        columns: full
+      cards:
+      - type: button
+        name: Chauffage
+        icon: mdi:radiator
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/chauffage
+      - type: button
+        name: Eau chaude
+        icon: mdi:water-boiler
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/eau-chaude
+      - type: button
+        name: Médias
+        icon: mdi:music
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: Températures
+        icon: mdi:thermometer-lines
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/temperatures
+      - type: button
+        name: ● Énergie
+        icon: mdi:lightning-bolt
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/energie
   - type: grid
     column_span: 4
     cards:
