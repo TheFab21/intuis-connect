@@ -941,7 +941,7 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://stream.srg-ssr.ch/srgssr/option-musique/aac/96
-          url_marantz: http://stream.srg-ssr.ch/srgssr/option-musique/aac/96
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/aac/96
           titre: RTS Option Musique
       state:
       - operator: template
