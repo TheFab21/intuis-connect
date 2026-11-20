@@ -1,0 +1,47 @@
+# A ajouter a la fin de rest_commands.yaml (cles en colonne 0), puis redemarrer
+# Home Assistant (ou Outils de developpement > YAML > Recharger les commandes REST
+# si ta version le propose).
+#
+# Pourquoi : pour lancer une radio en DLNA, Home Assistant interroge le serveur
+# radio et recopie son type ("audio/aac", "audio/aacp"...) dans l'etiquette
+# protocolInfo envoyee a l'ampli, sans moyen de le changer. Le lecteur DLNA du
+# NR1603 refuse ces etiquettes (UPnP 714 "Illegal MIME-type") alors qu'il decode
+# l'AAC. Ces commandes envoient la meme demande UPnP, mais avec l'etiquette de
+# notre choix.
+#
+# A mettre dans secrets.yaml (adresse de commande AVTransport du Marantz) :
+#   marantz_dlna_avtransport: http://IP_DU_MARANTZ:8080/AVTransport/ctrl
+#
+# Variables : url, titre, mime
+#   mime = "*"       -> etiquette "n'importe quel type" + titre (essai par defaut)
+#   mime = "aucune"  -> aucune description : l'ampli devine seul (pas de titre)
+#   mime = autre     -> ce type precis, ex. "audio/vnd.dlna.adts" ou "audio/mp4"
+
+marantz_dlna_uri:
+  url: !secret marantz_dlna_avtransport
+  method: POST
+  content_type: 'text/xml; charset="utf-8"'
+  headers:
+    SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"'
+  timeout: 10
+  payload: >-
+    {%- macro x(t) -%}{{ t | string | replace('&', '&amp;') | replace('<', '&lt;') | replace('>', '&gt;') | replace('"', '&quot;') }}{%- endmacro -%}
+    {%- set m = mime | default('*', true) -%}
+    {%- if m == 'aucune' -%}{%- set didl = '' -%}
+    {%- else -%}
+    {%- set didl = '<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">'
+        ~ '<item id="0" parentID="-1" restricted="1"><dc:title>' ~ x(titre | default('Radio', true)) ~ '</dc:title>'
+        ~ '<upnp:class>object.item.audioItem.audioBroadcast</upnp:class>'
+        ~ '<res protocolInfo="http-get:*:' ~ m ~ ':*">' ~ x(url) ~ '</res></item></DIDL-Lite>' -%}
+    {%- endif -%}
+    <?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><CurrentURI>{{ x(url) }}</CurrentURI><CurrentURIMetaData>{{ x(didl) }}</CurrentURIMetaData></u:SetAVTransportURI></s:Body></s:Envelope>
+
+marantz_dlna_play:
+  url: !secret marantz_dlna_avtransport
+  method: POST
+  content_type: 'text/xml; charset="utf-8"'
+  headers:
+    SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#Play"'
+  timeout: 10
+  payload: >-
+    <?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Play xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>

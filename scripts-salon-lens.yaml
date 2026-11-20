@@ -106,11 +106,12 @@ lancer_app_apple_tv:
 
 # -- Radios : Eversolo, Marantz ou les deux ----------------------------------
 # La destination vient de input_select.radio_destination.
-# media_player.marantz (l'ampli) sait changer d'entree et de volume, mais PAS
-# lire une adresse de flux. Le script cherche donc le lecteur du Marantz qui
-# sait le faire : une entite media_player dont l'identifiant ou le nom contient
-# "marantz" et qui accepte play_media (en general l'integration DLNA Digital
-# Media Renderer de l'ampli). S'il n'y en a pas, une notification l'explique.
+# Eversolo : media_player.play_media classique (lecteur DLNA media_player.dmp_a6).
+# Marantz : commande UPnP envoyee directement (rest_command.marantz_dlna_uri puis
+# marantz_dlna_play, voir rest-commands-marantz-lens.yaml). Home Assistant
+# etiquette le flux avec le type annonce par le serveur radio ("audio/aac"...),
+# que le lecteur DLNA du NR1603 refuse (UPnP 714) alors qu'il lit l'AAC : on
+# envoie donc notre propre etiquette, reglable ci-dessous (mime_marantz).
 lancer_radio:
   alias: "\U0001F4FB Lancer une radio"
   icon: mdi:radio
@@ -123,7 +124,7 @@ lancer_radio:
         text:
     url_marantz:
       name: Adresse du flux pour le Marantz
-      description: "En http : le lecteur r\u00E9seau du Marantz refuse le https (erreur UPnP 600). Par d\u00E9faut, url."
+      description: "Facultatif. Par d\u00E9faut, url."
       selector:
         text:
     titre:
@@ -132,10 +133,13 @@ lancer_radio:
         text:
   variables:
     cible: "{{ states('input_select.radio_destination') }}"
+    # "*" = etiquette "tout type" avec titre ; "aucune" = pas de description ;
+    # ou un type precis : "audio/vnd.dlna.adts", "audio/mp4"...
+    mime_marantz: "*"
   sequence:
     - if: "{{ cible in ['Marantz', 'Les deux'] }}"
       then:
-        # L'ampli peut etre "unknown" (integration en defaut) : on n'arrete pas la radio pour autant.
+        # L'ampli peut etre "unknown" (integration en defaut) : on continue.
         - action: media_player.turn_on
           continue_on_error: true
           target:
@@ -143,44 +147,29 @@ lancer_radio:
         - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
           timeout: "00:00:20"
           continue_on_timeout: true
-        # Le lecteur reseau de l'ampli peut mettre quelques secondes a apparaitre.
-        - wait_template: >
-            {% set ns = namespace(e='') %}
-            {% for s in states.media_player
-                 if s.state not in ['unavailable', 'unknown']
-                 and ('marantz' in s.entity_id or 'marantz' in (s.name | lower)) %}
-              {% if not ns.e and (s.attributes.supported_features | int(0)) | bitwise_and(512) %}
-                {% set ns.e = s.entity_id %}
-              {% endif %}
-            {% endfor %}{{ ns.e != '' }}
-          timeout: "00:00:20"
-          continue_on_timeout: true
-        - variables:
-            lecteur: >
-              {% set ns = namespace(e='') %}
-              {% for s in states.media_player
-                   if s.state not in ['unavailable', 'unknown']
-                   and ('marantz' in s.entity_id or 'marantz' in (s.name | lower)) %}
-                {% if not ns.e and (s.attributes.supported_features | int(0)) | bitwise_and(512) %}
-                  {% set ns.e = s.entity_id %}
-                {% endif %}
-              {% endfor %}{{ ns.e }}
-        - if: "{{ lecteur == '' }}"
+        # Certains lecteurs refusent une nouvelle adresse pendant une lecture.
+        - if: "{{ states('media_player.marantz_2') in ['playing', 'paused', 'buffering'] }}"
           then:
+            - action: media_player.media_stop
+              continue_on_error: true
+              target:
+                entity_id: media_player.marantz_2
+        - action: rest_command.marantz_dlna_uri
+          continue_on_error: true
+          response_variable: reponse_uri
+          data:
+            url: "{{ url_marantz | default(url, true) }}"
+            titre: "{{ titre | default(url, true) }}"
+            mime: "{{ mime_marantz }}"
+        - if: "{{ reponse_uri is defined and reponse_uri.status | int(0) == 200 }}"
+          then:
+            - action: rest_command.marantz_dlna_play
+              continue_on_error: true
+          else:
             - action: persistent_notification.create
               data:
                 title: Radio sur le Marantz
-                message: "Aucun lecteur du Marantz ne sait lire une radio par adresse : media_player.marantz ne prend pas en charge play_media. Ajoutez l'int\u00E9gration DLNA Digital Media Renderer pour l'ampli (souvent propos\u00E9e dans Appareils et services > D\u00E9couverts)."
-          else:
-            - action: media_player.play_media
-              continue_on_error: true
-              target:
-                entity_id: "{{ lecteur }}"
-              data:
-                media_content_type: music
-                media_content_id: "{{ url_marantz | default(url, true) }}"
-                extra:
-                  title: "{{ titre | default(url, true) }}"
+                message: "Le Marantz a refus\u00E9 la station {{ titre | default(url, true) }} (\u00E9tiquette {{ mime_marantz }}) : {% if reponse_uri is defined %}HTTP {{ reponse_uri.status }}, erreur UPnP {{ (reponse_uri.content | string | regex_findall('<errorCode>([0-9]+)</errorCode>') or ['?']) | first }}{% else %}pas de r\u00E9ponse (adresse marantz_dlna_avtransport dans secrets.yaml ?){% endif %}"
     - if: "{{ cible != 'Marantz' }}"
       then:
         - action: media_player.play_media

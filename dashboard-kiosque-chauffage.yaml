@@ -1530,16 +1530,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://stream.srg-ssr.ch/m/option-musique/aacp_96
-          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/mp3/128
           titre: RTS Option Musique
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/mp3/128", "http://stream.srg-ssr.ch/m/option-musique/aacp_96"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://stream.srg-ssr.ch/m/option-musique/aacp_96"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1577,16 +1576,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://stream.srg-ssr.ch/m/couleur3/aacp_96
-          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/couleur3/mp3/128
           titre: RTS Couleur3
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/couleur3/mp3/128", "http://stream.srg-ssr.ch/m/couleur3/aacp_96"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://stream.srg-ssr.ch/m/couleur3/aacp_96"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1623,16 +1621,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://stream.srg-ssr.ch/m/rsj/aacp_96
-          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsj/mp3/128
           titre: Radio Swiss Jazz
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsj/mp3/128", "http://stream.srg-ssr.ch/m/rsj/aacp_96"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://stream.srg-ssr.ch/m/rsj/aacp_96"]; return Object.values(states).filter(s =>
+          s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1669,16 +1666,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96
-          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsc_fr/mp3/128
           titre: Radio Swiss Classic
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsc_fr/mp3/128", "http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1715,16 +1711,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://stream.srg-ssr.ch/m/rsp/aacp_96
-          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsp/mp3/128
           titre: Radio Swiss Pop
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsp/mp3/128", "http://stream.srg-ssr.ch/m/rsp/aacp_96"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://stream.srg-ssr.ch/m/rsp/aacp_96"]; return Object.values(states).filter(s =>
+          s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1761,16 +1756,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://onefm.ice.infomaniak.ch/onefm-high.aac
-          url_marantz: http://onefm.ice.infomaniak.ch/onefm-high.mp3
           titre: One FM
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://onefm.ice.infomaniak.ch/onefm-high.mp3", "https://onefm.ice.infomaniak.ch/onefm-high.aac"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["https://onefm.ice.infomaniak.ch/onefm-high.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1807,16 +1801,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac
-          url_marantz: http://rhonefm.ice.infomaniak.ch/rhonefm-high.mp3
           titre: Rhône FM
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac", "http://rhonefm.ice.infomaniak.ch/rhonefm-high.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1853,7 +1846,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3
-          url_marantz: http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3
           titre: RadioFr. Fribourg
       hold_action:
         action: none
@@ -1899,7 +1891,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3
-          url_marantz: http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3
           titre: RadioFr. Fribourg Music
       hold_action:
         action: none
@@ -1951,16 +1942,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fip-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fip-midfi.mp3
           titre: FIP
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fip-hifi.aac", "http://icecast.radiofrance.fr/fip-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fip-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1998,16 +1988,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fipelectro-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fipelectro-midfi.mp3
           titre: FIP Electro
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipelectro-hifi.aac", "http://icecast.radiofrance.fr/fipelectro-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipelectro-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2044,16 +2033,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fipgroove-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fipgroove-midfi.mp3
           titre: FIP Groove
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipgroove-hifi.aac", "http://icecast.radiofrance.fr/fipgroove-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipgroove-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2090,16 +2078,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fipjazz-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fipjazz-midfi.mp3
           titre: FIP Jazz
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipjazz-hifi.aac", "http://icecast.radiofrance.fr/fipjazz-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipjazz-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2136,16 +2123,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fipworld-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fipworld-midfi.mp3
           titre: FIP Musiques du monde
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipworld-hifi.aac", "http://icecast.radiofrance.fr/fipworld-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipworld-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2182,16 +2168,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fippop-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fippop-midfi.mp3
           titre: FIP Pop
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fippop-hifi.aac", "http://icecast.radiofrance.fr/fippop-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fippop-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2228,16 +2213,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fipreggae-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fipreggae-midfi.mp3
           titre: FIP Reggae
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipreggae-hifi.aac", "http://icecast.radiofrance.fr/fipreggae-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipreggae-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2274,16 +2258,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fiprock-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fiprock-midfi.mp3
           titre: FIP Rock
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fiprock-hifi.aac", "http://icecast.radiofrance.fr/fiprock-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fiprock-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2320,16 +2303,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://icecast.radiofrance.fr/fipnouveautes-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fipnouveautes-midfi.mp3
           titre: Tout nouveau, tout FIP
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipnouveautes-hifi.aac", "http://icecast.radiofrance.fr/fipnouveautes-midfi.mp3"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipnouveautes-hifi.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2366,16 +2348,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://stream-uk1.radioparadise.com/aac-320
-          url_marantz: http://stream.radioparadise.com/mp3-320
           titre: Paradise Radio
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://stream.radioparadise.com/mp3-320", "https://stream-uk1.radioparadise.com/aac-320"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["https://stream-uk1.radioparadise.com/aac-320"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2413,16 +2394,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://stream.radioparadise.com/world-etc-320
-          url_marantz: http://stream.radioparadise.com/world-etc-192
           titre: Radio Paradise World
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://stream.radioparadise.com/world-etc-192", "https://stream.radioparadise.com/world-etc-320"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["https://stream.radioparadise.com/world-etc-320"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2460,7 +2440,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ic5.radiomonster.fm:80/evergreens-320
-          url_marantz: http://ic5.radiomonster.fm:80/evergreens-320
           titre: RadioMonster Evergreens
       hold_action:
         action: none
@@ -2507,7 +2486,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ic5.radiomonster.fm:80/tophits-320
-          url_marantz: http://ic5.radiomonster.fm:80/tophits-320
           titre: RadioMonster Tophits
       hold_action:
         action: none
@@ -2554,7 +2532,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://radionova.ice.infomaniak.ch/radionova-256.aac
-          url_marantz: http://radionova.ice.infomaniak.ch/radionova-256.aac
           titre: Radio Nova
       hold_action:
         action: none
@@ -2600,7 +2577,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
-          url_marantz: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
           titre: Nova La Nuit
       hold_action:
         action: none
@@ -2647,16 +2623,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
-          url_marantz: http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3
           titre: Nova Classics
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3", "http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac"];
-          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        value: '[[[ const t=["http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2694,7 +2669,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://89.16.185.174:8000
-          url_marantz: http://89.16.185.174:8000
           titre: Linn Jazz
       hold_action:
         action: none
@@ -2740,7 +2714,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://west-mp3-128.streamthejazzgroove.com
-          url_marantz: http://west-mp3-128.streamthejazzgroove.com
           titre: The Jazz Groove
       hold_action:
         action: none
@@ -2786,7 +2759,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://radio.jointil.net:9998
-          url_marantz: http://radio.jointil.net:9998
           titre: Joint Radio
       hold_action:
         action: none
@@ -2832,7 +2804,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ice1.somafm.com/defcon-256-mp3
-          url_marantz: http://ice1.somafm.com/defcon-256-mp3
           titre: SomaFM DEF CON Radio
       hold_action:
         action: none
@@ -2878,7 +2849,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ice1.somafm.com/dronezone-256-mp3
-          url_marantz: http://ice1.somafm.com/dronezone-256-mp3
           titre: SomaFM Drone Zone
       hold_action:
         action: none
@@ -2924,7 +2894,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ice1.somafm.com/missioncontrol-128-mp3
-          url_marantz: http://ice1.somafm.com/missioncontrol-128-mp3
           titre: SomaFM Mission Control
       hold_action:
         action: none
@@ -2970,7 +2939,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://streaming.radionomy.com/TempoOfTheDownbeat1
-          url_marantz: http://streaming.radionomy.com/TempoOfTheDownbeat1
           titre: Radionomy Downbeat
       hold_action:
         action: none
@@ -3022,7 +2990,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ice1.somafm.com/groovesalad-256-mp3
-          url_marantz: http://ice1.somafm.com/groovesalad-256-mp3
           titre: SomaFM Groove Salad
       hold_action:
         action: none
@@ -3068,7 +3035,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ice1.somafm.com/beatblender-128-mp3
-          url_marantz: http://ice1.somafm.com/beatblender-128-mp3
           titre: SomaFM Beat Blender
       hold_action:
         action: none
@@ -3114,7 +3080,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ice1.somafm.com/lush-128-mp3
-          url_marantz: http://ice1.somafm.com/lush-128-mp3
           titre: SomaFM Lush
       hold_action:
         action: none
@@ -3160,7 +3125,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3
-          url_marantz: http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3
           titre: Jazz Radio Electro Swing
       hold_action:
         action: none
@@ -3206,7 +3170,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://192.240.102.133:9566/stream
-          url_marantz: http://192.240.102.133:9566/stream
           titre: 76Radio
       hold_action:
         action: none
@@ -3252,7 +3215,6 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://91.121.134.23:8100/1
-          url_marantz: http://91.121.134.23:8100/1
           titre: The UK 1940s Radio Station
       hold_action:
         action: none
