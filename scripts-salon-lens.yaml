@@ -89,8 +89,13 @@ lancer_app_apple_tv:
       data:
         source: "{{ source }}"
 
-# -- Radios : Eversolo, Marantz ou les deux ------------------------------------
+# -- Radios : Eversolo, Marantz ou les deux ----------------------------------
 # La destination vient de input_select.radio_destination.
+# media_player.marantz (l'ampli) sait changer d'entree et de volume, mais PAS
+# lire une adresse de flux. Le script cherche donc le lecteur du Marantz qui
+# sait le faire : une entite media_player dont l'identifiant ou le nom contient
+# "marantz" et qui accepte play_media (en general l'integration DLNA Digital
+# Media Renderer de l'ampli). S'il n'y en a pas, une notification l'explique.
 lancer_radio:
   alias: "\U0001F4FB Lancer une radio"
   icon: mdi:radio
@@ -116,16 +121,45 @@ lancer_radio:
         - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
           timeout: "00:00:20"
           continue_on_timeout: true
-        - action: media_player.play_media
-          continue_on_error: true
-          target:
-            entity_id: media_player.marantz
-          data:
-            media_content_type: music
-            media_content_id: "{{ url }}"
-            extra:
-              title: "{{ titre | default(url, true) }}"
-    - if: "{{ cible not in ['Marantz'] }}"
+        # Le lecteur reseau de l'ampli peut mettre quelques secondes a apparaitre.
+        - wait_template: >
+            {% set ns = namespace(e='') %}
+            {% for s in states.media_player
+                 if s.state not in ['unavailable', 'unknown']
+                 and ('marantz' in s.entity_id or 'marantz' in (s.name | lower)) %}
+              {% if not ns.e and (s.attributes.supported_features | int(0)) | bitwise_and(512) %}
+                {% set ns.e = s.entity_id %}
+              {% endif %}
+            {% endfor %}{{ ns.e != '' }}
+          timeout: "00:00:20"
+          continue_on_timeout: true
+        - variables:
+            lecteur: >
+              {% set ns = namespace(e='') %}
+              {% for s in states.media_player
+                   if s.state not in ['unavailable', 'unknown']
+                   and ('marantz' in s.entity_id or 'marantz' in (s.name | lower)) %}
+                {% if not ns.e and (s.attributes.supported_features | int(0)) | bitwise_and(512) %}
+                  {% set ns.e = s.entity_id %}
+                {% endif %}
+              {% endfor %}{{ ns.e }}
+        - if: "{{ lecteur == '' }}"
+          then:
+            - action: persistent_notification.create
+              data:
+                title: Radio sur le Marantz
+                message: "Aucun lecteur du Marantz ne sait lire une radio par adresse : media_player.marantz ne prend pas en charge play_media. Ajoutez l'int\u00E9gration DLNA Digital Media Renderer pour l'ampli (souvent propos\u00E9e dans Appareils et services > D\u00E9couverts)."
+          else:
+            - action: media_player.play_media
+              continue_on_error: true
+              target:
+                entity_id: "{{ lecteur }}"
+              data:
+                media_content_type: music
+                media_content_id: "{{ url }}"
+                extra:
+                  title: "{{ titre | default(url, true) }}"
+    - if: "{{ cible != 'Marantz' }}"
       then:
         - action: media_player.play_media
           continue_on_error: true
@@ -142,11 +176,17 @@ arreter_radio:
   icon: mdi:stop
   mode: single
   sequence:
-    # N'arrete que les lecteurs qui jouent : rien ne bouge sur l'Apple TV.
+    # Arrete l'Eversolo et le lecteur reseau du Marantz s'ils jouent. Ne touche
+    # ni a l'ampli lui-meme ni a l'Apple TV.
     - repeat:
-        for_each:
-          - media_player.dmp_a6
-          - media_player.marantz
+        for_each: >
+          {% set ns = namespace(l=['media_player.dmp_a6']) %}
+          {% for s in states.media_player
+               if s.entity_id != 'media_player.marantz'
+               and ('marantz' in s.entity_id or 'marantz' in (s.name | lower))
+               and (s.attributes.supported_features | int(0)) | bitwise_and(512) %}
+            {% set ns.l = ns.l + [s.entity_id] %}
+          {% endfor %}{{ ns.l }}
         sequence:
           - if: "{{ states(repeat.item) in ['playing', 'paused', 'buffering'] }}"
             then:
