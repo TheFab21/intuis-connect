@@ -1,7 +1,7 @@
-# Kiosque chauffage Lens — piloté par Node-RED (aucune entité de l'intégration)
+# Kiosque chauffage Lens
+# 100 % Node-RED : mode maison et planning (helpers), radiateurs (climates MQTT climate.thermostat_*).
 # Créer le tableau de bord avec l'URL : kiosque-chauffage
-# Requis (HACS) : button-card ; optionnel : kiosk-mode (NemesisRE). Sortie du kiosque : ?disable_km
-# Toucher une pièce la sélectionne dans « Pilotage d'une pièce » ; appui long : historique.
+# Requis (HACS) : button-card ; optionnel : kiosk-mode. Sortie du kiosque : ?disable_km
 
 title: Chauffage Lens
 kiosk_mode:
@@ -63,70 +63,6 @@ button_card_templates:
       - font-size: 13px
       - opacity: '0.8'
       - justify-self: start
-  piece_lens:
-    variables:
-      consigne: ''
-      option: ''
-      mode: ''
-      fenetre: ''
-      presence: ''
-    layout: vertical
-    show_icon: true
-    show_name: true
-    show_state: true
-    show_label: true
-    state_display: '[[[ var t = parseFloat(entity.state); return isNaN(t) ? ''—'' : t.toFixed(1) + '' °C''; ]]]'
-    label: '[[[ var M = {home:''Programme'', schedule:''Programme'', program:''Programme'', auto:''Programme'',
-      hg:''Hors-gel'', frost_guard:''Hors-gel'', manual:''Manuel'', away:''Absent'', boost:''Boost'', max:''Boost'',
-      off:''Arrêt''}; var c = states[variables.consigne]; var v = c ? parseFloat(c.state) : NaN; var m = states[variables.mode];
-      var ms = m ? (M[m.state] || m.state) : ''''; var t = isNaN(v) ? ''→ —'' : ''→ '' + v.toFixed(1) + '' °C'';
-      return (ms && ms !== ''unknown'' && ms !== ''unavailable'') ? t + '' · '' + ms : t; ]]]'
-    tap_action:
-      action: perform-action
-      perform_action: input_select.select_option
-      target:
-        entity_id: input_select.tmp_choix_piece
-      data:
-        option: '[[[ return variables.option; ]]]'
-    hold_action:
-      action: more-info
-    custom_fields:
-      badges: '[[[ var f = states[variables.fenetre], p = states[variables.presence], out = ''''; if (f && f.state
-        === ''on'') out += ''🪟''; if (p && p.state === ''on'') out += (out ? '' '' : '''') + ''👤''; return out;
-        ]]]'
-    styles:
-      card:
-      - height: 118px
-      - padding: 8px
-      - border-radius: 16px
-      - border: '[[[ var s = states[''input_select.tmp_choix_piece'']; return (s && s.state === variables.option)
-          ? ''3px solid var(--primary-color)'' : ''1px solid var(--divider-color)''; ]]]'
-      - background-color: '[[[ var f = states[variables.fenetre]; return (f && f.state === ''on'') ? ''rgba(231,
-          76, 60, 0.18)'' : ''var(--card-background-color)''; ]]]'
-      - position: relative
-      icon:
-      - width: 26px
-      name:
-      - font-size: 13px
-      - font-weight: '600'
-      - white-space: normal
-      state:
-      - font-size: 22px
-      - font-weight: '700'
-      - color: '[[[ var t = parseFloat(entity.state); var c = states[variables.consigne]; var v = c ? parseFloat(c.state)
-          : NaN; if (isNaN(t) || isNaN(v)) return ''var(--primary-text-color)''; if (t < v - 0.5) return ''var(--warning-color,
-          #f39c12)''; if (t > v + 1) return ''var(--info-color, #3498db)''; return ''var(--success-color, #2ecc71)'';
-          ]]]'
-      label:
-      - font-size: 12px
-      - opacity: '0.8'
-      - white-space: normal
-      custom_fields:
-        badges:
-        - position: absolute
-        - top: 6px
-        - right: 8px
-        - font-size: 15px
 views:
 - title: Chauffage
   path: chauffage
@@ -204,7 +140,7 @@ views:
         data:
           option: Home
       grid_options:
-        columns: 4
+        columns: 3
     - type: custom:button-card
       template: choix_lens
       entity: input_select.radiateurs_intuis_set_mode
@@ -220,7 +156,7 @@ views:
         data:
           option: Away
       grid_options:
-        columns: 4
+        columns: 3
     - type: custom:button-card
       template: choix_lens
       entity: input_select.radiateurs_intuis_set_mode
@@ -236,7 +172,23 @@ views:
         data:
           option: Hors Gel
       grid_options:
-        columns: 4
+        columns: 3
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radiateurs_intuis_set_mode
+      name: Arrêt
+      icon: mdi:power
+      variables:
+        option: 'Off'
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.radiateurs_intuis_set_mode
+        data:
+          option: 'Off'
+      grid_options:
+        columns: 3
     - type: tile
       entity: input_datetime.away_until_date
       name: Absent jusqu'au — à régler avant « Absent »
@@ -489,56 +441,6 @@ views:
         columns: 3
         rows: 1
   - type: grid
-    column_span: 4
-    cards:
-    - type: heading
-      heading: Pilotage d'une pièce — touchez une pièce, réglez, puis Appliquer
-      icon: mdi:gesture-tap
-    - type: tile
-      entity: input_select.tmp_choix_piece
-      name: Pièce
-      icon: mdi:floor-plan
-      features:
-      - type: select-options
-      features_position: inline
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: input_select.tmp_mode_chauffage
-      name: Mode
-      icon: mdi:thermostat-cog
-      features:
-      - type: select-options
-      features_position: inline
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: input_number.tmp_consigne_temperature
-      name: Consigne
-      icon: mdi:thermometer
-      features:
-      - type: numeric-input
-        style: buttons
-      features_position: inline
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: input_datetime.tmp_echeance_fin
-      name: Jusqu'à
-      icon: mdi:calendar-end
-      grid_options:
-        columns: 3
-    - type: button
-      name: Appliquer
-      icon: mdi:check-circle
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: script.pilotage_chauffage
-      grid_options:
-        columns: 12
-        rows: 1
-  - type: grid
     cards:
     - type: heading
       heading: Séjour
@@ -550,230 +452,153 @@ views:
       icon: mdi:fireplace
       grid_options:
         columns: 12
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_salon_2
+    - type: thermostat
+      entity: climate.thermostat_salon
       name: Salon
-      icon: mdi:sofa-outline
-      variables:
-        consigne: sensor.temp_consigne_salon_2
-        option: Salon
-        mode: sensor.mode_fonctionnement_salon_2
-        fenetre: binary_sensor.fenetre_ouverte_salon_2
-        presence: binary_sensor.detection_presence_salon_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temp_consigne_salon_2
-      - sensor.mode_fonctionnement_salon_2
-      - binary_sensor.fenetre_ouverte_salon_2
-      - binary_sensor.detection_presence_salon_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_salle_a_manger_cuisine
+        columns: 12
+    - type: thermostat
+      entity: climate.thermostat_salle_a_manger
       name: Salle à manger
-      icon: mdi:table-furniture
-      variables:
-        consigne: sensor.temperature_consigne_salle_a_manger_cuisine_2
-        option: Salle à manger
-        mode: sensor.mode_fonctionnement_temperature_salle_a_manger_cuisine_2
-        fenetre: binary_sensor.fenetre_ouverte_salle_a_manger_cuisine
-        presence: binary_sensor.detection_presence_salle_a_manger_cuisine_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_salle_a_manger_cuisine_2
-      - sensor.mode_fonctionnement_temperature_salle_a_manger_cuisine_2
-      - binary_sensor.fenetre_ouverte_salle_a_manger_cuisine
-      - binary_sensor.detection_presence_salle_a_manger_cuisine_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_cuisine_2
+        columns: 12
+    - type: thermostat
+      entity: climate.thermostat_cuisine
       name: Cuisine
-      icon: mdi:countertop
-      variables:
-        consigne: sensor.temperature_consigne_cuisine_2
-        option: Cuisine
-        mode: sensor.mode_fonctionnement_cuisine_2
-        fenetre: binary_sensor.fenetre_ouverte_cuisine_2
-        presence: binary_sensor.detection_presence_cuisine_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_cuisine_2
-      - sensor.mode_fonctionnement_cuisine_2
-      - binary_sensor.fenetre_ouverte_cuisine_2
-      - binary_sensor.detection_presence_cuisine_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
+        columns: 12
   - type: grid
     cards:
     - type: heading
       heading: Chambres
       icon: mdi:bed
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_chambre_parents_2
+    - type: thermostat
+      entity: climate.thermostat_chambre_parents
       name: Chambre parents
-      icon: mdi:bed-queen-outline
-      variables:
-        consigne: sensor.temperature_consigne_chambre_parents_2
-        option: Chambre Parents
-        mode: sensor.mode_fonctionnement_temperature_chambre_parents_2
-        fenetre: binary_sensor.fenetre_ouverte_chambre_parents_2
-        presence: binary_sensor.detection_presence_chambre_parents_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_chambre_parents_2
-      - sensor.mode_fonctionnement_temperature_chambre_parents_2
-      - binary_sensor.fenetre_ouverte_chambre_parents_2
-      - binary_sensor.detection_presence_chambre_parents_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_chambre_filles_2
+        columns: 12
+    - type: thermostat
+      entity: climate.thermostat_chambre_filles
       name: Chambre filles
-      icon: mdi:bed-double-outline
-      variables:
-        consigne: sensor.temperature_consigne_chambre_filles
-        option: Chambre Filles
-        mode: sensor.nodered_4c0cfd77ea47deab_2
-        fenetre: binary_sensor.fenetre_ouverte_chambre_filles
-        presence: binary_sensor.nodered_eefcc8439123c565_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_chambre_filles
-      - sensor.nodered_4c0cfd77ea47deab_2
-      - binary_sensor.fenetre_ouverte_chambre_filles
-      - binary_sensor.nodered_eefcc8439123c565_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_chambre_d_amis_2
+        columns: 12
+    - type: thermostat
+      entity: climate.thermostat_chambre_d_amis
       name: Chambre d'amis
-      icon: mdi:bed-king-outline
-      variables:
-        consigne: sensor.temp_consigne_chambre_d_amis_2
-        option: Chambre D’amis
-        mode: sensor.mode_fonctionnement_chambre_d_amis_2
-        fenetre: binary_sensor.fenetre_ouverte_chambre_d_amis_2
-        presence: binary_sensor.presence_chambre_d_amis_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temp_consigne_chambre_d_amis_2
-      - sensor.mode_fonctionnement_chambre_d_amis_2
-      - binary_sensor.fenetre_ouverte_chambre_d_amis_2
-      - binary_sensor.presence_chambre_d_amis_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
+        columns: 12
   - type: grid
     cards:
     - type: heading
       heading: Salles d'eau
       icon: mdi:shower
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_salle_de_bain_parents_2
+    - type: thermostat
+      entity: climate.thermostat_sdb_parents
       name: SdB parents
-      icon: mdi:shower-head
-      variables:
-        consigne: sensor.temperature_consigne_salle_de_bain_parents_2
-        option: Salle De Bain Parents
-        mode: sensor.mode_fonctionnement_temperature_salle_de_bain_parents_2
-        fenetre: binary_sensor.fenetre_ouverte_salle_de_bain_parents_2
-        presence: binary_sensor.detection_presence_salle_de_bain_parents_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_salle_de_bain_parents_2
-      - sensor.mode_fonctionnement_temperature_salle_de_bain_parents_2
-      - binary_sensor.fenetre_ouverte_salle_de_bain_parents_2
-      - binary_sensor.detection_presence_salle_de_bain_parents_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temp_salle_de_bain_filles_2
+        columns: 12
+    - type: thermostat
+      entity: climate.thermostat_sdb_filles
       name: SdB filles
-      icon: mdi:shower
-      variables:
-        consigne: sensor.temperature_consigne_salle_de_bain_filles_2
-        option: Salle De Bain Filles
-        mode: sensor.mode_fonctionnement_salle_de_bain_filles_2
-        fenetre: binary_sensor.fenetre_ouverte_salle_de_bain_filles_2
-        presence: binary_sensor.detection_presence_salle_de_bain_filles_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_salle_de_bain_filles_2
-      - sensor.mode_fonctionnement_salle_de_bain_filles_2
-      - binary_sensor.fenetre_ouverte_salle_de_bain_filles_2
-      - binary_sensor.detection_presence_salle_de_bain_filles_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_toilettes_visiteurs_2
+        columns: 12
+    - type: thermostat
+      entity: climate.thermostat_toilettes
       name: Toilettes
-      icon: mdi:toilet
-      variables:
-        consigne: sensor.temperature_consigne_toilettes_visiteurs_2
-        option: Toilettes Visiteurs
-        mode: sensor.mode_fonctionnement_toilettes_visiteurs_2
-        fenetre: binary_sensor.fenetre_ouverte_toilettes_visiteurs_2
-        presence: binary_sensor.detection_presence_toilettes_visiteurs_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_toilettes_visiteurs_2
-      - sensor.mode_fonctionnement_toilettes_visiteurs_2
-      - binary_sensor.fenetre_ouverte_toilettes_visiteurs_2
-      - binary_sensor.detection_presence_toilettes_visiteurs_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
+        columns: 12
   - type: grid
     cards:
     - type: heading
       heading: Circulation
       icon: mdi:door
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_entree_2
+    - type: thermostat
+      entity: climate.thermostat_entree
       name: Entrée
-      icon: mdi:door-open
-      variables:
-        consigne: sensor.temperature_consigne_entree_2
-        option: Entrée
-        mode: sensor.mode_fonctionnement_entree_2
-        fenetre: binary_sensor.fenetre_ouverte_entree_2
-        presence: binary_sensor.presence_entree_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_entree_2
-      - sensor.mode_fonctionnement_entree_2
-      - binary_sensor.fenetre_ouverte_entree_2
-      - binary_sensor.presence_entree_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
-    - type: custom:button-card
-      template: piece_lens
-      entity: sensor.temperature_couloir_2
+        columns: 12
+    - type: thermostat
+      entity: climate.thermostat_couloir
       name: Couloir
-      icon: mdi:door-sliding
-      variables:
-        consigne: sensor.temperature_consigne_couloir_2
-        option: Couloir
-        mode: sensor.mode_fonctionnement_couloir_2
-        fenetre: binary_sensor.nodered_49266288c9a62c61_2
-        presence: binary_sensor.detection_presence_couloir_2
-      triggers_update:
-      - input_select.tmp_choix_piece
-      - sensor.temperature_consigne_couloir_2
-      - sensor.mode_fonctionnement_couloir_2
-      - binary_sensor.nodered_49266288c9a62c61_2
-      - binary_sensor.detection_presence_couloir_2
+      features:
+      - type: climate-hvac-modes
+        style: icons
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
       grid_options:
-        columns: 6
+        columns: 12
 - title: Températures
   path: temperatures
   icon: mdi:thermometer-lines

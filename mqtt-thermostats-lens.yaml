@@ -1,0 +1,190 @@
+# À coller dans mqtt.yaml, sous la clé « climate: » (créez-la si elle n'existe pas).
+# Redémarrer Home Assistant ensuite. Entités : climate.thermostat_<pièce>.
+climate:
+  - name: "Thermostat Salon"
+    unique_id: lens_nr_thermostat_salon
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/salon/mode
+    mode_command_topic: lens/chauffage/salon/mode/set
+    current_temperature_topic: lens/chauffage/salon/temperature
+    temperature_state_topic: lens/chauffage/salon/consigne
+    temperature_command_topic: lens/chauffage/salon/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/salon/preset
+    preset_mode_command_topic: lens/chauffage/salon/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Salle à manger"
+    unique_id: lens_nr_thermostat_salle_a_manger
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/salle_a_manger/mode
+    mode_command_topic: lens/chauffage/salle_a_manger/mode/set
+    current_temperature_topic: lens/chauffage/salle_a_manger/temperature
+    temperature_state_topic: lens/chauffage/salle_a_manger/consigne
+    temperature_command_topic: lens/chauffage/salle_a_manger/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/salle_a_manger/preset
+    preset_mode_command_topic: lens/chauffage/salle_a_manger/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Cuisine"
+    unique_id: lens_nr_thermostat_cuisine
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/cuisine/mode
+    mode_command_topic: lens/chauffage/cuisine/mode/set
+    current_temperature_topic: lens/chauffage/cuisine/temperature
+    temperature_state_topic: lens/chauffage/cuisine/consigne
+    temperature_command_topic: lens/chauffage/cuisine/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/cuisine/preset
+    preset_mode_command_topic: lens/chauffage/cuisine/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Chambre parents"
+    unique_id: lens_nr_thermostat_chambre_parents
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/chambre_parents/mode
+    mode_command_topic: lens/chauffage/chambre_parents/mode/set
+    current_temperature_topic: lens/chauffage/chambre_parents/temperature
+    temperature_state_topic: lens/chauffage/chambre_parents/consigne
+    temperature_command_topic: lens/chauffage/chambre_parents/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/chambre_parents/preset
+    preset_mode_command_topic: lens/chauffage/chambre_parents/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Chambre filles"
+    unique_id: lens_nr_thermostat_chambre_filles
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/chambre_filles/mode
+    mode_command_topic: lens/chauffage/chambre_filles/mode/set
+    current_temperature_topic: lens/chauffage/chambre_filles/temperature
+    temperature_state_topic: lens/chauffage/chambre_filles/consigne
+    temperature_command_topic: lens/chauffage/chambre_filles/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/chambre_filles/preset
+    preset_mode_command_topic: lens/chauffage/chambre_filles/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Chambre d'amis"
+    unique_id: lens_nr_thermostat_chambre_d_amis
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/chambre_d_amis/mode
+    mode_command_topic: lens/chauffage/chambre_d_amis/mode/set
+    current_temperature_topic: lens/chauffage/chambre_d_amis/temperature
+    temperature_state_topic: lens/chauffage/chambre_d_amis/consigne
+    temperature_command_topic: lens/chauffage/chambre_d_amis/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/chambre_d_amis/preset
+    preset_mode_command_topic: lens/chauffage/chambre_d_amis/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat SdB parents"
+    unique_id: lens_nr_thermostat_sdb_parents
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/sdb_parents/mode
+    mode_command_topic: lens/chauffage/sdb_parents/mode/set
+    current_temperature_topic: lens/chauffage/sdb_parents/temperature
+    temperature_state_topic: lens/chauffage/sdb_parents/consigne
+    temperature_command_topic: lens/chauffage/sdb_parents/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/sdb_parents/preset
+    preset_mode_command_topic: lens/chauffage/sdb_parents/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat SdB filles"
+    unique_id: lens_nr_thermostat_sdb_filles
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/sdb_filles/mode
+    mode_command_topic: lens/chauffage/sdb_filles/mode/set
+    current_temperature_topic: lens/chauffage/sdb_filles/temperature
+    temperature_state_topic: lens/chauffage/sdb_filles/consigne
+    temperature_command_topic: lens/chauffage/sdb_filles/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/sdb_filles/preset
+    preset_mode_command_topic: lens/chauffage/sdb_filles/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Toilettes"
+    unique_id: lens_nr_thermostat_toilettes
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/toilettes/mode
+    mode_command_topic: lens/chauffage/toilettes/mode/set
+    current_temperature_topic: lens/chauffage/toilettes/temperature
+    temperature_state_topic: lens/chauffage/toilettes/consigne
+    temperature_command_topic: lens/chauffage/toilettes/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/toilettes/preset
+    preset_mode_command_topic: lens/chauffage/toilettes/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Entrée"
+    unique_id: lens_nr_thermostat_entree
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/entree/mode
+    mode_command_topic: lens/chauffage/entree/mode/set
+    current_temperature_topic: lens/chauffage/entree/temperature
+    temperature_state_topic: lens/chauffage/entree/consigne
+    temperature_command_topic: lens/chauffage/entree/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/entree/preset
+    preset_mode_command_topic: lens/chauffage/entree/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
+  - name: "Thermostat Couloir"
+    unique_id: lens_nr_thermostat_couloir
+    modes: ["auto", "heat", "off"]
+    mode_state_topic: lens/chauffage/couloir/mode
+    mode_command_topic: lens/chauffage/couloir/mode/set
+    current_temperature_topic: lens/chauffage/couloir/temperature
+    temperature_state_topic: lens/chauffage/couloir/consigne
+    temperature_command_topic: lens/chauffage/couloir/consigne/set
+    preset_modes: ["Hors-gel"]
+    preset_mode_state_topic: lens/chauffage/couloir/preset
+    preset_mode_command_topic: lens/chauffage/couloir/preset/set
+    min_temp: 7
+    max_temp: 28
+    temp_step: 0.5
+    precision: 0.1
+    temperature_unit: C
+    qos: 1
