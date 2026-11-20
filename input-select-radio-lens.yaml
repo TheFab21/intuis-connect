@@ -1,5 +1,5 @@
-# À ajouter à la fin de input_select.yaml (clé à 2 espaces, comme les autres helpers).
-# Puis Outils de développement → YAML → Recharger les entrées de sélection.
+# A ajouter a la fin de input_select.yaml (cle a 2 espaces, comme les autres helpers).
+# Puis Outils de developpement -> YAML -> Recharger les entrees de selection.
   radio_destination:
     name: Radio - Destination
     icon: mdi:speaker-multiple

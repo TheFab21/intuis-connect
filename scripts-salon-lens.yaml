@@ -1,8 +1,8 @@
-# À ajouter à la fin de scripts.yaml (les scripts y sont en colonne 0, comme ici).
-# Puis Outils de développement → YAML → Recharger les scripts.
+# A ajouter a la fin de scripts.yaml (les scripts y sont en colonne 0, comme ici).
+# Puis Outils de developpement -> YAML -> Recharger les scripts.
 
 regarder_apple_tv:
-  alias: "▶ Regarder l'Apple TV"
+  alias: "\u25B6 Regarder l'Apple TV"
   icon: mdi:apple
   mode: single
   sequence:
@@ -12,7 +12,7 @@ regarder_apple_tv:
     - action: media_player.turn_on
       target:
         entity_id: media_player.tv_samsung_led40
-    # Laisser à l'ampli le temps de démarrer avant de changer d'entrée.
+    # Laisser a l'ampli le temps de demarrer avant de changer d'entree.
     - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
       timeout: "00:00:20"
       continue_on_timeout: true
@@ -21,7 +21,7 @@ regarder_apple_tv:
         entity_id: media_player.marantz
       data:
         source: CBL/SAT
-    # La TV ne publie que « TV » et « HDMI » : on envoie la touche directe HDMI2.
+    # La TV ne publie que " TV " et " HDMI " : on envoie la touche directe HDMI2.
     - wait_template: "{{ not is_state('media_player.tv_samsung_led40', 'off') }}"
       timeout: "00:00:30"
       continue_on_timeout: true
@@ -36,7 +36,7 @@ regarder_apple_tv:
         entity_id: remote.apple_tv_salon
 
 eteindre_salon:
-  alias: "⏻ Éteindre le salon"
+  alias: "\u23FB \u00C9teindre le salon"
   icon: mdi:power
   mode: single
   sequence:
@@ -49,23 +49,23 @@ eteindre_salon:
           - media_player.tv_samsung_led40
           - media_player.marantz
 
-# ── Apps sur l'Apple TV ───────────────────────────────────────────────────────
-# « app » est un motif (expression régulière, majuscules ignorées) cherché dans
-# la liste des apps que l'Apple TV publie : « ^blue ?tv » trouve « blue TV ».
+# -- Apps sur l'Apple TV -------------------------------------------------------
+# " app " est un motif (expression reguliere, majuscules ignorees) cherche dans
+# la liste des apps que l'Apple TV publie : " ^blue ?tv " trouve " blue TV ".
 lancer_app_apple_tv:
-  alias: "📺 Lancer une app sur l'Apple TV"
+  alias: "\U0001F4FA Lancer une app sur l'Apple TV"
   icon: mdi:apple
   mode: restart
   fields:
     app:
       name: Application
-      description: Motif du nom de l'app, majuscules ignorées
+      description: "Motif du nom de l'app, majuscules ignor\u00E9es"
       example: netflix
       required: true
       selector:
         text:
   sequence:
-    # Allume ampli + TV, met CBL/SAT et HDMI2, réveille l'Apple TV (appel direct : on attend la fin).
+    # Allume ampli + TV, met CBL/SAT et HDMI2, reveille l'Apple TV (appel direct : on attend la fin).
     - action: script.regarder_apple_tv
     - wait_template: >
         {{ not is_state('media_player.apple_tv_salon', 'off')
@@ -81,9 +81,7 @@ lancer_app_apple_tv:
         - action: persistent_notification.create
           data:
             title: Apple TV
-            message: >
-              Aucune app ne correspond à « {{ app }} ». Apps publiées :
-              {{ (state_attr('media_player.apple_tv_salon', 'source_list') or []) | join(', ') }}
+            message: "Aucune app ne correspond \u00E0 \u00AB {{ app }} \u00BB. Apps publi\u00E9es : {{ (state_attr('media_player.apple_tv_salon', 'source_list') or []) | join(', ') }}"
         - stop: App introuvable
     - action: media_player.select_source
       target:
@@ -91,10 +89,10 @@ lancer_app_apple_tv:
       data:
         source: "{{ source }}"
 
-# ── Radios : Eversolo, Marantz ou les deux ────────────────────────────────────
+# -- Radios : Eversolo, Marantz ou les deux ------------------------------------
 # La destination vient de input_select.radio_destination.
 lancer_radio:
-  alias: "📻 Lancer une radio"
+  alias: "\U0001F4FB Lancer une radio"
   icon: mdi:radio
   mode: restart
   fields:
@@ -104,7 +102,7 @@ lancer_radio:
       selector:
         text:
     titre:
-      name: Titre affiché
+      name: "Titre affich\u00E9"
       selector:
         text:
   variables:
@@ -140,11 +138,11 @@ lancer_radio:
               title: "{{ titre | default(url, true) }}"
 
 arreter_radio:
-  alias: "⏹ Arrêter la radio"
+  alias: "\u23F9 Arr\u00EAter la radio"
   icon: mdi:stop
   mode: single
   sequence:
-    # N'arrête que les lecteurs qui jouent : rien ne bouge sur l'Apple TV.
+    # N'arrete que les lecteurs qui jouent : rien ne bouge sur l'Apple TV.
     - repeat:
         for_each:
           - media_player.dmp_a6
