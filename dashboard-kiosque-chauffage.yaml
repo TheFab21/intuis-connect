@@ -1,4 +1,4 @@
-# Kiosque chauffage Lens — piloté par Node-RED
+# Kiosque chauffage Lens — piloté par Node-RED (aucune entité de l'intégration)
 # Créer le tableau de bord avec l'URL : kiosque-chauffage
 # Requis (HACS) : button-card ; optionnel : kiosk-mode (NemesisRE). Sortie du kiosque : ?disable_km
 # Toucher une pièce la sélectionne dans « Pilotage d'une pièce » ; appui long : historique.
@@ -10,6 +10,59 @@ kiosk_mode:
   admin_settings:
     hide_sidebar: true
 button_card_templates:
+  choix_lens:
+    variables:
+      option: ''
+    show_state: false
+    show_name: true
+    show_icon: true
+    layout: vertical
+    styles:
+      card:
+      - height: 104px
+      - padding: 8px
+      - border-radius: 16px
+      - background-color: '[[[ return entity.state === variables.option ? ''var(--primary-color)'' : ''var(--card-background-color)'';
+          ]]]'
+      icon:
+      - width: 40px
+      - color: '[[[ return entity.state === variables.option ? ''var(--text-primary-color)'' : ''var(--primary-color)'';
+          ]]]'
+      name:
+      - font-size: 14px
+      - white-space: normal
+      - color: '[[[ return entity.state === variables.option ? ''var(--text-primary-color)'' : ''var(--primary-text-color)'';
+          ]]]'
+  bascule_lens:
+    show_state: true
+    show_name: true
+    show_icon: true
+    layout: icon_name_state2nd
+    state_display: '[[[ return entity.state === ''on'' ? ''En marche'' : (entity.state === ''off'' ? ''Arrêtée''
+      : entity.state); ]]]'
+    tap_action:
+      action: toggle
+    hold_action:
+      action: more-info
+    styles:
+      card:
+      - height: 72px
+      - padding: 8px 14px
+      - border-radius: 16px
+      - background-color: '[[[ return entity.state === ''on'' ? ''rgba(243, 156, 18, 0.22)'' : ''var(--card-background-color)'';
+          ]]]'
+      icon:
+      - width: 34px
+      - color: '[[[ return entity.state === ''on'' ? ''var(--warning-color, #f39c12)'' : ''var(--disabled-text-color)'';
+          ]]]'
+      name:
+      - font-size: 15px
+      - font-weight: '600'
+      - justify-self: start
+      state:
+      - font-size: 13px
+      - opacity: '0.8'
+      - justify-self: start
   piece_lens:
     variables:
       consigne: ''
@@ -129,87 +182,137 @@ views:
     column_span: 2
     cards:
     - type: heading
-      heading: Maison
+      heading: Mode maison
       icon: mdi:home-thermometer
-    - type: tile
-      entity: sensor.mode_maison
-      name: Mode en cours
-      icon: mdi:home-switch
+      badges:
+      - type: entity
+        entity: sensor.mode_maison
+        show_state: true
+        show_icon: false
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radiateurs_intuis_set_mode
+      name: Programme
+      icon: mdi:calendar-sync
+      variables:
+        option: Home
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.radiateurs_intuis_set_mode
+        data:
+          option: Home
       grid_options:
-        columns: 6
+        columns: 4
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radiateurs_intuis_set_mode
+      name: Absent
+      icon: mdi:home-export-outline
+      variables:
+        option: Away
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.radiateurs_intuis_set_mode
+        data:
+          option: Away
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radiateurs_intuis_set_mode
+      name: Hors-gel
+      icon: mdi:snowflake-thermometer
+      variables:
+        option: Hors Gel
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.radiateurs_intuis_set_mode
+        data:
+          option: Hors Gel
+      grid_options:
+        columns: 4
     - type: tile
       entity: input_datetime.away_until_date
-      name: Absent jusqu'au
+      name: Absent jusqu'au — à régler avant « Absent »
       icon: mdi:calendar-clock
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: input_select.radiateurs_intuis_set_mode
-      name: Mode demandé
-      features:
-      - type: select-options
-      features_position: inline
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: input_select.liste_des_plannings_nr
-      name: Planning
-      icon: mdi:calendar-check
-      features:
-      - type: select-options
-      features_position: inline
       grid_options:
         columns: 12
   - type: grid
     column_span: 2
     cards:
     - type: heading
-      heading: Pilotage d'une pièce
-      icon: mdi:gesture-tap
-    - type: tile
-      entity: input_select.tmp_choix_piece
-      name: Pièce
-      icon: mdi:floor-plan
-      features:
-      - type: select-options
-      features_position: inline
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: input_select.tmp_mode_chauffage
-      name: Mode
-      icon: mdi:thermostat-cog
-      features:
-      - type: select-options
-      features_position: inline
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: input_datetime.tmp_echeance_fin
-      name: Jusqu'à
-      icon: mdi:calendar-end
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: input_number.tmp_consigne_temperature
-      name: Consigne
-      icon: mdi:thermometer
-      features:
-      - type: numeric-input
-        style: buttons
-      features_position: inline
-      grid_options:
-        columns: 8
-    - type: button
-      name: Appliquer
-      icon: mdi:check-circle
-      show_state: false
+      heading: Planning
+      icon: mdi:calendar-check
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.liste_des_plannings_nr
+      name: Absent semaine
+      icon: mdi:briefcase-clock
+      variables:
+        option: Absent Semaine
       tap_action:
         action: perform-action
-        perform_action: script.pilotage_chauffage
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.liste_des_plannings_nr
+        data:
+          option: Absent Semaine
       grid_options:
-        columns: 4
-        rows: 1
+        columns: 6
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.liste_des_plannings_nr
+      name: À la maison — toutes pièces
+      icon: mdi:home-heart
+      variables:
+        option: A La Maison Toutes Pièces
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.liste_des_plannings_nr
+        data:
+          option: A La Maison Toutes Pièces
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.liste_des_plannings_nr
+      name: À la maison — haut
+      icon: mdi:home-floor-2
+      variables:
+        option: A La Maison Haut
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.liste_des_plannings_nr
+        data:
+          option: A La Maison Haut
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.liste_des_plannings_nr
+      name: Pas utilisé
+      icon: mdi:home-off-outline
+      variables:
+        option: 'Pas Utilisé '
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.liste_des_plannings_nr
+        data:
+          option: 'Pas Utilisé '
+      grid_options:
+        columns: 6
   - type: grid
     column_span: 4
     visibility:
@@ -386,10 +489,67 @@ views:
         columns: 3
         rows: 1
   - type: grid
+    column_span: 4
+    cards:
+    - type: heading
+      heading: Pilotage d'une pièce — touchez une pièce, réglez, puis Appliquer
+      icon: mdi:gesture-tap
+    - type: tile
+      entity: input_select.tmp_choix_piece
+      name: Pièce
+      icon: mdi:floor-plan
+      features:
+      - type: select-options
+      features_position: inline
+      grid_options:
+        columns: 3
+    - type: tile
+      entity: input_select.tmp_mode_chauffage
+      name: Mode
+      icon: mdi:thermostat-cog
+      features:
+      - type: select-options
+      features_position: inline
+      grid_options:
+        columns: 3
+    - type: tile
+      entity: input_number.tmp_consigne_temperature
+      name: Consigne
+      icon: mdi:thermometer
+      features:
+      - type: numeric-input
+        style: buttons
+      features_position: inline
+      grid_options:
+        columns: 3
+    - type: tile
+      entity: input_datetime.tmp_echeance_fin
+      name: Jusqu'à
+      icon: mdi:calendar-end
+      grid_options:
+        columns: 3
+    - type: button
+      name: Appliquer
+      icon: mdi:check-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.pilotage_chauffage
+      grid_options:
+        columns: 12
+        rows: 1
+  - type: grid
     cards:
     - type: heading
       heading: Séjour
       icon: mdi:sofa
+    - type: custom:button-card
+      template: bascule_lens
+      entity: switch.prise_cheminee_socket_1
+      name: Soufflante cheminée
+      icon: mdi:fireplace
+      grid_options:
+        columns: 12
     - type: custom:button-card
       template: piece_lens
       entity: sensor.temperature_salon_2
