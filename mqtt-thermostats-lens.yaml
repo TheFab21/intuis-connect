@@ -1,5 +1,8 @@
 # À coller dans mqtt.yaml, sous la clé « climate: » (créez-la si elle n'existe pas).
-# Redémarrer Home Assistant ensuite. Entités : climate.thermostat_<pièce>.
+# INDENTATION : « climate: » doit être aligné sur les autres clés du fichier (sensor:, …).
+# Si votre mqtt.yaml commence par «  sensor: » (deux espaces), décalez tout ce bloc de deux espaces.
+# Vérifier avec Outils de développement → YAML → Vérifier la configuration, puis redémarrer HA.
+# Entités : climate.thermostat_<pièce>.
 climate:
   - name: "Thermostat Salon"
     unique_id: lens_nr_thermostat_salon
