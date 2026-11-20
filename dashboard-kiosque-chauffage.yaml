@@ -1,21 +1,66 @@
-# Kiosque chauffage — tablette murale
+# Kiosque chauffage Lens — piloté par Node-RED
 # Créer le tableau de bord avec l'URL : kiosque-chauffage
-# Mode kiosque : plugin HACS « kiosk-mode » (NemesisRE). Sans lui, la clé kiosk_mode est ignorée.
-# Sortir du mode kiosque : ajouter ?disable_km à l'URL.
+# Requis (HACS) : button-card ; optionnel : kiosk-mode (NemesisRE). Sortie du kiosque : ?disable_km
+# Toucher une pièce la sélectionne dans « Pilotage d'une pièce » ; appui long : historique.
 
-title: Chauffage
+title: Chauffage Lens
 kiosk_mode:
   non_admin_settings:
     kiosk: true
   admin_settings:
     hide_sidebar: true
+button_card_templates:
+  piece_lens:
+    variables:
+      consigne: ''
+      option: ''
+    layout: vertical
+    show_icon: true
+    show_name: true
+    show_state: true
+    show_label: true
+    state_display: '[[[ var t = parseFloat(entity.state); return isNaN(t) ? ''—'' : t.toFixed(1) + '' °C''; ]]]'
+    label: '[[[ var c = states[variables.consigne]; var v = c ? parseFloat(c.state) : NaN; return isNaN(v) ? ''Consigne
+      —'' : ''Consigne '' + v.toFixed(1) + '' °C''; ]]]'
+    tap_action:
+      action: perform-action
+      perform_action: input_select.select_option
+      target:
+        entity_id: input_select.tmp_choix_piece
+      data:
+        option: '[[[ return variables.option; ]]]'
+    hold_action:
+      action: more-info
+    styles:
+      card:
+      - height: 118px
+      - padding: 8px
+      - border-radius: 16px
+      - border: '[[[ var s = states[''input_select.tmp_choix_piece'']; return (s && s.state === variables.option)
+          ? ''3px solid var(--primary-color)'' : ''1px solid var(--divider-color)''; ]]]'
+      icon:
+      - width: 26px
+      name:
+      - font-size: 13px
+      - font-weight: '600'
+      - white-space: normal
+      state:
+      - font-size: 22px
+      - font-weight: '700'
+      - color: '[[[ var t = parseFloat(entity.state); var c = states[variables.consigne]; var v = c ? parseFloat(c.state)
+          : NaN; if (isNaN(t) || isNaN(v)) return ''var(--primary-text-color)''; if (t < v - 0.5) return ''var(--warning-color,
+          #f39c12)''; if (t > v + 1) return ''var(--info-color, #3498db)''; return ''var(--success-color, #2ecc71)'';
+          ]]]'
+      label:
+      - font-size: 12px
+      - opacity: '0.75'
 views:
 - title: Chauffage
   path: chauffage
   icon: mdi:radiator
   type: sections
   max_columns: 4
-  badges: &id002
+  badges: &id001
   - type: entity
     entity: weather.forecast_home
     show_name: false
@@ -23,8 +68,8 @@ views:
     entity: sensor.mode_maison
     show_name: false
   - type: entity
-    entity: sensor.intuis_home_energy_today
-    name: Aujourd'hui
+    entity: sensor.consomation_totale_chauffage_2
+    name: Chauffage
     show_name: true
   sections:
   - type: grid
@@ -38,17 +83,7 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/chauffage
       grid_options:
-        columns: 3
-        rows: 1
-    - type: button
-      name: Pièces
-      icon: mdi:floor-plan
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/pieces
-      grid_options:
-        columns: 3
+        columns: 4
         rows: 1
     - type: button
       name: Températures
@@ -58,7 +93,7 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/temperatures
       grid_options:
-        columns: 3
+        columns: 4
         rows: 1
     - type: button
       name: Énergie
@@ -68,10 +103,10 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/energie
       grid_options:
-        columns: 3
+        columns: 4
         rows: 1
   - type: grid
-    column_span: 4
+    column_span: 2
     cards:
     - type: heading
       heading: Maison
@@ -81,7 +116,13 @@ views:
       name: Mode en cours
       icon: mdi:home-switch
       grid_options:
-        columns: 4
+        columns: 6
+    - type: tile
+      entity: input_datetime.away_until_date
+      name: Absent jusqu'au
+      icon: mdi:calendar-clock
+      grid_options:
+        columns: 6
     - type: tile
       entity: input_select.radiateurs_intuis_set_mode
       name: Mode demandé
@@ -89,13 +130,7 @@ views:
       - type: select-options
       features_position: inline
       grid_options:
-        columns: 4
-    - type: tile
-      entity: input_datetime.away_until_date
-      name: Absent jusqu'au
-      icon: mdi:calendar-clock
-      grid_options:
-        columns: 4
+        columns: 12
     - type: tile
       entity: input_select.liste_des_plannings_nr
       name: Planning
@@ -104,420 +139,13 @@ views:
       - type: select-options
       features_position: inline
       grid_options:
-        columns: 4
-    - type: tile
-      entity: sensor.intuis_home_current_zone
-      name: Zone en cours
-      icon: mdi:map-marker-radius
-      grid_options:
-        columns: 4
-    - type: tile
-      entity: sensor.intuis_home_next_zone_change
-      name: Prochain changement
-      icon: mdi:clock-fast
-      grid_options:
-        columns: 4
+        columns: 12
   - type: grid
-    column_span: 4
-    visibility:
-    - condition: or
-      conditions:
-      - condition: state
-        entity: binary_sensor.salon_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.salle_a_manger_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.cuisine_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.chambre_parents_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.chambre_filles_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.chambre_damis_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.salle_de_bain_parents_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.salle_de_bain_filles_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.toilettes_visiteurs_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.entree_open_window
-        state: 'on'
-      - condition: state
-        entity: binary_sensor.couloir_open_window
-        state: 'on'
+    column_span: 2
     cards:
     - type: heading
-      heading: Fenêtres ouvertes
-      icon: mdi:window-open-variant
-    - type: tile
-      entity: binary_sensor.salon_open_window
-      name: Salon
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.salon_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.salle_a_manger_open_window
-      name: Salle à manger
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.salle_a_manger_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.cuisine_open_window
-      name: Cuisine
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.cuisine_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.chambre_parents_open_window
-      name: Chambre parents
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.chambre_parents_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.chambre_filles_open_window
-      name: Chambre filles
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.chambre_filles_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.chambre_damis_open_window
-      name: Chambre d'amis
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.chambre_damis_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.salle_de_bain_parents_open_window
-      name: Salle de bain parents
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.salle_de_bain_parents_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.salle_de_bain_filles_open_window
-      name: Salle de bain filles
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.salle_de_bain_filles_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.toilettes_visiteurs_open_window
-      name: Toilettes visiteurs
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.toilettes_visiteurs_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.entree_open_window
-      name: Entrée
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.entree_open_window
-        state: 'on'
-    - type: tile
-      entity: binary_sensor.couloir_open_window
-      name: Couloir
-      icon: mdi:window-open-variant
-      color: red
-      grid_options:
-        columns: 3
-      visibility:
-      - condition: state
-        entity: binary_sensor.couloir_open_window
-        state: 'on'
-    - type: button
-      name: Acquitter
-      icon: mdi:check-all
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: input_button.press
-        target:
-          entity_id: input_button.ack_windows_open
-      grid_options:
-        columns: 3
-        rows: 1
-  - type: grid
-    cards:
-    - type: heading
-      heading: Séjour
-      icon: mdi:sofa
-    - type: tile
-      entity: climate.salon_salon_climate
-      name: Salon
-      icon: mdi:sofa-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - &id001
-        type: climate-preset-modes
-        style: icons
-        preset_modes:
-        - home
-        - away
-        - boost
-        - eco
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: climate.salle_a_manger_salle_a_manger_climate
-      name: Salle à manger
-      icon: mdi:table-furniture
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: climate.cuisine_cuisine_climate
-      name: Cuisine
-      icon: mdi:countertop
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-  - type: grid
-    cards:
-    - type: heading
-      heading: Chambres
-      icon: mdi:bed
-    - type: tile
-      entity: climate.chambre_parents_chambre_parents_climate
-      name: Chambre parents
-      icon: mdi:bed-queen-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: climate.chambre_filles_chambre_filles_climate
-      name: Chambre filles
-      icon: mdi:bed-double-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: climate.chambre_damis_chambre_damis_climate
-      name: Chambre d'amis
-      icon: mdi:bed-king-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-  - type: grid
-    cards:
-    - type: heading
-      heading: Salles d'eau
-      icon: mdi:shower
-    - type: tile
-      entity: climate.salle_de_bain_parents_salle_de_bain_parents_climate
-      name: Salle de bain parents
-      icon: mdi:shower-head
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: climate.salle_de_bain_filles_salle_de_bain_filles_climate
-      name: Salle de bain filles
-      icon: mdi:shower
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: climate.toilettes_visiteurs_toilettes_visiteurs_climate
-      name: Toilettes visiteurs
-      icon: mdi:toilet
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-  - type: grid
-    cards:
-    - type: heading
-      heading: Circulation
-      icon: mdi:door
-    - type: tile
-      entity: climate.entree_entree_climate
-      name: Entrée
-      icon: mdi:door-open
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: climate.couloir_couloir_climate
-      name: Couloir
-      icon: mdi:door-sliding
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-- title: Pièces
-  path: pieces
-  icon: mdi:floor-plan
-  type: sections
-  max_columns: 4
-  badges: *id002
-  sections:
-  - type: grid
-    column_span: 4
-    cards:
-    - type: button
-      name: Chauffage
-      icon: mdi:radiator
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/chauffage
-      grid_options:
-        columns: 3
-        rows: 1
-    - type: button
-      name: ● Pièces
-      icon: mdi:floor-plan
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/pieces
-      grid_options:
-        columns: 3
-        rows: 1
-    - type: button
-      name: Températures
-      icon: mdi:thermometer-lines
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/temperatures
-      grid_options:
-        columns: 3
-        rows: 1
-    - type: button
-      name: Énergie
-      icon: mdi:lightning-bolt
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/energie
-      grid_options:
-        columns: 3
-        rows: 1
-  - type: grid
-    column_span: 4
-    cards:
-    - type: heading
-      heading: Dérogation programmée
-      icon: mdi:timer-cog-outline
+      heading: Pilotage d'une pièce
+      icon: mdi:gesture-tap
     - type: tile
       entity: input_select.tmp_choix_piece
       name: Pièce
@@ -526,7 +154,7 @@ views:
       - type: select-options
       features_position: inline
       grid_options:
-        columns: 4
+        columns: 12
     - type: tile
       entity: input_select.tmp_mode_chauffage
       name: Mode
@@ -535,13 +163,13 @@ views:
       - type: select-options
       features_position: inline
       grid_options:
-        columns: 4
+        columns: 6
     - type: tile
       entity: input_datetime.tmp_echeance_fin
       name: Jusqu'à
       icon: mdi:calendar-end
       grid_options:
-        columns: 4
+        columns: 6
     - type: tile
       entity: input_number.tmp_consigne_temperature
       name: Consigne
@@ -563,652 +191,191 @@ views:
         columns: 4
         rows: 1
   - type: grid
+    column_span: 4
+    cards:
+    - type: markdown
+      content: "{%- set nr = integration_entities('nodered') -%}\n{%- set ouvertes = states.binary_sensor\n    \
+        \ | selectattr('entity_id', 'in', nr)\n     | selectattr('attributes.device_class', 'defined')\n     | selectattr('attributes.device_class',\
+        \ 'eq', 'window')\n     | selectattr('state', 'eq', 'on')\n     | map(attribute='name') | list -%}\n{%-\
+        \ if ouvertes -%}\n### \U0001FA9F {{ ouvertes | count }} fenêtre{{ 's' if ouvertes | count > 1 }} ouverte{{\
+        \ 's' if ouvertes | count > 1 }}\n{{ ouvertes | map('replace', 'Fenêtre ouverte ', '') | map('replace',\
+        \ 'Fenetre ouverte ', '') | join(' · ') }}\n{%- else -%}\n✅ Toutes les fenêtres sont fermées\n{%- endif\
+        \ -%}\n"
+      grid_options:
+        columns: 9
+    - type: button
+      name: Acquitter
+      icon: mdi:check-all
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: input_button.press
+        target:
+          entity_id: input_button.ack_windows_open
+      grid_options:
+        columns: 3
+        rows: 1
+  - type: grid
     cards:
     - type: heading
-      heading: Salon
+      heading: Séjour
+      icon: mdi:sofa
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_salon_2
+      name: Salon
       icon: mdi:sofa-outline
-    - type: tile
-      entity: climate.salon_salon_climate
-      name: Radiateur
-      icon: mdi:sofa-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.salon_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
+      variables:
+        consigne: sensor.temp_consigne_salon_2
+        option: Salon
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temp_consigne_salon_2
       grid_options:
         columns: 6
-    - type: tile
-      entity: sensor.salon_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salon_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salon_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salon_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salon_presence
-      name: Présence
-      icon: mdi:motion-sensor
-      grid_options:
-        columns: 6
-  - type: grid
-    cards:
-    - type: heading
-      heading: Salle à manger
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_salle_a_manger_cuisine
+      name: Salle à manger
       icon: mdi:table-furniture
-    - type: tile
-      entity: climate.salle_a_manger_salle_a_manger_climate
-      name: Radiateur
-      icon: mdi:table-furniture
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.salle_a_manger_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
+      variables:
+        consigne: sensor.temperature_consigne_salle_a_manger_cuisine_2
+        option: Salle à manger
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_salle_a_manger_cuisine_2
       grid_options:
         columns: 6
-    - type: tile
-      entity: sensor.salle_a_manger_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salle_a_manger_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salle_a_manger_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salle_a_manger_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salle_a_manger_presence
-      name: Présence
-      icon: mdi:motion-sensor
-      grid_options:
-        columns: 6
-  - type: grid
-    cards:
-    - type: heading
-      heading: Cuisine
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_cuisine_2
+      name: Cuisine
       icon: mdi:countertop
-    - type: tile
-      entity: climate.cuisine_cuisine_climate
-      name: Radiateur
-      icon: mdi:countertop
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.cuisine_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.cuisine_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.cuisine_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.cuisine_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.cuisine_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.cuisine_presence
-      name: Présence
-      icon: mdi:motion-sensor
+      variables:
+        consigne: sensor.temperature_consigne_cuisine_2
+        option: Cuisine
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_cuisine_2
       grid_options:
         columns: 6
   - type: grid
     cards:
     - type: heading
-      heading: Chambre parents
+      heading: Chambres
+      icon: mdi:bed
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_chambre_parents_2
+      name: Chambre parents
       icon: mdi:bed-queen-outline
-    - type: tile
-      entity: climate.chambre_parents_chambre_parents_climate
-      name: Radiateur
-      icon: mdi:bed-queen-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.chambre_parents_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
+      variables:
+        consigne: sensor.temperature_consigne_chambre_parents_2
+        option: Chambre Parents
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_chambre_parents_2
       grid_options:
         columns: 6
-    - type: tile
-      entity: sensor.chambre_parents_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.chambre_parents_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.chambre_parents_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.chambre_parents_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.chambre_parents_presence
-      name: Présence
-      icon: mdi:motion-sensor
-      grid_options:
-        columns: 6
-  - type: grid
-    cards:
-    - type: heading
-      heading: Chambre filles
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_chambre_filles_2
+      name: Chambre filles
       icon: mdi:bed-double-outline
-    - type: tile
-      entity: climate.chambre_filles_chambre_filles_climate
-      name: Radiateur
-      icon: mdi:bed-double-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.chambre_filles_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
+      variables:
+        consigne: sensor.temperature_consigne_chambre_filles
+        option: Chambre Filles
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_chambre_filles
       grid_options:
         columns: 6
-    - type: tile
-      entity: sensor.chambre_filles_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.chambre_filles_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.chambre_filles_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.chambre_filles_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.chambre_filles_presence
-      name: Présence
-      icon: mdi:motion-sensor
-      grid_options:
-        columns: 6
-  - type: grid
-    cards:
-    - type: heading
-      heading: Chambre d'amis
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_chambre_d_amis_2
+      name: Chambre d'amis
       icon: mdi:bed-king-outline
-    - type: tile
-      entity: climate.chambre_damis_chambre_damis_climate
-      name: Radiateur
-      icon: mdi:bed-king-outline
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.chambre_damis_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.chambre_damis_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.chambre_damis_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.chambre_damis_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.chambre_damis_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.chambre_damis_presence
-      name: Présence
-      icon: mdi:motion-sensor
+      variables:
+        consigne: sensor.temp_consigne_chambre_d_amis_2
+        option: Chambre D’amis
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temp_consigne_chambre_d_amis_2
       grid_options:
         columns: 6
   - type: grid
     cards:
     - type: heading
-      heading: Salle de bain parents
-      icon: mdi:shower-head
-    - type: tile
-      entity: climate.salle_de_bain_parents_salle_de_bain_parents_climate
-      name: Radiateur
-      icon: mdi:shower-head
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.salle_de_bain_parents_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salle_de_bain_parents_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salle_de_bain_parents_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salle_de_bain_parents_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salle_de_bain_parents_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salle_de_bain_parents_presence
-      name: Présence
-      icon: mdi:motion-sensor
-      grid_options:
-        columns: 6
-  - type: grid
-    cards:
-    - type: heading
-      heading: Salle de bain filles
+      heading: Salles d'eau
       icon: mdi:shower
-    - type: tile
-      entity: climate.salle_de_bain_filles_salle_de_bain_filles_climate
-      name: Radiateur
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_salle_de_bain_parents_2
+      name: SdB parents
+      icon: mdi:shower-head
+      variables:
+        consigne: sensor.temperature_consigne_salle_de_bain_parents_2
+        option: Salle De Bain Parents
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_salle_de_bain_parents_2
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temp_salle_de_bain_filles_2
+      name: SdB filles
       icon: mdi:shower
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.salle_de_bain_filles_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
+      variables:
+        consigne: sensor.temperature_consigne_salle_de_bain_filles_2
+        option: Salle De Bain Filles
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_salle_de_bain_filles_2
       grid_options:
         columns: 6
-    - type: tile
-      entity: sensor.salle_de_bain_filles_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salle_de_bain_filles_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.salle_de_bain_filles_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salle_de_bain_filles_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.salle_de_bain_filles_presence
-      name: Présence
-      icon: mdi:motion-sensor
-      grid_options:
-        columns: 6
-  - type: grid
-    cards:
-    - type: heading
-      heading: Toilettes visiteurs
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_toilettes_visiteurs_2
+      name: Toilettes
       icon: mdi:toilet
-    - type: tile
-      entity: climate.toilettes_visiteurs_toilettes_visiteurs_climate
-      name: Radiateur
-      icon: mdi:toilet
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.toilettes_visiteurs_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.toilettes_visiteurs_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.toilettes_visiteurs_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.toilettes_visiteurs_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.toilettes_visiteurs_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.toilettes_visiteurs_presence
-      name: Présence
-      icon: mdi:motion-sensor
+      variables:
+        consigne: sensor.temperature_consigne_toilettes_visiteurs_2
+        option: Toilettes Visiteurs
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_toilettes_visiteurs_2
       grid_options:
         columns: 6
   - type: grid
     cards:
     - type: heading
-      heading: Entrée
+      heading: Circulation
+      icon: mdi:door
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_entree_2
+      name: Entrée
       icon: mdi:door-open
-    - type: tile
-      entity: climate.entree_entree_climate
-      name: Radiateur
-      icon: mdi:door-open
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.entree_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
+      variables:
+        consigne: sensor.temperature_consigne_entree_2
+        option: Entrée
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_entree_2
       grid_options:
         columns: 6
-    - type: tile
-      entity: sensor.entree_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.entree_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.entree_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.entree_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.entree_presence
-      name: Présence
-      icon: mdi:motion-sensor
-      grid_options:
-        columns: 6
-  - type: grid
-    cards:
-    - type: heading
-      heading: Couloir
+    - type: custom:button-card
+      template: piece_lens
+      entity: sensor.temperature_couloir_2
+      name: Couloir
       icon: mdi:door-sliding
-    - type: tile
-      entity: climate.couloir_couloir_climate
-      name: Radiateur
-      icon: mdi:door-sliding
-      state_content:
-      - preset_mode
-      - current_temperature
-      features:
-      - type: climate-hvac-modes
-        hvac_modes:
-        - auto
-        - heat
-        - 'off'
-      - type: target-temperature
-      - *id001
-      features_position: bottom
-      grid_options:
-        columns: 12
-    - type: tile
-      entity: sensor.couloir_scheduled_temperature
-      name: Programmée
-      icon: mdi:calendar-clock
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.couloir_override_expires
-      name: Fin dérogation
-      icon: mdi:timer-sand
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.couloir_heating_minutes
-      name: Chauffe du jour
-      icon: mdi:fire
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: sensor.couloir_energy
-      name: Énergie du jour
-      icon: mdi:flash
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.couloir_open_window
-      name: Fenêtre
-      icon: mdi:window-open-variant
-      grid_options:
-        columns: 6
-    - type: tile
-      entity: binary_sensor.couloir_presence
-      name: Présence
-      icon: mdi:motion-sensor
+      variables:
+        consigne: sensor.temperature_consigne_couloir_2
+        option: Couloir
+      triggers_update:
+      - input_select.tmp_choix_piece
+      - sensor.temperature_consigne_couloir_2
       grid_options:
         columns: 6
 - title: Températures
@@ -1216,7 +383,7 @@ views:
   icon: mdi:thermometer-lines
   type: sections
   max_columns: 4
-  badges: *id002
+  badges: *id001
   sections:
   - type: grid
     column_span: 4
@@ -1229,17 +396,7 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/chauffage
       grid_options:
-        columns: 3
-        rows: 1
-    - type: button
-      name: Pièces
-      icon: mdi:floor-plan
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/pieces
-      grid_options:
-        columns: 3
+        columns: 4
         rows: 1
     - type: button
       name: ● Températures
@@ -1249,7 +406,7 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/temperatures
       grid_options:
-        columns: 3
+        columns: 4
         rows: 1
     - type: button
       name: Énergie
@@ -1259,84 +416,80 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/energie
       grid_options:
-        columns: 3
+        columns: 4
         rows: 1
   - type: grid
     column_span: 4
     cards:
     - type: heading
-      heading: Dernières 24 heures
+      heading: Mesurées — 24 heures
       icon: mdi:chart-line
     - type: history-graph
       hours_to_show: 24
       grid_options:
         columns: full
       entities:
-      - entity: sensor.salon_temperature
+      - entity: sensor.temperature_salon_2
         name: Salon
-      - entity: sensor.salle_a_manger_temperature
+      - entity: sensor.temperature_salle_a_manger_cuisine
         name: Salle à manger
-      - entity: sensor.cuisine_temperature
+      - entity: sensor.temperature_cuisine_2
         name: Cuisine
-      - entity: sensor.chambre_parents_temperature
+      - entity: sensor.temperature_chambre_parents_2
         name: Chambre parents
-      - entity: sensor.chambre_filles_temperature
+      - entity: sensor.temperature_chambre_filles_2
         name: Chambre filles
-      - entity: sensor.chambre_damis_temperature
+      - entity: sensor.temperature_chambre_d_amis_2
         name: Chambre d'amis
-      - entity: sensor.salle_de_bain_parents_temperature
-        name: Salle de bain parents
-      - entity: sensor.salle_de_bain_filles_temperature
-        name: Salle de bain filles
-      - entity: sensor.toilettes_visiteurs_temperature
-        name: Toilettes visiteurs
-      - entity: sensor.entree_temperature
+      - entity: sensor.temperature_salle_de_bain_parents_2
+        name: SdB parents
+      - entity: sensor.temp_salle_de_bain_filles_2
+        name: SdB filles
+      - entity: sensor.temperature_toilettes_visiteurs_2
+        name: Toilettes
+      - entity: sensor.temperature_entree_2
         name: Entrée
-      - entity: sensor.couloir_temperature
+      - entity: sensor.temperature_couloir_2
         name: Couloir
   - type: grid
     column_span: 4
     cards:
     - type: heading
-      heading: Moyenne quotidienne — 14 jours
-      icon: mdi:chart-bar
-    - type: statistics-graph
-      period: day
-      stat_types:
-      - mean
-      chart_type: line
-      days_to_show: 14
+      heading: Consignes — 24 heures
+      icon: mdi:target
+    - type: history-graph
+      hours_to_show: 24
       grid_options:
         columns: full
       entities:
-      - entity: sensor.salon_temperature
+      - entity: sensor.temp_consigne_salon_2
         name: Salon
-      - entity: sensor.salle_a_manger_temperature
+      - entity: sensor.temperature_consigne_salle_a_manger_cuisine_2
         name: Salle à manger
-      - entity: sensor.cuisine_temperature
+      - entity: sensor.temperature_consigne_cuisine_2
         name: Cuisine
-      - entity: sensor.chambre_parents_temperature
+      - entity: sensor.temperature_consigne_chambre_parents_2
         name: Chambre parents
-      - entity: sensor.chambre_filles_temperature
+      - entity: sensor.temperature_consigne_chambre_filles
         name: Chambre filles
-      - entity: sensor.chambre_damis_temperature
+      - entity: sensor.temp_consigne_chambre_d_amis_2
         name: Chambre d'amis
-      - entity: sensor.salle_de_bain_parents_temperature
-        name: Salle de bain parents
-      - entity: sensor.salle_de_bain_filles_temperature
-        name: Salle de bain filles
-      - entity: sensor.toilettes_visiteurs_temperature
-        name: Toilettes visiteurs
-      - entity: sensor.entree_temperature
+      - entity: sensor.temperature_consigne_salle_de_bain_parents_2
+        name: SdB parents
+      - entity: sensor.temperature_consigne_salle_de_bain_filles_2
+        name: SdB filles
+      - entity: sensor.temperature_consigne_toilettes_visiteurs_2
+        name: Toilettes
+      - entity: sensor.temperature_consigne_entree_2
         name: Entrée
-      - entity: sensor.couloir_temperature
+      - entity: sensor.temperature_consigne_couloir_2
         name: Couloir
 - title: Énergie
   path: energie
   icon: mdi:lightning-bolt
   type: sections
   max_columns: 4
-  badges: *id002
+  badges: *id001
   sections:
   - type: grid
     column_span: 4
@@ -1349,17 +502,7 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/chauffage
       grid_options:
-        columns: 3
-        rows: 1
-    - type: button
-      name: Pièces
-      icon: mdi:floor-plan
-      show_state: false
-      tap_action:
-        action: navigate
-        navigation_path: /kiosque-chauffage/pieces
-      grid_options:
-        columns: 3
+        columns: 4
         rows: 1
     - type: button
       name: Températures
@@ -1369,7 +512,7 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/temperatures
       grid_options:
-        columns: 3
+        columns: 4
         rows: 1
     - type: button
       name: ● Énergie
@@ -1379,146 +522,42 @@ views:
         action: navigate
         navigation_path: /kiosque-chauffage/energie
       grid_options:
-        columns: 3
+        columns: 4
         rows: 1
   - type: grid
     column_span: 4
     cards:
     - type: heading
-      heading: Aujourd'hui
+      heading: Maintenant
       icon: mdi:flash
     - type: tile
-      entity: sensor.intuis_home_energy_today
-      name: Maison
-      icon: mdi:home-lightning-bolt
+      entity: sensor.ww_power_in
+      name: Puissance
       grid_options:
         columns: 3
     - type: tile
-      entity: sensor.salon_energy
-      name: Salon
-      icon: mdi:sofa-outline
+      entity: sensor.consomation_totale_chauffage_2
+      name: Chauffage (total)
+      icon: mdi:radiator
       grid_options:
         columns: 3
     - type: tile
-      entity: sensor.salle_a_manger_energy
-      name: Salle à manger
-      icon: mdi:table-furniture
+      entity: sensor.ww_grid_import_daily
+      name: Import du jour
       grid_options:
         columns: 3
     - type: tile
-      entity: sensor.cuisine_energy
-      name: Cuisine
-      icon: mdi:countertop
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.chambre_parents_energy
-      name: Chambre parents
-      icon: mdi:bed-queen-outline
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.chambre_filles_energy
-      name: Chambre filles
-      icon: mdi:bed-double-outline
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.chambre_damis_energy
-      name: Chambre d'amis
-      icon: mdi:bed-king-outline
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.salle_de_bain_parents_energy
-      name: Salle de bain parents
-      icon: mdi:shower-head
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.salle_de_bain_filles_energy
-      name: Salle de bain filles
-      icon: mdi:shower
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.toilettes_visiteurs_energy
-      name: Toilettes visiteurs
-      icon: mdi:toilet
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.entree_energy
-      name: Entrée
-      icon: mdi:door-open
-      grid_options:
-        columns: 3
-    - type: tile
-      entity: sensor.couloir_energy
-      name: Couloir
-      icon: mdi:door-sliding
-      grid_options:
-        columns: 3
-  - type: grid
-    column_span: 4
-    cards:
-    - type: heading
-      heading: Consommation par pièce — 7 jours
-      icon: mdi:chart-bar
-    - type: statistics-graph
-      period: day
-      stat_types:
-      - change
-      chart_type: bar
-      days_to_show: 7
-      grid_options:
-        columns: full
-      entities:
-      - entity: intuis_connect:energy_5c87a9f77e9a914fc5ac94eae2484895
-        name: Salon
-      - entity: intuis_connect:energy_147dc73b6e1769bdf051b79a7306b0fa
-        name: Salle à manger
-      - entity: intuis_connect:energy_61aef8adbcd08c6e6c1a957f5fdf910e
-        name: Cuisine
-      - entity: intuis_connect:energy_fe511d42945d493beca4c0d28ef8850a
-        name: Chambre parents
-      - entity: intuis_connect:energy_11176ac36e1e9c472405391e83b9a831
-        name: Chambre filles
-      - entity: intuis_connect:energy_245a05f7781a0fe5a0e3985c28f87131
-        name: Chambre d'amis
-      - entity: intuis_connect:energy_4b32e9026bbe3c8b5533714fc9682666
-        name: Salle de bain parents
-      - entity: intuis_connect:energy_31ca63e5a749f1eb1fb19541a434f507
-        name: Salle de bain filles
-      - entity: intuis_connect:energy_7f82433b0c146446ff0c565e90ce72d1
-        name: Toilettes visiteurs
-      - entity: intuis_connect:energy_ae366fc8ecab9cfadcda4a20e06aced5
-        name: Entrée
-      - entity: intuis_connect:energy_3d06888dd09d9e2b43d9e94351d6dbca
-        name: Couloir
-  - type: grid
-    column_span: 2
-    cards:
-    - type: heading
-      heading: Maison — heure par heure
-      icon: mdi:clock-outline
-    - type: statistics-graph
-      period: hour
-      stat_types:
-      - change
-      chart_type: bar
-      days_to_show: 1
-      grid_options:
-        columns: full
-      entities:
-      - entity: intuis_connect:energy_729266f6dc2fd6733db38e0df433c1d7
-        name: kWh
-  - type: grid
-    column_span: 2
-    cards:
-    - type: heading
-      heading: Coût maison — 30 jours
+      entity: input_number.prix_electricite_chf_kwh
+      name: Prix du kWh
       icon: mdi:cash
+      grid_options:
+        columns: 3
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Chauffage — 30 jours
+      icon: mdi:chart-bar
     - type: statistics-graph
       period: day
       stat_types:
@@ -1528,5 +567,23 @@ views:
       grid_options:
         columns: full
       entities:
-      - entity: intuis_connect:cost_729266f6dc2fd6733db38e0df433c1d7
-        name: CHF
+      - entity: sensor.consomation_totale_chauffage_2
+        name: Chauffage
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Puissance maison — 24 h
+      icon: mdi:chart-line
+    - type: statistics-graph
+      period: hour
+      stat_types:
+      - mean
+      - max
+      chart_type: line
+      days_to_show: 1
+      grid_options:
+        columns: full
+      entities:
+      - entity: sensor.ww_power_in
+        name: Puissance
