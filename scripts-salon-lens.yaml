@@ -5,35 +5,49 @@ regarder_apple_tv:
   alias: "\u25B6 Regarder l'Apple TV"
   icon: mdi:apple
   mode: single
+  # Chaine : Apple TV -> Marantz (entree CBL/SAT) -> TV Samsung (entree HDMI2).
+  # La TV eteinte ne s'allume pas par le reseau (UE40H7000) : c'est le HDMI-CEC
+  # qui la reveille quand l'Apple TV et l'ampli demarrent. Aucune etape TV ne
+  # doit donc bloquer la suite.
   sequence:
     - action: media_player.turn_on
+      continue_on_error: true
       target:
         entity_id: media_player.marantz
-    - action: media_player.turn_on
+    - action: remote.turn_on
+      continue_on_error: true
       target:
-        entity_id: media_player.tv_samsung_led40
+        entity_id: remote.apple_tv_salon
+    - if: "{{ (state_attr('media_player.tv_samsung_led40', 'supported_features') | int(0)) | bitwise_and(128) > 0 }}"
+      then:
+        - action: media_player.turn_on
+          continue_on_error: true
+          target:
+            entity_id: media_player.tv_samsung_led40
     # Laisser a l'ampli le temps de demarrer avant de changer d'entree.
     - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
       timeout: "00:00:20"
       continue_on_timeout: true
     - action: media_player.select_source
+      continue_on_error: true
       target:
         entity_id: media_player.marantz
       data:
         source: CBL/SAT
-    # La TV ne publie que " TV " et " HDMI " : on envoie la touche directe HDMI2.
+    # La TV ne publie que "TV" et "HDMI" : on envoie la touche directe HDMI2,
+    # seulement si elle est allumee (par le CEC ou deja en marche).
     - wait_template: "{{ not is_state('media_player.tv_samsung_led40', 'off') }}"
       timeout: "00:00:30"
       continue_on_timeout: true
-    - action: media_player.play_media
-      target:
-        entity_id: media_player.tv_samsung_led40
-      data:
-        media_content_type: send_key
-        media_content_id: KEY_HDMI2
-    - action: remote.turn_on
-      target:
-        entity_id: remote.apple_tv_salon
+    - if: "{{ not is_state('media_player.tv_samsung_led40', 'off') }}"
+      then:
+        - action: media_player.play_media
+          continue_on_error: true
+          target:
+            entity_id: media_player.tv_samsung_led40
+          data:
+            media_content_type: send_key
+            media_content_id: KEY_HDMI2
 
 eteindre_salon:
   alias: "\u23FB \u00C9teindre le salon"
@@ -67,6 +81,7 @@ lancer_app_apple_tv:
   sequence:
     # Allume ampli + TV, met CBL/SAT et HDMI2, reveille l'Apple TV (appel direct : on attend la fin).
     - action: script.regarder_apple_tv
+      continue_on_error: true
     - wait_template: >
         {{ not is_state('media_player.apple_tv_salon', 'off')
            and (state_attr('media_player.apple_tv_salon', 'source_list') or []) | count > 0 }}
