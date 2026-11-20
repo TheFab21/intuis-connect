@@ -120,7 +120,9 @@ lancer_radio:
   sequence:
     - if: "{{ cible in ['Marantz', 'Les deux'] }}"
       then:
+        # L'ampli peut etre "unknown" (integration en defaut) : on n'arrete pas la radio pour autant.
         - action: media_player.turn_on
+          continue_on_error: true
           target:
             entity_id: media_player.marantz
         - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
