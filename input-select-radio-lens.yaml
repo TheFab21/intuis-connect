@@ -1,0 +1,9 @@
+# À ajouter à la fin de input_select.yaml (clé à 2 espaces, comme les autres helpers).
+# Puis Outils de développement → YAML → Recharger les entrées de sélection.
+  radio_destination:
+    name: Radio - Destination
+    icon: mdi:speaker-multiple
+    options:
+     - Eversolo
+     - Marantz
+     - Les deux

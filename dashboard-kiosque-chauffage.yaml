@@ -871,85 +871,84 @@ views:
     column_span: 2
     cards:
     - type: heading
-      heading: Eversolo
+      heading: Radios
+      icon: mdi:radio
+    - type: heading
+      heading: Jouer sur
+      heading_style: subtitle
+      icon: mdi:speaker-multiple
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radio_destination
+      name: Eversolo
       icon: mdi:speaker
-    - type: media-control
-      entity: media_player.eversolo_dmp_a6
-      grid_options:
-        columns: 12
-    - show_name: true
-      show_icon: true
-      type: button
-      name: Volume −
-      icon: mdi:volume-minus
-      show_state: false
+      variables:
+        option: Eversolo
       tap_action:
         action: perform-action
-        perform_action: media_player.volume_down
+        perform_action: input_select.select_option
         target:
-          entity_id: media_player.eversolo_dmp_a6
-      hold_action:
-        action: none
+          entity_id: input_select.radio_destination
+        data:
+          option: Eversolo
       grid_options:
         columns: 4
     - type: custom:button-card
-      entity: media_player.eversolo_dmp_a6
-      show_name: true
-      show_icon: true
-      name: '[[[ return entity.attributes.volume_level == null ? ''Volume'' : Math.round(entity.attributes.volume_level
-        * 100) + '' %''; ]]]'
-      icon: '[[[ return entity.attributes.is_volume_muted ? ''mdi:volume-off'' : ''mdi:volume-high''; ]]]'
+      template: choix_lens
+      entity: input_select.radio_destination
+      name: Marantz (salon)
+      icon: mdi:audio-video
+      variables:
+        option: Marantz
       tap_action:
         action: perform-action
-        perform_action: media_player.volume_mute
+        perform_action: input_select.select_option
         target:
-          entity_id: media_player.eversolo_dmp_a6
+          entity_id: input_select.radio_destination
         data:
-          is_volume_muted: '[[[ return !entity.attributes.is_volume_muted; ]]]'
-      hold_action:
-        action: none
+          option: Marantz
       grid_options:
         columns: 4
-    - show_name: true
-      show_icon: true
-      type: button
-      name: Volume +
-      icon: mdi:volume-plus
-      show_state: false
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radio_destination
+      name: Les deux
+      icon: mdi:speaker-multiple
+      variables:
+        option: Les deux
       tap_action:
         action: perform-action
-        perform_action: media_player.volume_up
+        perform_action: input_select.select_option
         target:
-          entity_id: media_player.eversolo_dmp_a6
-      hold_action:
-        action: none
+          entity_id: input_select.radio_destination
+        data:
+          option: Les deux
       grid_options:
         columns: 4
     - type: heading
-      heading: Radios
+      heading: Stations
       heading_style: subtitle
-      icon: mdi:radio
+      icon: mdi:radio-tower
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: RTS Option Musique
       show_icon: false
       show_entity_picture: true
       entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/RTS_OptionMusique_Logo.png/330px-RTS_OptionMusique_Logo.png
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: https://stream.srg-ssr.ch/srgssr/option-musique/aac/96
-          extra:
-            title: RTS Option Musique
+          url: https://stream.srg-ssr.ch/srgssr/option-musique/aac/96
+          titre: RTS Option Musique
       state:
       - operator: template
-        value: '[[[ const t=''option-musique'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''option-musique''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -969,25 +968,24 @@ views:
         columns: 4
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: FIP HiFi
       show_icon: false
       show_entity_picture: true
       entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/FIP_logo_2021.svg/500px-FIP_logo_2021.svg.png
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: https://icecast.radiofrance.fr/fip-hifi.aac
-          extra:
-            title: FIP HiFi
+          url: https://icecast.radiofrance.fr/fip-hifi.aac
+          titre: FIP HiFi
       state:
       - operator: template
-        value: '[[[ const t=''fip-hifi'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''fip-hifi''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1007,25 +1005,24 @@ views:
         columns: 4
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: Radio Paradise Main
       show_icon: false
       show_entity_picture: true
       entity_picture: /local/radio/rpmain.png
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: https://stream.radioparadise.com/aac-320
-          extra:
-            title: Radio Paradise Main Mix
+          url: https://stream.radioparadise.com/aac-320
+          titre: Radio Paradise Main Mix
       state:
       - operator: template
-        value: '[[[ const t=''aac-320'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''aac-320''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1045,25 +1042,24 @@ views:
         columns: 4
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: Radio Paradise World
       show_icon: false
       show_entity_picture: true
       entity_picture: /local/radio/rpglobal.png
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: https://stream.radioparadise.com/world-etc-320
-          extra:
-            title: Radio Paradise World/Etc
+          url: https://stream.radioparadise.com/world-etc-320
+          titre: Radio Paradise World/Etc
       state:
       - operator: template
-        value: '[[[ const t=''world-etc'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''world-etc''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1083,25 +1079,24 @@ views:
         columns: 4
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: RadioMonster TopHits
       show_icon: false
       show_entity_picture: true
       entity_picture: https://play-lh.googleusercontent.com/3ZDTCl9VfsxVNU5NiCPOujQglpG_EFaDmLPpnbnlSmHxJ5DhtKQY-lBS1OUh8gquec5VH68LfmORRuTWQyda=w240-h480
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: http://ic.radiomonster.fm/tophits.ultra
-          extra:
-            title: RadioMonster TopHits
+          url: http://ic.radiomonster.fm/tophits.ultra
+          titre: RadioMonster TopHits
       state:
       - operator: template
-        value: '[[[ const t=''tophits'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''tophits''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1121,25 +1116,24 @@ views:
         columns: 4
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: RadioMonster Evergreens
       show_icon: false
       show_entity_picture: true
       entity_picture: /local/radio/monsterever.png
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: http://ic.radiomonster.fm/evergreens.ultra
-          extra:
-            title: RadioMonster Evergreens
+          url: http://ic.radiomonster.fm/evergreens.ultra
+          titre: RadioMonster Evergreens
       state:
       - operator: template
-        value: '[[[ const t=''evergreens'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''evergreens''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1159,25 +1153,24 @@ views:
         columns: 4
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: Nova La Nuit
       show_icon: false
       show_entity_picture: true
       entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/05/NOVA-nova-400x496-1-t-1006x1006.png
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
-          extra:
-            title: Nova La Nuit
+          url: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
+          titre: Nova La Nuit
       state:
       - operator: template
-        value: '[[[ const t=''nova-ln'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''nova-ln''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1197,25 +1190,24 @@ views:
         columns: 4
     - type: custom:button-card
       entity: media_player.dmp_a6
+      triggers_update:
+      - media_player.eversolo_dmp_a6
+      - media_player.marantz_2
       name: Nova Classics
       show_icon: false
       show_entity_picture: true
       entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/04/NOVA-CLASSICS-400x496-1-t-1006x1006.png
       tap_action:
         action: perform-action
-        perform_action: media_player.play_media
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.lancer_radio
         data:
-          media_content_type: music
-          media_content_id: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
-          extra:
-            title: Nova Classics
+          url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
+          titre: Nova Classics
       state:
       - operator: template
-        value: '[[[ const t=''nova-vnt'', d=entity.attributes.media_content_id||'''', e=states[''media_player.eversolo_dmp_a6''].attributes.media_title||'''';
-          return (d.includes(t)||e.includes(t)) && (entity.state===''playing''||states[''media_player.eversolo_dmp_a6''].state===''playing'');
-          ]]]'
+        value: '[[[ const t=''nova-vnt''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+          => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
+          (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1233,156 +1225,17 @@ views:
         - font-size: 12px
       grid_options:
         columns: 4
-    - show_name: true
-      show_icon: true
-      type: button
+    - type: button
       name: Arrêter la radio
       icon: mdi:stop
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: media_player.media_stop
-        target:
-          entity_id: media_player.dmp_a6
+        perform_action: script.arreter_radio
       hold_action:
         action: none
       grid_options:
-        columns: 6
-    - show_name: true
-      show_icon: true
-      type: button
-      name: Lecture / Pause
-      icon: mdi:play-pause
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: media_player.media_play_pause
-        target:
-          entity_id: media_player.eversolo_dmp_a6
-      hold_action:
-        action: none
-      grid_options:
-        columns: 6
-    - type: heading
-      heading: Entrées
-      heading_style: subtitle
-      icon: mdi:import
-    - type: custom:button-card
-      entity: media_player.eversolo_dmp_a6
-      name: Lecteur interne
-      icon: mdi:disc-player
-      tap_action:
-        action: perform-action
-        perform_action: media_player.select_source
-        target:
-          entity_id: media_player.eversolo_dmp_a6
-        data:
-          source: Lecteur interne
-      state:
-      - operator: template
-        value: '[[[ return entity.attributes.source === ''Lecteur interne''; ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 80px
-        - padding: 8px
-        - border-radius: 14px
-        icon:
-        - width: 32px
-        name:
-        - font-size: 11px
-      grid_options:
-        columns: 3
-    - type: custom:button-card
-      entity: media_player.eversolo_dmp_a6
-      name: Bluetooth
-      icon: mdi:bluetooth-audio
-      tap_action:
-        action: perform-action
-        perform_action: media_player.select_source
-        target:
-          entity_id: media_player.eversolo_dmp_a6
-        data:
-          source: Entrée Bluetooth
-      state:
-      - operator: template
-        value: '[[[ return entity.attributes.source === ''Entrée Bluetooth''; ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 80px
-        - padding: 8px
-        - border-radius: 14px
-        icon:
-        - width: 32px
-        name:
-        - font-size: 11px
-      grid_options:
-        columns: 3
-    - type: custom:button-card
-      entity: media_player.eversolo_dmp_a6
-      name: USB-B
-      icon: mdi:usb-port
-      tap_action:
-        action: perform-action
-        perform_action: media_player.select_source
-        target:
-          entity_id: media_player.eversolo_dmp_a6
-        data:
-          source: Entrée USB-B
-      state:
-      - operator: template
-        value: '[[[ return entity.attributes.source === ''Entrée USB-B''; ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 80px
-        - padding: 8px
-        - border-radius: 14px
-        icon:
-        - width: 32px
-        name:
-        - font-size: 11px
-      grid_options:
-        columns: 3
-    - type: custom:button-card
-      entity: media_player.eversolo_dmp_a6
-      name: TuneIn
-      icon: mdi:radio
-      tap_action:
-        action: perform-action
-        perform_action: media_player.select_source
-        target:
-          entity_id: media_player.eversolo_dmp_a6
-        data:
-          source: TuneIn Radio
-      state:
-      - operator: template
-        value: '[[[ return entity.attributes.source === ''TuneIn Radio''; ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 80px
-        - padding: 8px
-        - border-radius: 14px
-        icon:
-        - width: 32px
-        name:
-        - font-size: 11px
-      grid_options:
-        columns: 3
+        columns: 12
   - type: grid
     column_span: 2
     cards:
@@ -1405,6 +1258,32 @@ views:
       tap_action:
         action: perform-action
         perform_action: script.eteindre_salon
+      hold_action:
+        action: none
+      grid_options:
+        columns: 6
+    - type: button
+      name: Blue TV
+      icon: mdi:television-play
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_app_apple_tv
+        data:
+          app: ^blue ?tv
+      hold_action:
+        action: none
+      grid_options:
+        columns: 6
+    - type: button
+      name: Netflix
+      icon: mdi:netflix
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_app_apple_tv
+        data:
+          app: netflix
       hold_action:
         action: none
       grid_options:
@@ -1674,6 +1553,184 @@ views:
       entity: media_player.tv_samsung_led40
       grid_options:
         columns: 12
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Eversolo
+      icon: mdi:speaker
+    - type: media-control
+      entity: media_player.eversolo_dmp_a6
+      grid_options:
+        columns: 12
+    - show_name: true
+      show_icon: true
+      type: button
+      name: Volume −
+      icon: mdi:volume-minus
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: media_player.volume_down
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+      hold_action:
+        action: none
+      grid_options:
+        columns: 4
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      show_name: true
+      show_icon: true
+      name: '[[[ return entity.attributes.volume_level == null ? ''Volume'' : Math.round(entity.attributes.volume_level
+        * 100) + '' %''; ]]]'
+      icon: '[[[ return entity.attributes.is_volume_muted ? ''mdi:volume-off'' : ''mdi:volume-high''; ]]]'
+      tap_action:
+        action: perform-action
+        perform_action: media_player.volume_mute
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          is_volume_muted: '[[[ return !entity.attributes.is_volume_muted; ]]]'
+      hold_action:
+        action: none
+      grid_options:
+        columns: 4
+    - show_name: true
+      show_icon: true
+      type: button
+      name: Volume +
+      icon: mdi:volume-plus
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: media_player.volume_up
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+      hold_action:
+        action: none
+      grid_options:
+        columns: 4
+    - type: heading
+      heading: Entrées
+      heading_style: subtitle
+      icon: mdi:import
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: Lecteur interne
+      icon: mdi:disc-player
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: Lecteur interne
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''Lecteur interne''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: Bluetooth
+      icon: mdi:bluetooth-audio
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: Entrée Bluetooth
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''Entrée Bluetooth''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: USB-B
+      icon: mdi:usb-port
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: Entrée USB-B
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''Entrée USB-B''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
+    - type: custom:button-card
+      entity: media_player.eversolo_dmp_a6
+      name: TuneIn
+      icon: mdi:radio
+      tap_action:
+        action: perform-action
+        perform_action: media_player.select_source
+        target:
+          entity_id: media_player.eversolo_dmp_a6
+        data:
+          source: TuneIn Radio
+      state:
+      - operator: template
+        value: '[[[ return entity.attributes.source === ''TuneIn Radio''; ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 80px
+        - padding: 8px
+        - border-radius: 14px
+        icon:
+        - width: 32px
+        name:
+        - font-size: 11px
+      grid_options:
+        columns: 3
 - title: Températures
   path: temperatures
   icon: mdi:thermometer-lines

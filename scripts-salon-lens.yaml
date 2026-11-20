@@ -48,3 +48,113 @@ eteindre_salon:
         entity_id:
           - media_player.tv_samsung_led40
           - media_player.marantz
+
+# ── Apps sur l'Apple TV ───────────────────────────────────────────────────────
+# « app » est un motif (expression régulière, majuscules ignorées) cherché dans
+# la liste des apps que l'Apple TV publie : « ^blue ?tv » trouve « blue TV ».
+lancer_app_apple_tv:
+  alias: "📺 Lancer une app sur l'Apple TV"
+  icon: mdi:apple
+  mode: restart
+  fields:
+    app:
+      name: Application
+      description: Motif du nom de l'app, majuscules ignorées
+      example: netflix
+      required: true
+      selector:
+        text:
+  sequence:
+    # Allume ampli + TV, met CBL/SAT et HDMI2, réveille l'Apple TV (appel direct : on attend la fin).
+    - action: script.regarder_apple_tv
+    - wait_template: >
+        {{ not is_state('media_player.apple_tv_salon', 'off')
+           and (state_attr('media_player.apple_tv_salon', 'source_list') or []) | count > 0 }}
+      timeout: "00:00:30"
+      continue_on_timeout: true
+    - variables:
+        source: >
+          {{ (state_attr('media_player.apple_tv_salon', 'source_list') or [])
+             | select('search', app, ignorecase=True) | first | default('') }}
+    - if: "{{ source == '' }}"
+      then:
+        - action: persistent_notification.create
+          data:
+            title: Apple TV
+            message: >
+              Aucune app ne correspond à « {{ app }} ». Apps publiées :
+              {{ (state_attr('media_player.apple_tv_salon', 'source_list') or []) | join(', ') }}
+        - stop: App introuvable
+    - action: media_player.select_source
+      target:
+        entity_id: media_player.apple_tv_salon
+      data:
+        source: "{{ source }}"
+
+# ── Radios : Eversolo, Marantz ou les deux ────────────────────────────────────
+# La destination vient de input_select.radio_destination.
+# L'intégration Marantz (media_player.marantz) ne sait pas lire une adresse de
+# flux : on passe par le lecteur réseau de l'ampli, media_player.marantz_2.
+lancer_radio:
+  alias: "📻 Lancer une radio"
+  icon: mdi:radio
+  mode: restart
+  fields:
+    url:
+      name: Adresse du flux
+      required: true
+      selector:
+        text:
+    titre:
+      name: Titre affiché
+      selector:
+        text:
+  variables:
+    cible: "{{ states('input_select.radio_destination') }}"
+  sequence:
+    - if: "{{ cible in ['Marantz', 'Les deux'] }}"
+      then:
+        - action: media_player.turn_on
+          target:
+            entity_id: media_player.marantz
+        - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
+          timeout: "00:00:20"
+          continue_on_timeout: true
+        - action: media_player.play_media
+          continue_on_error: true
+          target:
+            entity_id: media_player.marantz_2
+          data:
+            media_content_type: music
+            media_content_id: "{{ url }}"
+            extra:
+              title: "{{ titre | default(url, true) }}"
+    - if: "{{ cible not in ['Marantz'] }}"
+      then:
+        - action: media_player.play_media
+          continue_on_error: true
+          target:
+            entity_id: media_player.dmp_a6
+          data:
+            media_content_type: music
+            media_content_id: "{{ url }}"
+            extra:
+              title: "{{ titre | default(url, true) }}"
+
+arreter_radio:
+  alias: "⏹ Arrêter la radio"
+  icon: mdi:stop
+  mode: single
+  sequence:
+    # N'arrête que les lecteurs qui jouent : rien ne bouge sur l'Apple TV.
+    - repeat:
+        for_each:
+          - media_player.dmp_a6
+          - media_player.marantz_2
+        sequence:
+          - if: "{{ states(repeat.item) in ['playing', 'paused', 'buffering'] }}"
+            then:
+              - action: media_player.media_stop
+                continue_on_error: true
+                target:
+                  entity_id: "{{ repeat.item }}"
