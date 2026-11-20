@@ -110,6 +110,13 @@ views:
           action: navigate
           navigation_path: /kiosque-chauffage/medias
       - type: button
+        name: Radios
+        icon: mdi:radio
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/radios
+      - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
@@ -644,6 +651,13 @@ views:
           action: navigate
           navigation_path: /kiosque-chauffage/medias
       - type: button
+        name: Radios
+        icon: mdi:radio
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/radios
+      - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
@@ -854,6 +868,13 @@ views:
           action: navigate
           navigation_path: /kiosque-chauffage/medias
       - type: button
+        name: Radios
+        icon: mdi:radio
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/radios
+      - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
@@ -867,383 +888,6 @@ views:
         tap_action:
           action: navigate
           navigation_path: /kiosque-chauffage/energie
-  - type: grid
-    column_span: 2
-    cards:
-    - type: heading
-      heading: Radios
-      icon: mdi:radio
-    - type: heading
-      heading: Jouer sur
-      heading_style: subtitle
-      icon: mdi:speaker-multiple
-    - type: custom:button-card
-      template: choix_lens
-      entity: input_select.radio_destination
-      name: Eversolo
-      icon: mdi:speaker
-      variables:
-        option: Eversolo
-      tap_action:
-        action: perform-action
-        perform_action: input_select.select_option
-        target:
-          entity_id: input_select.radio_destination
-        data:
-          option: Eversolo
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      template: choix_lens
-      entity: input_select.radio_destination
-      name: Marantz (salon)
-      icon: mdi:audio-video
-      variables:
-        option: Marantz
-      tap_action:
-        action: perform-action
-        perform_action: input_select.select_option
-        target:
-          entity_id: input_select.radio_destination
-        data:
-          option: Marantz
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      template: choix_lens
-      entity: input_select.radio_destination
-      name: Les deux
-      icon: mdi:speaker-multiple
-      variables:
-        option: Les deux
-      tap_action:
-        action: perform-action
-        perform_action: input_select.select_option
-        target:
-          entity_id: input_select.radio_destination
-        data:
-          option: Les deux
-      grid_options:
-        columns: 4
-    - type: heading
-      heading: Stations
-      heading_style: subtitle
-      icon: mdi:radio-tower
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: RTS Option Musique
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/RTS_OptionMusique_Logo.png/330px-RTS_OptionMusique_Logo.png
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: https://stream.srg-ssr.ch/srgssr/option-musique/aac/96
-          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/mp3/128
-          titre: RTS Option Musique
-      state:
-      - operator: template
-        value: '[[[ const t=["option-musique"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: FIP HiFi
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/FIP_logo_2021.svg/500px-FIP_logo_2021.svg.png
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: https://icecast.radiofrance.fr/fip-hifi.aac
-          url_marantz: http://icecast.radiofrance.fr/fip-midfi.mp3
-          titre: FIP HiFi
-      state:
-      - operator: template
-        value: '[[[ const t=["fip-hifi", "fip-midfi"]; return Object.values(states).filter(s => s.entity_id ===
-          ''media_player.dmp_a6'' || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
-          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
-          => { if (s.state !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: Radio Paradise Main
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: /local/radio/rpmain.png
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: https://stream.radioparadise.com/aac-320
-          url_marantz: http://stream.radioparadise.com/mp3-320
-          titre: Radio Paradise Main Mix
-      state:
-      - operator: template
-        value: '[[[ const t=["aac-320", "mp3-320"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: Radio Paradise World
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: /local/radio/rpglobal.png
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: https://stream.radioparadise.com/world-etc-320
-          url_marantz: http://stream.radioparadise.com/world-etc-192
-          titre: Radio Paradise World/Etc
-      state:
-      - operator: template
-        value: '[[[ const t=["world-etc"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: RadioMonster TopHits
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: https://play-lh.googleusercontent.com/3ZDTCl9VfsxVNU5NiCPOujQglpG_EFaDmLPpnbnlSmHxJ5DhtKQY-lBS1OUh8gquec5VH68LfmORRuTWQyda=w240-h480
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: http://ic.radiomonster.fm/tophits.ultra
-          url_marantz: http://ic.radiomonster.fm/tophits.ultra
-          titre: RadioMonster TopHits
-      state:
-      - operator: template
-        value: '[[[ const t=["tophits"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: RadioMonster Evergreens
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: /local/radio/monsterever.png
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: http://ic.radiomonster.fm/evergreens.ultra
-          url_marantz: http://ic.radiomonster.fm/evergreens.ultra
-          titre: RadioMonster Evergreens
-      state:
-      - operator: template
-        value: '[[[ const t=["evergreens"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: Nova La Nuit
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/05/NOVA-nova-400x496-1-t-1006x1006.png
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
-          url_marantz: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
-          titre: Nova La Nuit
-      state:
-      - operator: template
-        value: '[[[ const t=["nova-ln"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: custom:button-card
-      entity: media_player.dmp_a6
-      triggers_update: all
-      name: Nova Classics
-      show_icon: false
-      show_entity_picture: true
-      entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/04/NOVA-CLASSICS-400x496-1-t-1006x1006.png
-      tap_action:
-        action: perform-action
-        perform_action: script.lancer_radio
-        data:
-          url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
-          url_marantz: http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3
-          titre: Nova Classics
-      state:
-      - operator: template
-        value: '[[[ const t=["nova-vnt"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
-          || (a.media_title||'''').includes(x)); }); ]]]'
-        styles:
-          card:
-          - background-color: var(--primary-color)
-          - color: var(--text-primary-color)
-      styles:
-        card:
-        - height: 100px
-        - padding: 8px
-        - border-radius: 14px
-        entity_picture:
-        - width: 56px
-        - height: 56px
-        - object-fit: contain
-        name:
-        - font-size: 12px
-      grid_options:
-        columns: 4
-    - type: button
-      name: Arrêter la radio
-      icon: mdi:stop
-      show_state: false
-      tap_action:
-        action: perform-action
-        perform_action: script.arreter_radio
-      hold_action:
-        action: none
-      grid_options:
-        columns: 12
   - type: grid
     column_span: 2
     cards:
@@ -1739,6 +1383,1911 @@ views:
         - font-size: 11px
       grid_options:
         columns: 3
+- title: Radios
+  path: radios
+  icon: mdi:radio
+  type: sections
+  max_columns: 4
+  badges: *id001
+  sections:
+  - type: grid
+    column_span: 4
+    cards:
+    - type: horizontal-stack
+      grid_options:
+        columns: full
+      cards:
+      - type: button
+        name: Chauffage
+        icon: mdi:radiator
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/chauffage
+      - type: button
+        name: Eau chaude
+        icon: mdi:water-boiler
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/eau-chaude
+      - type: button
+        name: Médias
+        icon: mdi:music
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: ● Radios
+        icon: mdi:radio
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/radios
+      - type: button
+        name: Températures
+        icon: mdi:thermometer-lines
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/temperatures
+      - type: button
+        name: Énergie
+        icon: mdi:lightning-bolt
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/energie
+  - type: grid
+    column_span: 4
+    cards:
+    - type: heading
+      heading: Jouer sur
+      icon: mdi:speaker-multiple
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radio_destination
+      name: Eversolo
+      icon: mdi:speaker
+      variables:
+        option: Eversolo
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.radio_destination
+        data:
+          option: Eversolo
+      grid_options:
+        columns: 12
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radio_destination
+      name: Marantz (salon)
+      icon: mdi:audio-video
+      variables:
+        option: Marantz
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.radio_destination
+        data:
+          option: Marantz
+      grid_options:
+        columns: 12
+    - type: custom:button-card
+      template: choix_lens
+      entity: input_select.radio_destination
+      name: Les deux
+      icon: mdi:speaker-multiple
+      variables:
+        option: Les deux
+      tap_action:
+        action: perform-action
+        perform_action: input_select.select_option
+        target:
+          entity_id: input_select.radio_destination
+        data:
+          option: Les deux
+      grid_options:
+        columns: 12
+    - type: custom:button-card
+      name: Arrêter la radio
+      icon: mdi:stop
+      show_name: true
+      show_icon: true
+      layout: vertical
+      tap_action:
+        action: perform-action
+        perform_action: script.arreter_radio
+      styles:
+        card:
+        - height: 104px
+        - padding: 8px
+        - border-radius: 16px
+        icon:
+        - width: 40px
+        - color: var(--error-color)
+        name:
+        - font-size: 14px
+      grid_options:
+        columns: 12
+  - type: grid
+    column_span: 4
+    cards:
+    - type: heading
+      heading: Suisse
+      icon: mdi:flag
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: RTS Option Musique
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://stream.srg-ssr.ch/m/option-musique/aacp_96
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/mp3/128
+          titre: RTS Option Musique
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/mp3/128", "http://stream.srg-ssr.ch/m/option-musique/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/RTS_OptionMusique_Logo.png/330px-RTS_OptionMusique_Logo.png
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: RTS Couleur3
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://stream.srg-ssr.ch/m/couleur3/aacp_96
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/couleur3/mp3/128
+          titre: RTS Couleur3
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/couleur3/mp3/128", "http://stream.srg-ssr.ch/m/couleur3/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Radio Swiss Jazz
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://stream.srg-ssr.ch/m/rsj/aacp_96
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsj/mp3/128
+          titre: Radio Swiss Jazz
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsj/mp3/128", "http://stream.srg-ssr.ch/m/rsj/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Radio Swiss Classic
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsc_fr/mp3/128
+          titre: Radio Swiss Classic
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsc_fr/mp3/128", "http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Radio Swiss Pop
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://stream.srg-ssr.ch/m/rsp/aacp_96
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsp/mp3/128
+          titre: Radio Swiss Pop
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsp/mp3/128", "http://stream.srg-ssr.ch/m/rsp/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: One FM
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: https://onefm.ice.infomaniak.ch/onefm-high.aac
+          url_marantz: http://onefm.ice.infomaniak.ch/onefm-high.mp3
+          titre: One FM
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://onefm.ice.infomaniak.ch/onefm-high.mp3", "https://onefm.ice.infomaniak.ch/onefm-high.aac"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Rhône FM
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac
+          url_marantz: http://rhonefm.ice.infomaniak.ch/rhonefm-high.mp3
+          titre: Rhône FM
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac", "http://rhonefm.ice.infomaniak.ch/rhonefm-high.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: RadioFr. Fribourg
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3
+          url_marantz: http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3
+          titre: RadioFr. Fribourg
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: RadioFr. Fribourg Music
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3
+          url_marantz: http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3
+          titre: RadioFr. Fribourg Music
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+  - type: grid
+    column_span: 4
+    cards:
+    - type: heading
+      heading: Chillout
+      icon: mdi:palm-tree
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fip-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fip-midfi.mp3
+          titre: FIP
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fip-hifi.aac", "http://icecast.radiofrance.fr/fip-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/FIP_logo_2021.svg/500px-FIP_logo_2021.svg.png
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP Electro
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fipelectro-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fipelectro-midfi.mp3
+          titre: FIP Electro
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipelectro-hifi.aac", "http://icecast.radiofrance.fr/fipelectro-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP Groove
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fipgroove-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fipgroove-midfi.mp3
+          titre: FIP Groove
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipgroove-hifi.aac", "http://icecast.radiofrance.fr/fipgroove-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP Jazz
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fipjazz-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fipjazz-midfi.mp3
+          titre: FIP Jazz
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipjazz-hifi.aac", "http://icecast.radiofrance.fr/fipjazz-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP Musiques du monde
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fipworld-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fipworld-midfi.mp3
+          titre: FIP Musiques du monde
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipworld-hifi.aac", "http://icecast.radiofrance.fr/fipworld-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP Pop
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fippop-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fippop-midfi.mp3
+          titre: FIP Pop
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fippop-hifi.aac", "http://icecast.radiofrance.fr/fippop-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP Reggae
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fipreggae-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fipreggae-midfi.mp3
+          titre: FIP Reggae
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipreggae-hifi.aac", "http://icecast.radiofrance.fr/fipreggae-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: FIP Rock
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fiprock-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fiprock-midfi.mp3
+          titre: FIP Rock
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fiprock-hifi.aac", "http://icecast.radiofrance.fr/fiprock-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Tout nouveau, tout FIP
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://icecast.radiofrance.fr/fipnouveautes-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fipnouveautes-midfi.mp3
+          titre: Tout nouveau, tout FIP
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipnouveautes-hifi.aac", "http://icecast.radiofrance.fr/fipnouveautes-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Paradise Radio
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: https://stream-uk1.radioparadise.com/aac-320
+          url_marantz: http://stream.radioparadise.com/mp3-320
+          titre: Paradise Radio
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://stream.radioparadise.com/mp3-320", "https://stream-uk1.radioparadise.com/aac-320"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: /local/radio/rpmain.png
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Radio Paradise World
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: https://stream.radioparadise.com/world-etc-320
+          url_marantz: http://stream.radioparadise.com/world-etc-192
+          titre: Radio Paradise World
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://stream.radioparadise.com/world-etc-192", "https://stream.radioparadise.com/world-etc-320"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: /local/radio/rpglobal.png
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: RadioMonster Evergreens
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ic5.radiomonster.fm:80/evergreens-320
+          url_marantz: http://ic5.radiomonster.fm:80/evergreens-320
+          titre: RadioMonster Evergreens
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ic5.radiomonster.fm:80/evergreens-320"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: /local/radio/monsterever.png
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: RadioMonster Tophits
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ic5.radiomonster.fm:80/tophits-320
+          url_marantz: http://ic5.radiomonster.fm:80/tophits-320
+          titre: RadioMonster Tophits
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ic5.radiomonster.fm:80/tophits-320"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://play-lh.googleusercontent.com/3ZDTCl9VfsxVNU5NiCPOujQglpG_EFaDmLPpnbnlSmHxJ5DhtKQY-lBS1OUh8gquec5VH68LfmORRuTWQyda=w240-h480
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Radio Nova
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://radionova.ice.infomaniak.ch/radionova-256.aac
+          url_marantz: http://radionova.ice.infomaniak.ch/radionova-256.aac
+          titre: Radio Nova
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://radionova.ice.infomaniak.ch/radionova-256.aac"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Nova La Nuit
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
+          url_marantz: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
+          titre: Nova La Nuit
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/05/NOVA-nova-400x496-1-t-1006x1006.png
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Nova Classics
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
+          url_marantz: http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3
+          titre: Nova Classics
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3", "http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/04/NOVA-CLASSICS-400x496-1-t-1006x1006.png
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Linn Jazz
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://89.16.185.174:8000
+          url_marantz: http://89.16.185.174:8000
+          titre: Linn Jazz
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://89.16.185.174:8000"]; return Object.values(states).filter(s => s.entity_id
+          === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: The Jazz Groove
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://west-mp3-128.streamthejazzgroove.com
+          url_marantz: http://west-mp3-128.streamthejazzgroove.com
+          titre: The Jazz Groove
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://west-mp3-128.streamthejazzgroove.com"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Joint Radio
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://radio.jointil.net:9998
+          url_marantz: http://radio.jointil.net:9998
+          titre: Joint Radio
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://radio.jointil.net:9998"]; return Object.values(states).filter(s => s.entity_id
+          === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: SomaFM DEF CON Radio
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ice1.somafm.com/defcon-256-mp3
+          url_marantz: http://ice1.somafm.com/defcon-256-mp3
+          titre: SomaFM DEF CON Radio
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ice1.somafm.com/defcon-256-mp3"]; return Object.values(states).filter(s =>
+          s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: SomaFM Drone Zone
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ice1.somafm.com/dronezone-256-mp3
+          url_marantz: http://ice1.somafm.com/dronezone-256-mp3
+          titre: SomaFM Drone Zone
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ice1.somafm.com/dronezone-256-mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: SomaFM Mission Control
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ice1.somafm.com/missioncontrol-128-mp3
+          url_marantz: http://ice1.somafm.com/missioncontrol-128-mp3
+          titre: SomaFM Mission Control
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ice1.somafm.com/missioncontrol-128-mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Radionomy Downbeat
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://streaming.radionomy.com/TempoOfTheDownbeat1
+          url_marantz: http://streaming.radionomy.com/TempoOfTheDownbeat1
+          titre: Radionomy Downbeat
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://streaming.radionomy.com/TempoOfTheDownbeat1"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+  - type: grid
+    column_span: 4
+    cards:
+    - type: heading
+      heading: Casual
+      icon: mdi:coffee
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: SomaFM Groove Salad
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ice1.somafm.com/groovesalad-256-mp3
+          url_marantz: http://ice1.somafm.com/groovesalad-256-mp3
+          titre: SomaFM Groove Salad
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ice1.somafm.com/groovesalad-256-mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: SomaFM Beat Blender
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ice1.somafm.com/beatblender-128-mp3
+          url_marantz: http://ice1.somafm.com/beatblender-128-mp3
+          titre: SomaFM Beat Blender
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ice1.somafm.com/beatblender-128-mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: SomaFM Lush
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://ice1.somafm.com/lush-128-mp3
+          url_marantz: http://ice1.somafm.com/lush-128-mp3
+          titre: SomaFM Lush
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://ice1.somafm.com/lush-128-mp3"]; return Object.values(states).filter(s => s.entity_id
+          === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: Jazz Radio Electro Swing
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3
+          url_marantz: http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3
+          titre: Jazz Radio Electro Swing
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3"]; return Object.values(states).filter(s
+          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: 76Radio
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://192.240.102.133:9566/stream
+          url_marantz: http://192.240.102.133:9566/stream
+          titre: 76Radio
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://192.240.102.133:9566/stream"]; return Object.values(states).filter(s => s.entity_id
+          === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
+    - type: custom:button-card
+      entity: media_player.dmp_a6
+      triggers_update: all
+      name: The UK 1940s Radio Station
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.lancer_radio
+        data:
+          url: http://91.121.134.23:8100/1
+          url_marantz: http://91.121.134.23:8100/1
+          titre: The UK 1940s Radio Station
+      hold_action:
+        action: none
+      state:
+      - operator: template
+        value: '[[[ const t=["http://91.121.134.23:8100/1"]; return Object.values(states).filter(s => s.entity_id
+          === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
+          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          - color: var(--text-primary-color)
+          icon:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 92px
+        - padding: 6px
+        - border-radius: 14px
+        name:
+        - font-size: 12px
+        - white-space: normal
+        - line-height: '1.15'
+        icon:
+        - width: 30px
+        - color: var(--primary-color)
+        entity_picture:
+        - width: 48px
+        - height: 48px
+        - object-fit: contain
+      show_icon: true
+      icon: mdi:radio
+      grid_options:
+        columns: 6
 - title: Températures
   path: temperatures
   icon: mdi:thermometer-lines
@@ -1774,6 +3323,13 @@ views:
         tap_action:
           action: navigate
           navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: Radios
+        icon: mdi:radio
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/radios
       - type: button
         name: ● Températures
         icon: mdi:thermometer-lines
@@ -1889,6 +3445,13 @@ views:
         tap_action:
           action: navigate
           navigation_path: /kiosque-chauffage/medias
+      - type: button
+        name: Radios
+        icon: mdi:radio
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /kiosque-chauffage/radios
       - type: button
         name: Températures
         icon: mdi:thermometer-lines
