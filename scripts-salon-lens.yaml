@@ -93,8 +93,6 @@ lancer_app_apple_tv:
 
 # ── Radios : Eversolo, Marantz ou les deux ────────────────────────────────────
 # La destination vient de input_select.radio_destination.
-# L'intégration Marantz (media_player.marantz) ne sait pas lire une adresse de
-# flux : on passe par le lecteur réseau de l'ampli, media_player.marantz_2.
 lancer_radio:
   alias: "📻 Lancer une radio"
   icon: mdi:radio
@@ -123,7 +121,7 @@ lancer_radio:
         - action: media_player.play_media
           continue_on_error: true
           target:
-            entity_id: media_player.marantz_2
+            entity_id: media_player.marantz
           data:
             media_content_type: music
             media_content_id: "{{ url }}"
@@ -150,7 +148,7 @@ arreter_radio:
     - repeat:
         for_each:
           - media_player.dmp_a6
-          - media_player.marantz_2
+          - media_player.marantz
         sequence:
           - if: "{{ states(repeat.item) in ['playing', 'paused', 'buffering'] }}"
             then:

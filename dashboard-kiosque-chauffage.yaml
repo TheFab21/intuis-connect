@@ -933,7 +933,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: RTS Option Musique
       show_icon: false
       show_entity_picture: true
@@ -946,7 +946,7 @@ views:
           titre: RTS Option Musique
       state:
       - operator: template
-        value: '[[[ const t=''option-musique''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''option-musique''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
@@ -970,7 +970,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: FIP HiFi
       show_icon: false
       show_entity_picture: true
@@ -983,7 +983,7 @@ views:
           titre: FIP HiFi
       state:
       - operator: template
-        value: '[[[ const t=''fip-hifi''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''fip-hifi''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
@@ -1007,7 +1007,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: Radio Paradise Main
       show_icon: false
       show_entity_picture: true
@@ -1020,7 +1020,7 @@ views:
           titre: Radio Paradise Main Mix
       state:
       - operator: template
-        value: '[[[ const t=''aac-320''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''aac-320''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
@@ -1044,7 +1044,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: Radio Paradise World
       show_icon: false
       show_entity_picture: true
@@ -1057,7 +1057,7 @@ views:
           titre: Radio Paradise World/Etc
       state:
       - operator: template
-        value: '[[[ const t=''world-etc''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''world-etc''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
@@ -1081,7 +1081,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: RadioMonster TopHits
       show_icon: false
       show_entity_picture: true
@@ -1094,7 +1094,7 @@ views:
           titre: RadioMonster TopHits
       state:
       - operator: template
-        value: '[[[ const t=''tophits''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''tophits''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
@@ -1118,7 +1118,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: RadioMonster Evergreens
       show_icon: false
       show_entity_picture: true
@@ -1131,7 +1131,7 @@ views:
           titre: RadioMonster Evergreens
       state:
       - operator: template
-        value: '[[[ const t=''evergreens''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''evergreens''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
@@ -1155,7 +1155,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: Nova La Nuit
       show_icon: false
       show_entity_picture: true
@@ -1168,7 +1168,7 @@ views:
           titre: Nova La Nuit
       state:
       - operator: template
-        value: '[[[ const t=''nova-ln''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''nova-ln''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
@@ -1192,7 +1192,7 @@ views:
       entity: media_player.dmp_a6
       triggers_update:
       - media_player.eversolo_dmp_a6
-      - media_player.marantz_2
+      - media_player.marantz
       name: Nova Classics
       show_icon: false
       show_entity_picture: true
@@ -1205,7 +1205,7 @@ views:
           titre: Nova Classics
       state:
       - operator: template
-        value: '[[[ const t=''nova-vnt''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz_2''].some(id
+        value: '[[[ const t=''nova-vnt''; return [''media_player.dmp_a6'',''media_player.eversolo_dmp_a6'',''media_player.marantz''].some(id
           => { const s = states[id]; if (!s || s.state !== ''playing'') return false; const a = s.attributes; return
           (a.media_content_id||'''').includes(t) || (a.media_title||'''').includes(t); }); ]]]'
         styles:
