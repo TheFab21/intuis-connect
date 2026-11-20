@@ -941,14 +941,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://stream.srg-ssr.ch/srgssr/option-musique/aac/96
+          url_marantz: http://stream.srg-ssr.ch/srgssr/option-musique/mp3/128
           titre: RTS Option Musique
       state:
       - operator: template
-        value: '[[[ const t=''option-musique''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
+        value: '[[[ const t=["option-musique"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
           || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -978,14 +979,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://icecast.radiofrance.fr/fip-hifi.aac
+          url_marantz: http://icecast.radiofrance.fr/fip-midfi.mp3
           titre: FIP HiFi
       state:
       - operator: template
-        value: '[[[ const t=''fip-hifi''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
-          || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+        value: '[[[ const t=["fip-hifi", "fip-midfi"]; return Object.values(states).filter(s => s.entity_id ===
+          ''media_player.dmp_a6'' || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => { if (s.state !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1015,14 +1017,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://stream.radioparadise.com/aac-320
+          url_marantz: http://stream.radioparadise.com/mp3-192
           titre: Radio Paradise Main Mix
       state:
       - operator: template
-        value: '[[[ const t=''aac-320''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
+        value: '[[[ const t=["aac-320", "mp3-192"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
           || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1052,14 +1055,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: https://stream.radioparadise.com/world-etc-320
+          url_marantz: http://stream.radioparadise.com/world-etc-192
           titre: Radio Paradise World/Etc
       state:
       - operator: template
-        value: '[[[ const t=''world-etc''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
+        value: '[[[ const t=["world-etc"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
           || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1089,14 +1093,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ic.radiomonster.fm/tophits.ultra
+          url_marantz: http://ic.radiomonster.fm/tophits.ultra
           titre: RadioMonster TopHits
       state:
       - operator: template
-        value: '[[[ const t=''tophits''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
+        value: '[[[ const t=["tophits"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
           || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1126,14 +1131,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://ic.radiomonster.fm/evergreens.ultra
+          url_marantz: http://ic.radiomonster.fm/evergreens.ultra
           titre: RadioMonster Evergreens
       state:
       - operator: template
-        value: '[[[ const t=''evergreens''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
+        value: '[[[ const t=["evergreens"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
           || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1163,14 +1169,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
+          url_marantz: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
           titre: Nova La Nuit
       state:
       - operator: template
-        value: '[[[ const t=''nova-ln''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
+        value: '[[[ const t=["nova-ln"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
           || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1200,14 +1207,15 @@ views:
         perform_action: script.lancer_radio
         data:
           url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
+          url_marantz: http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3
           titre: Nova Classics
       state:
       - operator: template
-        value: '[[[ const t=''nova-vnt''; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
+        value: '[[[ const t=["nova-vnt"]; return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6''
           || s.entity_id === ''media_player.eversolo_dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => { if (s.state
-          !== ''playing'') return false; const a = s.attributes; return (a.media_content_id||'''').includes(t) ||
-          (a.media_title||'''').includes(t); }); ]]]'
+          !== ''playing'') return false; const a = s.attributes; return t.some(x => (a.media_content_id||'''').includes(x)
+          || (a.media_title||'''').includes(x)); }); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)

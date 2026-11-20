@@ -106,6 +106,11 @@ lancer_radio:
       required: true
       selector:
         text:
+    url_marantz:
+      name: Adresse du flux pour le Marantz
+      description: "http et MP3 : le lecteur r\u00E9seau du Marantz refuse le https et l'AAC haute qualit\u00E9 (erreur UPnP 600). Par d\u00E9faut, url."
+      selector:
+        text:
     titre:
       name: "Titre affich\u00E9"
       selector:
@@ -156,7 +161,7 @@ lancer_radio:
                 entity_id: "{{ lecteur }}"
               data:
                 media_content_type: music
-                media_content_id: "{{ url }}"
+                media_content_id: "{{ url_marantz | default(url, true) }}"
                 extra:
                   title: "{{ titre | default(url, true) }}"
     - if: "{{ cible != 'Marantz' }}"
