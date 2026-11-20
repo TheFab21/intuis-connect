@@ -108,7 +108,7 @@ lancer_radio:
         text:
     url_marantz:
       name: Adresse du flux pour le Marantz
-      description: "http et MP3 : le lecteur r\u00E9seau du Marantz refuse le https et l'AAC haute qualit\u00E9 (erreur UPnP 600). Par d\u00E9faut, url."
+      description: "En http : le lecteur r\u00E9seau du Marantz refuse le https (erreur UPnP 600). Par d\u00E9faut, url."
       selector:
         text:
     titre:
