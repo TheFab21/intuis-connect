@@ -1,0 +1,50 @@
+# À ajouter à la fin de scripts.yaml (les scripts y sont en colonne 0, comme ici).
+# Puis Outils de développement → YAML → Recharger les scripts.
+
+regarder_apple_tv:
+  alias: "▶ Regarder l'Apple TV"
+  icon: mdi:apple
+  mode: single
+  sequence:
+    - action: media_player.turn_on
+      target:
+        entity_id: media_player.marantz
+    - action: media_player.turn_on
+      target:
+        entity_id: media_player.tv_samsung_led40
+    # Laisser à l'ampli le temps de démarrer avant de changer d'entrée.
+    - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
+      timeout: "00:00:20"
+      continue_on_timeout: true
+    - action: media_player.select_source
+      target:
+        entity_id: media_player.marantz
+      data:
+        source: CBL/SAT
+    # La TV ne publie que « TV » et « HDMI » : on envoie la touche directe HDMI2.
+    - wait_template: "{{ not is_state('media_player.tv_samsung_led40', 'off') }}"
+      timeout: "00:00:30"
+      continue_on_timeout: true
+    - action: media_player.play_media
+      target:
+        entity_id: media_player.tv_samsung_led40
+      data:
+        media_content_type: send_key
+        media_content_id: KEY_HDMI2
+    - action: remote.turn_on
+      target:
+        entity_id: remote.apple_tv_salon
+
+eteindre_salon:
+  alias: "⏻ Éteindre le salon"
+  icon: mdi:power
+  mode: single
+  sequence:
+    - action: remote.turn_off
+      target:
+        entity_id: remote.apple_tv_salon
+    - action: media_player.turn_off
+      target:
+        entity_id:
+          - media_player.tv_samsung_led40
+          - media_player.marantz
