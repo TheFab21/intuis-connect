@@ -1,3 +1,7 @@
+# NOTE : le script lancer_radio n'utilise plus marantz_dlna_* (le Marantz passe par
+# media_player.play_media en MP3, chemin verifie). Seules eversolo_dlna_* servent,
+# et seulement si eversolo_par_upnp est active. Rien a ajouter sinon.
+#
 # A ajouter a la fin de rest_commands.yaml (cles en colonne 0), puis redemarrer
 # Home Assistant (ou Outils de developpement > YAML > Recharger les commandes REST
 # si ta version le propose).
