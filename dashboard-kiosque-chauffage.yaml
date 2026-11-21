@@ -1540,7 +1540,9 @@ views:
         value: '[[[ const t=["http://stream.srg-ssr.ch/m/option-musique/aacp_96"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "rts option musique"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1587,7 +1589,9 @@ views:
         value: '[[[ const t=["http://stream.srg-ssr.ch/m/couleur3/aacp_96"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "rts couleur3"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1634,7 +1638,9 @@ views:
         value: '[[[ const t=["http://stream.srg-ssr.ch/m/rsj/aacp_96"]; return Object.values(states).filter(s =>
           s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radio swiss jazz"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1682,7 +1688,9 @@ views:
         value: '[[[ const t=["http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radio swiss classic"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1730,7 +1738,9 @@ views:
         value: '[[[ const t=["http://stream.srg-ssr.ch/m/rsp/aacp_96"]; return Object.values(states).filter(s =>
           s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radio swiss pop"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1777,7 +1787,9 @@ views:
         value: '[[[ const t=["https://onefm.ice.infomaniak.ch/onefm-high.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "one fm"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1824,7 +1836,9 @@ views:
         value: '[[[ const t=["http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "rh\u00f4ne fm"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1872,7 +1886,9 @@ views:
         value: '[[[ const t=["http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radiofr. fribourg"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1920,7 +1936,9 @@ views:
         value: '[[[ const t=["http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radiofr. fribourg music"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -1974,7 +1992,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fip-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2022,7 +2042,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fipelectro-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip electro"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2070,7 +2092,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fipgroove-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip groove"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2118,7 +2142,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fipjazz-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip jazz"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2166,7 +2192,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fipworld-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip musiques du monde"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2214,7 +2242,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fippop-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip pop"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2262,7 +2292,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fipreggae-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip reggae"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2310,7 +2342,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fiprock-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "fip rock"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2358,7 +2392,9 @@ views:
         value: '[[[ const t=["http://icecast.radiofrance.fr/fipnouveautes-hifi.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "tout nouveau, tout fip"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2406,7 +2442,9 @@ views:
         value: '[[[ const t=["https://stream-uk1.radioparadise.com/aac-320"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "paradise radio"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2454,7 +2492,9 @@ views:
         value: '[[[ const t=["https://stream.radioparadise.com/world-etc-320"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radio paradise world"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2502,7 +2542,9 @@ views:
         value: '[[[ const t=["http://ic5.radiomonster.fm:80/evergreens-320"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radiomonster evergreens"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2550,7 +2592,9 @@ views:
         value: '[[[ const t=["http://ic5.radiomonster.fm:80/tophits-320"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radiomonster tophits"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2598,7 +2642,9 @@ views:
         value: '[[[ const t=["http://radionova.ice.infomaniak.ch/radionova-256.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radio nova"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2646,7 +2692,9 @@ views:
         value: '[[[ const t=["http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "nova la nuit"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2694,7 +2742,9 @@ views:
         value: '[[[ const t=["http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "nova classics"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2742,7 +2792,9 @@ views:
         value: '[[[ const t=["http://89.16.185.174:8000"]; return Object.values(states).filter(s => s.entity_id
           === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "linn jazz"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2790,7 +2842,9 @@ views:
         value: '[[[ const t=["http://west-mp3-128.streamthejazzgroove.com"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "the jazz groove"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2838,7 +2892,9 @@ views:
         value: '[[[ const t=["http://radio.jointil.net:9998"]; return Object.values(states).filter(s => s.entity_id
           === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "joint radio"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2886,7 +2942,9 @@ views:
         value: '[[[ const t=["http://ice1.somafm.com/defcon-256-mp3"]; return Object.values(states).filter(s =>
           s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "somafm def con radio"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2934,7 +2992,9 @@ views:
         value: '[[[ const t=["http://ice1.somafm.com/dronezone-256-mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "somafm drone zone"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -2982,7 +3042,9 @@ views:
         value: '[[[ const t=["http://ice1.somafm.com/missioncontrol-128-mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "somafm mission control"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -3029,7 +3091,9 @@ views:
         value: '[[[ const t=["http://streaming.radionomy.com/TempoOfTheDownbeat1"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "radionomy downbeat"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -3082,7 +3146,9 @@ views:
         value: '[[[ const t=["http://ice1.somafm.com/groovesalad-256-mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "somafm groove salad"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -3130,7 +3196,9 @@ views:
         value: '[[[ const t=["http://ice1.somafm.com/beatblender-128-mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "somafm beat blender"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -3178,7 +3246,9 @@ views:
         value: '[[[ const t=["http://ice1.somafm.com/lush-128-mp3"]; return Object.values(states).filter(s => s.entity_id
           === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "somafm lush"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -3226,7 +3296,9 @@ views:
         value: '[[[ const t=["http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3"]; return Object.values(states).filter(s
           => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "jazz radio electro swing"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -3273,7 +3345,9 @@ views:
         value: '[[[ const t=["http://192.240.102.133:9566/stream"]; return Object.values(states).filter(s => s.entity_id
           === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "76radio"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
+          => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
@@ -3320,7 +3394,9 @@ views:
         value: '[[[ const t=["http://91.121.134.23:8100/1"]; return Object.values(states).filter(s => s.entity_id
           === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
           || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')); ]]]'
+          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+          n = "the uk 1940s radio station"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
+          e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
           card:
           - background-color: var(--primary-color)
