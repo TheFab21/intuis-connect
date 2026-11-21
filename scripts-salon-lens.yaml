@@ -214,37 +214,54 @@ lancer_radio:
             source: "{{ source_eversolo }}"
     - if: "{{ cible != 'Marantz' and source_eversolo == '' }}"
       then:
-        - if: "{{ eversolo_par_upnp }}"
+        # Reveiller l'Eversolo s'il dort (le lecteur DLNA disparait en veille).
+        - if: "{{ states('media_player.dmp_a6') in ['unavailable', 'unknown'] }}"
           then:
-            - action: rest_command.eversolo_dlna_uri
-              continue_on_error: true
-              response_variable: reponse_eversolo
-              data:
-                url: "{{ url }}"
-                titre: "{{ titre | default(url, true) }}"
-                logo: "{{ image }}"
-                mime: "*"
-            - if: "{{ reponse_eversolo is defined and reponse_eversolo.status | int(0) == 200 }}"
-              then:
-                - action: rest_command.eversolo_dlna_play
-                  continue_on_error: true
-              else:
-                - action: persistent_notification.create
-                  data:
-                    title: Radio sur l'Eversolo
-                    message: "L'Eversolo a refus\u00E9 la station {{ titre | default(url, true) }} : {% if reponse_eversolo is defined %}HTTP {{ reponse_eversolo.status }}{% else %}pas de r\u00E9ponse (eversolo_dlna_avtransport dans secrets.yaml ?){% endif %}"
-          else:
-            - action: media_player.play_media
+            - action: media_player.turn_on
               continue_on_error: true
               target:
-                entity_id: media_player.dmp_a6
+                entity_id: media_player.eversolo_dmp_a6
+            - wait_template: "{{ states('media_player.dmp_a6') not in ['unavailable', 'unknown'] }}"
+              timeout: "00:00:40"
+              continue_on_timeout: true
+        - if: "{{ states('media_player.dmp_a6') in ['unavailable', 'unknown'] }}"
+          then:
+            - action: persistent_notification.create
               data:
-                media_content_type: music
-                media_content_id: "{{ url }}"
-                extra: >-
-                  {{ {'title': titre | default(url, true),
-                      'metadata': {'albumName': titre | default(url, true)}}
-                     | combine({'thumb': image} if image else {}) }}
+                title: Radio sur l'Eversolo
+                message: "L'Eversolo ne r\u00E9pond pas sur le r\u00E9seau : la station {{ titre | default(url, true) }} n'a pas pu \u00EAtre lanc\u00E9e."
+          else:
+            # 1) Commande UPnP directe ("station" + logo), si activee.
+            - if: "{{ eversolo_par_upnp }}"
+              then:
+                - action: rest_command.eversolo_dlna_uri
+                  continue_on_error: true
+                  response_variable: reponse_eversolo
+                  data:
+                    url: "{{ url }}"
+                    titre: "{{ titre | default(url, true) }}"
+                    logo: "{{ image }}"
+                    mime: "*"
+                - if: "{{ reponse_eversolo is defined and reponse_eversolo.status | int(0) == 200 }}"
+                  then:
+                    - action: rest_command.eversolo_dlna_play
+                      continue_on_error: true
+            # 2) Sinon, ou si la commande directe a echoue (port change apres un
+            #    redemarrage de l'Eversolo...), play_media : Home Assistant connait
+            #    toujours la bonne adresse.
+            - if: "{{ not eversolo_par_upnp or reponse_eversolo is not defined or reponse_eversolo.status | int(0) != 200 }}"
+              then:
+                - action: media_player.play_media
+                  continue_on_error: true
+                  target:
+                    entity_id: media_player.dmp_a6
+                  data:
+                    media_content_type: music
+                    media_content_id: "{{ url }}"
+                    extra: >-
+                      {{ {'title': titre | default(url, true),
+                          'metadata': {'albumName': titre | default(url, true)}}
+                         | combine({'thumb': image} if image else {}) }}
 
 arreter_radio:
   alias: "\u23F9 Arr\u00EAter la radio"
