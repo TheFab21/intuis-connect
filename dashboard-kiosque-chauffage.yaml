@@ -914,10 +914,14 @@ views:
         action: none
       grid_options:
         columns: 6
-    - type: button
+    - type: custom:button-card
+      entity: media_player.apple_tv_salon
       name: Blue TV
       icon: mdi:television-play
+      show_name: true
+      show_icon: true
       show_state: false
+      layout: vertical
       tap_action:
         action: perform-action
         perform_action: script.lancer_app_apple_tv
@@ -925,12 +929,38 @@ views:
           app: ^blue ?tv
       hold_action:
         action: none
+      state:
+      - operator: template
+        value: '[[[ const ko = [''off'', ''standby'', ''unavailable'', ''unknown''].includes(entity.state); const
+          a = entity.attributes, re = new RegExp("^blue ?tv", ''i''); return !ko && [a.app_name, a.source, a.app_id].some(v
+          => re.test(String(v || ''''))); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          icon:
+          - color: var(--text-primary-color)
+          name:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 96px
+        - padding: 8px
+        - border-radius: 16px
+        icon:
+        - width: 36px
+        - color: var(--primary-color)
+        name:
+        - font-size: 14px
       grid_options:
         columns: 6
-    - type: button
+    - type: custom:button-card
+      entity: media_player.apple_tv_salon
       name: Netflix
       icon: mdi:netflix
+      show_name: true
+      show_icon: true
       show_state: false
+      layout: vertical
       tap_action:
         action: perform-action
         perform_action: script.lancer_app_apple_tv
@@ -938,6 +968,28 @@ views:
           app: netflix
       hold_action:
         action: none
+      state:
+      - operator: template
+        value: '[[[ const ko = [''off'', ''standby'', ''unavailable'', ''unknown''].includes(entity.state); const
+          a = entity.attributes, re = new RegExp("netflix", ''i''); return !ko && [a.app_name, a.source, a.app_id].some(v
+          => re.test(String(v || ''''))); ]]]'
+        styles:
+          card:
+          - background-color: var(--primary-color)
+          icon:
+          - color: var(--text-primary-color)
+          name:
+          - color: var(--text-primary-color)
+      styles:
+        card:
+        - height: 96px
+        - padding: 8px
+        - border-radius: 16px
+        icon:
+        - width: 36px
+        - color: var(--primary-color)
+        name:
+        - font-size: 14px
       grid_options:
         columns: 6
     - type: media-control

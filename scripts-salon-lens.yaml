@@ -14,10 +14,19 @@ regarder_apple_tv:
       continue_on_error: true
       target:
         entity_id: media_player.marantz
+    # remote.turn_on ne fait que (re)connecter Home Assistant a l'Apple TV ;
+    # c'est media_player.turn_on qui la sort de veille.
     - action: remote.turn_on
       continue_on_error: true
       target:
         entity_id: remote.apple_tv_salon
+    - wait_template: "{{ states('media_player.apple_tv_salon') not in ['unavailable', 'unknown'] }}"
+      timeout: "00:00:10"
+      continue_on_timeout: true
+    - action: media_player.turn_on
+      continue_on_error: true
+      target:
+        entity_id: media_player.apple_tv_salon
     - if: "{{ (state_attr('media_player.tv_samsung_led40', 'supported_features') | int(0)) | bitwise_and(128) > 0 }}"
       then:
         - action: media_player.turn_on
@@ -54,10 +63,14 @@ eteindre_salon:
   icon: mdi:power
   mode: single
   sequence:
-    - action: remote.turn_off
-      target:
-        entity_id: remote.apple_tv_salon
+    # media_player.turn_off met l'Apple TV en veille (remote.turn_off ne ferait que
+    # deconnecter Home Assistant).
     - action: media_player.turn_off
+      continue_on_error: true
+      target:
+        entity_id: media_player.apple_tv_salon
+    - action: media_player.turn_off
+      continue_on_error: true
       target:
         entity_id:
           - media_player.tv_samsung_led40
