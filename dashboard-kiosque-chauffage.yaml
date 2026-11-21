@@ -1531,16 +1531,17 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/option-musique/aacp_96
           titre: RTS Option Musique
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/mp3/128
           logo: https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/RTS_OptionMusique_Logo.png/330px-RTS_OptionMusique_Logo.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://stream.srg-ssr.ch/m/option-musique/aacp_96"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/option-musique/mp3/128", "http://stream.srg-ssr.ch/m/option-musique/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "rts option musique"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
           e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -1581,15 +1582,16 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/couleur3/aacp_96
           titre: RTS Couleur3
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/couleur3/mp3/128
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://stream.srg-ssr.ch/m/couleur3/aacp_96"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/couleur3/mp3/128", "http://stream.srg-ssr.ch/m/couleur3/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "rts couleur3"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -1629,16 +1631,17 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/rsj/aacp_96
           titre: Radio Swiss Jazz
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsj/mp3/128
           logo: https://www.radioswissjazz.ch/social-media/rsj-web.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://stream.srg-ssr.ch/m/rsj/aacp_96"]; return Object.values(states).filter(s =>
-          s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsj/mp3/128", "http://stream.srg-ssr.ch/m/rsj/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "radio swiss jazz"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
           e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -1679,16 +1682,17 @@ views:
         data:
           url: http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96
           titre: Radio Swiss Classic
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsc_fr/mp3/128
           logo: https://www.radioswissclassic.ch/social-media/rsc-web.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsc_fr/mp3/128", "http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "radio swiss classic"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
           e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -1729,16 +1733,17 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/rsp/aacp_96
           titre: Radio Swiss Pop
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://livestreaming-node-1.srg-ssr.ch/srgssr/rsp/mp3/128
           logo: https://www.radioswisspop.ch/social-media/rsp-web.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://stream.srg-ssr.ch/m/rsp/aacp_96"]; return Object.values(states).filter(s =>
-          s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://livestreaming-node-1.srg-ssr.ch/srgssr/rsp/mp3/128", "http://stream.srg-ssr.ch/m/rsp/aacp_96"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "radio swiss pop"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -1779,15 +1784,16 @@ views:
         data:
           url: https://onefm.ice.infomaniak.ch/onefm-high.aac
           titre: One FM
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://onefm.ice.infomaniak.ch/onefm-high.mp3
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["https://onefm.ice.infomaniak.ch/onefm-high.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://onefm.ice.infomaniak.ch/onefm-high.mp3", "https://onefm.ice.infomaniak.ch/onefm-high.aac"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "one fm"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -1827,16 +1833,17 @@ views:
         data:
           url: http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac
           titre: Rhône FM
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://rhonefm.ice.infomaniak.ch/rhonefm-high.mp3
           logo: http://www.rhonefm.ch/favicon/4/120x120.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac", "http://rhonefm.ice.infomaniak.ch/rhonefm-high.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "rh\u00f4ne fm"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -1983,16 +1990,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fip-hifi.aac
           titre: FIP
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fip-midfi.mp3
           logo: https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/FIP_logo_2021.svg/500px-FIP_logo_2021.svg.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fip-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fip-hifi.aac", "http://icecast.radiofrance.fr/fip-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2033,16 +2041,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipelectro-hifi.aac
           titre: FIP Electro
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fipelectro-midfi.mp3
           logo: https://www.radiofrance.fr/pikapi/images/bf85964f-395a-4e6a-beb4-6cc0590d20bb/400
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipelectro-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipelectro-hifi.aac", "http://icecast.radiofrance.fr/fipelectro-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip electro"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2083,16 +2092,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipgroove-hifi.aac
           titre: FIP Groove
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fipgroove-midfi.mp3
           logo: https://www.radiofrance.fr/pikapi/images/95cf76c3-26bc-404e-be1c-b81666188c3f/400
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipgroove-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipgroove-hifi.aac", "http://icecast.radiofrance.fr/fipgroove-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip groove"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2133,16 +2143,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipjazz-hifi.aac
           titre: FIP Jazz
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fipjazz-midfi.mp3
           logo: https://cdn-profiles.tunein.com/s262533/images/logod.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipjazz-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipjazz-hifi.aac", "http://icecast.radiofrance.fr/fipjazz-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip jazz"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2183,16 +2194,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipworld-hifi.aac
           titre: FIP Musiques du monde
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fipworld-midfi.mp3
           logo: https://www.radiofrance.fr/pikapi/images/524fabe1-7645-4847-aa93-932d9835de67/400
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipworld-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipworld-hifi.aac", "http://icecast.radiofrance.fr/fipworld-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip musiques du monde"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
           e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2233,16 +2245,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fippop-hifi.aac
           titre: FIP Pop
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fippop-midfi.mp3
           logo: https://cdn.radiofrance.fr/s3/cruiser-production/2020/06/14f16d25-960c-4cf4-8e39-682268b1a0c1/200x200_fip-pop_ok.jpg
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fippop-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fippop-hifi.aac", "http://icecast.radiofrance.fr/fippop-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip pop"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2283,16 +2296,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipreggae-hifi.aac
           titre: FIP Reggae
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fipreggae-midfi.mp3
           logo: https://www.radiofrance.fr/pikapi/images/a242c7c5-bf1e-468b-9cb9-2154550f8be7/400
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipreggae-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipreggae-hifi.aac", "http://icecast.radiofrance.fr/fipreggae-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip reggae"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2333,16 +2347,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fiprock-hifi.aac
           titre: FIP Rock
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fiprock-midfi.mp3
           logo: https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fiprock-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fiprock-hifi.aac", "http://icecast.radiofrance.fr/fiprock-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "fip rock"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2383,16 +2398,17 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipnouveautes-hifi.aac
           titre: Tout nouveau, tout FIP
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://icecast.radiofrance.fr/fipnouveautes-midfi.mp3
           logo: https://cdn-images.dzcdn.net/images/misc/d71406a51e630538c6fa9e9cc9e6a53c/500x500-000000-80-0-0.jpg
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://icecast.radiofrance.fr/fipnouveautes-hifi.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://icecast.radiofrance.fr/fipnouveautes-hifi.aac", "http://icecast.radiofrance.fr/fipnouveautes-midfi.mp3"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "tout nouveau, tout fip"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
           e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2433,16 +2449,17 @@ views:
         data:
           url: https://stream-uk1.radioparadise.com/aac-320
           titre: Paradise Radio
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://stream.radioparadise.com/mp3-320
           logo: https://radioparadise.com/apple-touch-icon.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["https://stream-uk1.radioparadise.com/aac-320"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://stream.radioparadise.com/mp3-320", "https://stream-uk1.radioparadise.com/aac-320"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "paradise radio"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2483,16 +2500,17 @@ views:
         data:
           url: https://stream.radioparadise.com/world-etc-320
           titre: Radio Paradise World
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://stream.radioparadise.com/world-etc-192
           logo: https://radioparadise.com/apple-touch-icon.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["https://stream.radioparadise.com/world-etc-320"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://stream.radioparadise.com/world-etc-192", "https://stream.radioparadise.com/world-etc-320"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "radio paradise world"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source,
           e.attributes.media_title].some(v => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
@@ -2733,16 +2751,17 @@ views:
         data:
           url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
           titre: Nova Classics
-          mime_marantz: audio/mp4
+          mime_marantz: audio/mpeg
+          url_marantz: http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3
           logo: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/04/NOVA-CLASSICS-400x496-1-t-1006x1006.png
       hold_action:
         action: none
       state:
       - operator: template
-        value: '[[[ const t=["http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac"]; return Object.values(states).filter(s
-          => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'') && (s.entity_id.includes(''marantz'')
-          || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s => s.state ===
-          ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
+        value: '[[[ const t=["http://nova-vnt.ice.infomaniak.ch/nova-vnt-128.mp3", "http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac"];
+          return Object.values(states).filter(s => s.entity_id === ''media_player.dmp_a6'' || (s.entity_id.startsWith(''media_player.'')
+          && (s.entity_id.includes(''marantz'') || String(s.attributes.friendly_name||'''').toLowerCase().includes(''marantz'')))).some(s
+          => s.state === ''playing'' && t.includes(s.attributes.media_content_id||'''')) || (() => { const e = states[''media_player.eversolo_dmp_a6''],
           n = "nova classics"; if (!e || e.state !== ''playing'') return false; return [e.attributes.source, e.attributes.media_title].some(v
           => String(v||'''').trim().toLowerCase() === n); })(); ]]]'
         styles:
