@@ -178,30 +178,43 @@ lancer_radio:
         - wait_template: "{{ not is_state('media_player.marantz', 'off') }}"
           timeout: "00:00:20"
           continue_on_timeout: true
-        # Certains lecteurs refusent une nouvelle adresse pendant une lecture.
-        - if: "{{ states('media_player.marantz_2') in ['playing', 'paused', 'buffering'] }}"
+        # Le lecteur reseau de l'ampli doit repondre avant qu'on lui parle. En veille
+        # profonde (reglage "Controle reseau" sur Arret), le NR1603 coupe son
+        # reseau : ni Home Assistant ni la commande UPnP ne peuvent l'atteindre.
+        - wait_template: "{{ states('media_player.marantz_2') not in ['unavailable', 'unknown'] }}"
+          timeout: "00:00:30"
+          continue_on_timeout: true
+        - if: "{{ states('media_player.marantz_2') in ['unavailable', 'unknown'] }}"
           then:
-            - action: media_player.media_stop
-              continue_on_error: true
-              target:
-                entity_id: media_player.marantz_2
-        - action: rest_command.marantz_dlna_uri
-          continue_on_error: true
-          response_variable: reponse_uri
-          data:
-            url: "{{ url_marantz | default(url, true) }}"
-            titre: "{{ titre | default(url, true) }}"
-            logo: "{{ image }}"
-            mime: "{{ mime }}"
-        - if: "{{ reponse_uri is defined and reponse_uri.status | int(0) == 200 }}"
-          then:
-            - action: rest_command.marantz_dlna_play
-              continue_on_error: true
-          else:
             - action: persistent_notification.create
               data:
                 title: Radio sur le Marantz
-                message: "Le Marantz a refus\u00E9 la station {{ titre | default(url, true) }} (\u00E9tiquette {{ mime }}) : {% if reponse_uri is defined %}HTTP {{ reponse_uri.status }}, erreur UPnP {{ (reponse_uri.content | string | regex_findall('<errorCode>([0-9]+)</errorCode>') or ['?']) | first }}{% else %}pas de r\u00E9ponse (adresse marantz_dlna_avtransport dans secrets.yaml ?){% endif %}"
+                message: "Le Marantz ne r\u00E9pond pas sur le r\u00E9seau (lecteur DLNA indisponible) : la station {{ titre | default(url, true) }} n'a pas pu \u00EAtre lanc\u00E9e. Sur l'ampli : R\u00E9glages > R\u00E9seau > Contr\u00F4le r\u00E9seau = Marche, pour qu'il reste joignable en veille."
+          else:
+            # Certains lecteurs refusent une nouvelle adresse pendant une lecture.
+            - if: "{{ states('media_player.marantz_2') in ['playing', 'paused', 'buffering'] }}"
+              then:
+                - action: media_player.media_stop
+                  continue_on_error: true
+                  target:
+                    entity_id: media_player.marantz_2
+            - action: rest_command.marantz_dlna_uri
+              continue_on_error: true
+              response_variable: reponse_uri
+              data:
+                url: "{{ url_marantz | default(url, true) }}"
+                titre: "{{ titre | default(url, true) }}"
+                logo: "{{ image }}"
+                mime: "{{ mime }}"
+            - if: "{{ reponse_uri is defined and reponse_uri.status | int(0) == 200 }}"
+              then:
+                - action: rest_command.marantz_dlna_play
+                  continue_on_error: true
+              else:
+                - action: persistent_notification.create
+                  data:
+                    title: Radio sur le Marantz
+                    message: "Le Marantz a refus\u00E9 la station {{ titre | default(url, true) }} (\u00E9tiquette {{ mime }}) : {% if reponse_uri is defined %}HTTP {{ reponse_uri.status }}, erreur UPnP {{ (reponse_uri.content | string | regex_findall('<errorCode>([0-9]+)</errorCode>') or ['?']) | first }}{% else %}pas de r\u00E9ponse (adresse marantz_dlna_avtransport dans secrets.yaml ?){% endif %}"
     - if: "{{ cible != 'Marantz' and source_eversolo != '' }}"
       then:
         - action: media_player.select_source
