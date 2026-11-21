@@ -1,0 +1,53 @@
+# Commandes UPnP directes pour l'Eversolo (DMP-A6), utilisees par le script
+# lancer_radio quand eversolo_par_upnp est a true.
+#
+# A ajouter a la fin de rest_commands.yaml (cles en colonne 0), puis
+# redemarrer Home Assistant. Si tu avais ajoute les anciennes commandes
+# marantz_dlna_uri / marantz_dlna_play, tu peux les supprimer : le Marantz
+# passe par media_player.play_media en MP3.
+#
+# Pourquoi : Home Assistant annonce la radio comme un "morceau de musique" et
+# l'Eversolo n'affiche alors que cette fiche (nom + logo). Ici la radio est
+# annoncee comme une station (audioBroadcast), ce qui pousse certains lecteurs
+# a afficher l'artiste et la chanson diffuses avec le son.
+#
+# A mettre dans secrets.yaml (une seule ligne, sans espace) :
+#   eversolo_dlna_avtransport: http://IP_EVERSOLO:PORT/AVTransport/<UUID>/control.xml
+# IP et PORT : debut de la valeur "url" de l'entree dlna_dmr du DMP-A6 dans
+# /config/.storage/core.config_entries. Le port peut changer quand l'Eversolo
+# redemarre : en cas de "pas de reponse", le reverifier.
+#
+# Variables : url, titre, logo (adresse d'image, facultatif), mime
+#   mime = "*"       -> etiquette "n'importe quel type" (valeur utilisee)
+#   mime = "aucune"  -> aucune description : l'appareil devine seul
+#   mime = autre     -> ce type precis, ex. "audio/mpeg"
+
+eversolo_dlna_uri:
+  url: !secret eversolo_dlna_avtransport
+  method: POST
+  content_type: 'text/xml; charset="utf-8"'
+  headers:
+    SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"'
+  timeout: 10
+  payload: >-
+    {%- macro x(t) -%}{{ t | string | replace('&', '&amp;') | replace('<', '&lt;') | replace('>', '&gt;') | replace('"', '&quot;') }}{%- endmacro -%}
+    {%- set m = mime | default('*', true) -%}
+    {%- if m == 'aucune' -%}{%- set didl = '' -%}
+    {%- else -%}
+    {%- set didl = '<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">'
+        ~ '<item id="0" parentID="-1" restricted="1"><dc:title>' ~ x(titre | default('Radio', true)) ~ '</dc:title>'
+        ~ '<upnp:class>object.item.audioItem.audioBroadcast</upnp:class>'
+        ~ ('<upnp:albumArtURI>' ~ x(logo) ~ '</upnp:albumArtURI>' if logo is defined and logo else '')
+        ~ '<res protocolInfo="http-get:*:' ~ m ~ ':*">' ~ x(url) ~ '</res></item></DIDL-Lite>' -%}
+    {%- endif -%}
+    <?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><CurrentURI>{{ x(url) }}</CurrentURI><CurrentURIMetaData>{{ x(didl) }}</CurrentURIMetaData></u:SetAVTransportURI></s:Body></s:Envelope>
+
+eversolo_dlna_play:
+  url: !secret eversolo_dlna_avtransport
+  method: POST
+  content_type: 'text/xml; charset="utf-8"'
+  headers:
+    SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#Play"'
+  timeout: 10
+  payload: >-
+    <?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Play xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>

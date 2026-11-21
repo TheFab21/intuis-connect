@@ -153,7 +153,7 @@ lancer_radio:
     # true = l'Eversolo recoit lui aussi la commande UPnP directe (type "radio" +
     # logo), ce qui aide certains lecteurs a afficher le morceau en cours. Exige
     # eversolo_dlna_avtransport dans secrets.yaml. false = media_player.play_media.
-    eversolo_par_upnp: false
+    eversolo_par_upnp: true
     # Lecteur natif de l'Eversolo (logo + morceau en cours) : si la station
     # existe dans sa radio internet (Radio perso / favoris) et figure dans la
     # liste des sources de media_player.eversolo_dmp_a6 (fork TheFab21, PR #15),
