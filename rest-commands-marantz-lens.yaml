@@ -16,7 +16,12 @@
 # navigateur ; dans le bloc AVTransport, <controlURL> donne le chemin a ajouter
 # apres http://IP:PORT.
 #
-# Variables : url, titre, mime
+# Les memes commandes existent pour l'Eversolo (eversolo_dlna_uri / _play), avec
+#   eversolo_dlna_avtransport: http://IP_DE_L_EVERSOLO:PORT/chemin/AVTransport
+# (meme methode : entree "dlna_dmr" du DMP-A6). Facultatif : seulement si on
+# active eversolo_par_upnp dans le script lancer_radio.
+#
+# Variables : url, titre, logo (adresse d'image, facultatif), mime
 #   mime = "audio/mp4"  -> AAC (etiquette acceptee par le NR1603), "audio/mpeg" -> MP3
 #   mime = "*"       -> etiquette "n'importe quel type" + titre
 #   mime = "aucune"  -> aucune description : l'ampli devine seul (pas de titre)
@@ -29,7 +34,7 @@ marantz_dlna_uri:
   headers:
     SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"'
   timeout: 10
-  payload: >-
+  payload: &uri_payload >-
     {%- macro x(t) -%}{{ t | string | replace('&', '&amp;') | replace('<', '&lt;') | replace('>', '&gt;') | replace('"', '&quot;') }}{%- endmacro -%}
     {%- set m = mime | default('*', true) -%}
     {%- if m == 'aucune' -%}{%- set didl = '' -%}
@@ -37,6 +42,7 @@ marantz_dlna_uri:
     {%- set didl = '<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">'
         ~ '<item id="0" parentID="-1" restricted="1"><dc:title>' ~ x(titre | default('Radio', true)) ~ '</dc:title>'
         ~ '<upnp:class>object.item.audioItem.audioBroadcast</upnp:class>'
+        ~ ('<upnp:albumArtURI>' ~ x(logo) ~ '</upnp:albumArtURI>' if logo is defined and logo else '')
         ~ '<res protocolInfo="http-get:*:' ~ m ~ ':*">' ~ x(url) ~ '</res></item></DIDL-Lite>' -%}
     {%- endif -%}
     <?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><CurrentURI>{{ x(url) }}</CurrentURI><CurrentURIMetaData>{{ x(didl) }}</CurrentURIMetaData></u:SetAVTransportURI></s:Body></s:Envelope>
@@ -48,5 +54,23 @@ marantz_dlna_play:
   headers:
     SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#Play"'
   timeout: 10
-  payload: >-
+  payload: &play_payload >-
     <?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Play xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>
+
+eversolo_dlna_uri:
+  url: !secret eversolo_dlna_avtransport
+  method: POST
+  content_type: 'text/xml; charset="utf-8"'
+  headers:
+    SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"'
+  timeout: 10
+  payload: *uri_payload
+
+eversolo_dlna_play:
+  url: !secret eversolo_dlna_avtransport
+  method: POST
+  content_type: 'text/xml; charset="utf-8"'
+  headers:
+    SOAPACTION: '"urn:schemas-upnp-org:service:AVTransport:1#Play"'
+  timeout: 10
+  payload: *play_payload

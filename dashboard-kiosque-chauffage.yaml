@@ -1532,6 +1532,7 @@ views:
           url: http://stream.srg-ssr.ch/m/option-musique/aacp_96
           titre: RTS Option Musique
           mime_marantz: audio/mp4
+          logo: https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/RTS_OptionMusique_Logo.png/330px-RTS_OptionMusique_Logo.png
       hold_action:
         action: none
       state:
@@ -1625,6 +1626,7 @@ views:
           url: http://stream.srg-ssr.ch/m/rsj/aacp_96
           titre: Radio Swiss Jazz
           mime_marantz: audio/mp4
+          logo: https://www.radioswissjazz.ch/social-media/rsj-web.png
       hold_action:
         action: none
       state:
@@ -1655,8 +1657,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.radioswissjazz.ch/social-media/rsj-web.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -1671,6 +1674,7 @@ views:
           url: http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96
           titre: Radio Swiss Classic
           mime_marantz: audio/mp4
+          logo: https://www.radioswissclassic.ch/social-media/rsc-web.png
       hold_action:
         action: none
       state:
@@ -1701,8 +1705,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.radioswissclassic.ch/social-media/rsc-web.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -1717,6 +1722,7 @@ views:
           url: http://stream.srg-ssr.ch/m/rsp/aacp_96
           titre: Radio Swiss Pop
           mime_marantz: audio/mp4
+          logo: https://www.radioswisspop.ch/social-media/rsp-web.png
       hold_action:
         action: none
       state:
@@ -1747,8 +1753,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.radioswisspop.ch/social-media/rsp-web.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -1809,6 +1816,7 @@ views:
           url: http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac
           titre: Rhône FM
           mime_marantz: audio/mp4
+          logo: http://www.rhonefm.ch/favicon/4/120x120.png
       hold_action:
         action: none
       state:
@@ -1839,8 +1847,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: http://www.rhonefm.ch/favicon/4/120x120.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -1855,6 +1864,7 @@ views:
           url: http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3
           titre: RadioFr. Fribourg
           mime_marantz: audio/mpeg
+          logo: http://www.radiofr.ch/favicons/apple-touch-icon.png
       hold_action:
         action: none
       state:
@@ -1885,8 +1895,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: http://www.radiofr.ch/favicons/apple-touch-icon.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -1901,6 +1912,7 @@ views:
           url: http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3
           titre: RadioFr. Fribourg Music
           mime_marantz: audio/mpeg
+          logo: http://www.radiofr.ch/favicons/apple-touch-icon.png
       hold_action:
         action: none
       state:
@@ -1931,8 +1943,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: http://www.radiofr.ch/favicons/apple-touch-icon.png
       grid_options:
         columns: 6
   - type: grid
@@ -1953,6 +1966,7 @@ views:
           url: http://icecast.radiofrance.fr/fip-hifi.aac
           titre: FIP
           mime_marantz: audio/mp4
+          logo: https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/FIP_logo_2021.svg/500px-FIP_logo_2021.svg.png
       hold_action:
         action: none
       state:
@@ -2000,6 +2014,7 @@ views:
           url: http://icecast.radiofrance.fr/fipelectro-hifi.aac
           titre: FIP Electro
           mime_marantz: audio/mp4
+          logo: https://www.radiofrance.fr/pikapi/images/bf85964f-395a-4e6a-beb4-6cc0590d20bb/400
       hold_action:
         action: none
       state:
@@ -2030,8 +2045,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.radiofrance.fr/pikapi/images/bf85964f-395a-4e6a-beb4-6cc0590d20bb/400
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2046,6 +2062,7 @@ views:
           url: http://icecast.radiofrance.fr/fipgroove-hifi.aac
           titre: FIP Groove
           mime_marantz: audio/mp4
+          logo: https://www.radiofrance.fr/pikapi/images/95cf76c3-26bc-404e-be1c-b81666188c3f/400
       hold_action:
         action: none
       state:
@@ -2076,8 +2093,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.radiofrance.fr/pikapi/images/95cf76c3-26bc-404e-be1c-b81666188c3f/400
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2092,6 +2110,7 @@ views:
           url: http://icecast.radiofrance.fr/fipjazz-hifi.aac
           titre: FIP Jazz
           mime_marantz: audio/mp4
+          logo: https://cdn-profiles.tunein.com/s262533/images/logod.png
       hold_action:
         action: none
       state:
@@ -2122,8 +2141,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://cdn-profiles.tunein.com/s262533/images/logod.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2138,6 +2158,7 @@ views:
           url: http://icecast.radiofrance.fr/fipworld-hifi.aac
           titre: FIP Musiques du monde
           mime_marantz: audio/mp4
+          logo: https://www.radiofrance.fr/pikapi/images/524fabe1-7645-4847-aa93-932d9835de67/400
       hold_action:
         action: none
       state:
@@ -2168,8 +2189,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.radiofrance.fr/pikapi/images/524fabe1-7645-4847-aa93-932d9835de67/400
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2184,6 +2206,7 @@ views:
           url: http://icecast.radiofrance.fr/fippop-hifi.aac
           titre: FIP Pop
           mime_marantz: audio/mp4
+          logo: https://cdn.radiofrance.fr/s3/cruiser-production/2020/06/14f16d25-960c-4cf4-8e39-682268b1a0c1/200x200_fip-pop_ok.jpg
       hold_action:
         action: none
       state:
@@ -2214,8 +2237,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://cdn.radiofrance.fr/s3/cruiser-production/2020/06/14f16d25-960c-4cf4-8e39-682268b1a0c1/200x200_fip-pop_ok.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2230,6 +2254,7 @@ views:
           url: http://icecast.radiofrance.fr/fipreggae-hifi.aac
           titre: FIP Reggae
           mime_marantz: audio/mp4
+          logo: https://www.radiofrance.fr/pikapi/images/a242c7c5-bf1e-468b-9cb9-2154550f8be7/400
       hold_action:
         action: none
       state:
@@ -2260,8 +2285,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.radiofrance.fr/pikapi/images/a242c7c5-bf1e-468b-9cb9-2154550f8be7/400
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2276,6 +2302,7 @@ views:
           url: http://icecast.radiofrance.fr/fiprock-hifi.aac
           titre: FIP Rock
           mime_marantz: audio/mp4
+          logo: https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg
       hold_action:
         action: none
       state:
@@ -2306,8 +2333,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://cdn.radiofrance.fr/s3/cruiser-production/2019/06/f5b944ca-9a21-4970-8eed-e711dac8ac15/200x200_fip-rock_ok.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2322,6 +2350,7 @@ views:
           url: http://icecast.radiofrance.fr/fipnouveautes-hifi.aac
           titre: Tout nouveau, tout FIP
           mime_marantz: audio/mp4
+          logo: https://cdn-images.dzcdn.net/images/misc/d71406a51e630538c6fa9e9cc9e6a53c/500x500-000000-80-0-0.jpg
       hold_action:
         action: none
       state:
@@ -2352,8 +2381,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://cdn-images.dzcdn.net/images/misc/d71406a51e630538c6fa9e9cc9e6a53c/500x500-000000-80-0-0.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2368,6 +2398,7 @@ views:
           url: https://stream-uk1.radioparadise.com/aac-320
           titre: Paradise Radio
           mime_marantz: audio/mp4
+          logo: https://radioparadise.com/apple-touch-icon.png
       hold_action:
         action: none
       state:
@@ -2400,7 +2431,7 @@ views:
         - object-fit: contain
       show_icon: false
       show_entity_picture: true
-      entity_picture: /local/radio/rpmain.png
+      entity_picture: https://radioparadise.com/apple-touch-icon.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2415,6 +2446,7 @@ views:
           url: https://stream.radioparadise.com/world-etc-320
           titre: Radio Paradise World
           mime_marantz: audio/mp4
+          logo: https://radioparadise.com/apple-touch-icon.png
       hold_action:
         action: none
       state:
@@ -2447,7 +2479,7 @@ views:
         - object-fit: contain
       show_icon: false
       show_entity_picture: true
-      entity_picture: /local/radio/rpglobal.png
+      entity_picture: https://radioparadise.com/apple-touch-icon.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2462,6 +2494,7 @@ views:
           url: http://ic5.radiomonster.fm:80/evergreens-320
           titre: RadioMonster Evergreens
           mime_marantz: audio/mpeg
+          logo: https://play-lh.googleusercontent.com/3ZDTCl9VfsxVNU5NiCPOujQglpG_EFaDmLPpnbnlSmHxJ5DhtKQY-lBS1OUh8gquec5VH68LfmORRuTWQyda=w240-h480
       hold_action:
         action: none
       state:
@@ -2494,7 +2527,7 @@ views:
         - object-fit: contain
       show_icon: false
       show_entity_picture: true
-      entity_picture: /local/radio/monsterever.png
+      entity_picture: https://play-lh.googleusercontent.com/3ZDTCl9VfsxVNU5NiCPOujQglpG_EFaDmLPpnbnlSmHxJ5DhtKQY-lBS1OUh8gquec5VH68LfmORRuTWQyda=w240-h480
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2509,6 +2542,7 @@ views:
           url: http://ic5.radiomonster.fm:80/tophits-320
           titre: RadioMonster Tophits
           mime_marantz: audio/mpeg
+          logo: https://play-lh.googleusercontent.com/3ZDTCl9VfsxVNU5NiCPOujQglpG_EFaDmLPpnbnlSmHxJ5DhtKQY-lBS1OUh8gquec5VH68LfmORRuTWQyda=w240-h480
       hold_action:
         action: none
       state:
@@ -2556,6 +2590,7 @@ views:
           url: http://radionova.ice.infomaniak.ch/radionova-256.aac
           titre: Radio Nova
           mime_marantz: audio/mpeg
+          logo: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2021/02/cropped-favicon-t-180x180.png
       hold_action:
         action: none
       state:
@@ -2586,8 +2621,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2021/02/cropped-favicon-t-180x180.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2602,6 +2638,7 @@ views:
           url: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
           titre: Nova La Nuit
           mime_marantz: audio/mpeg
+          logo: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/05/NOVA-nova-400x496-1-t-1006x1006.png
       hold_action:
         action: none
       state:
@@ -2649,6 +2686,7 @@ views:
           url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
           titre: Nova Classics
           mime_marantz: audio/mp4
+          logo: https://www.nova.fr/wp-content/thumbnails/uploads/sites/2/2024/04/NOVA-CLASSICS-400x496-1-t-1006x1006.png
       hold_action:
         action: none
       state:
@@ -2696,6 +2734,7 @@ views:
           url: http://89.16.185.174:8000
           titre: Linn Jazz
           mime_marantz: audio/mpeg
+          logo: https://small.linncdn.com/website/responsive/images/icons/linn-icon-x120.png
       hold_action:
         action: none
       state:
@@ -2726,8 +2765,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://small.linncdn.com/website/responsive/images/icons/linn-icon-x120.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2742,6 +2782,7 @@ views:
           url: http://west-mp3-128.streamthejazzgroove.com
           titre: The Jazz Groove
           mime_marantz: audio/mpeg
+          logo: https://assets.jazzgroove.org/logo-circle-white1-no-org.png
       hold_action:
         action: none
       state:
@@ -2772,8 +2813,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://assets.jazzgroove.org/logo-circle-white1-no-org.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2788,6 +2830,7 @@ views:
           url: http://radio.jointil.net:9998
           titre: Joint Radio
           mime_marantz: audio/mpeg
+          logo: https://www.jointil.com/broadcast/images/joint.radio350X350.png
       hold_action:
         action: none
       state:
@@ -2818,8 +2861,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://www.jointil.com/broadcast/images/joint.radio350X350.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2834,6 +2878,7 @@ views:
           url: http://ice1.somafm.com/defcon-256-mp3
           titre: SomaFM DEF CON Radio
           mime_marantz: audio/mpeg
+          logo: https://somafm.com/logos/400/defcon400.png
       hold_action:
         action: none
       state:
@@ -2864,8 +2909,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://somafm.com/logos/400/defcon400.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2880,6 +2926,7 @@ views:
           url: http://ice1.somafm.com/dronezone-256-mp3
           titre: SomaFM Drone Zone
           mime_marantz: audio/mpeg
+          logo: https://somafm.com/img3/dronezone-400.jpg
       hold_action:
         action: none
       state:
@@ -2910,8 +2957,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://somafm.com/img3/dronezone-400.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -2926,6 +2974,7 @@ views:
           url: http://ice1.somafm.com/missioncontrol-128-mp3
           titre: SomaFM Mission Control
           mime_marantz: audio/mpeg
+          logo: https://somafm.com/img3/missioncontrol-400.jpg
       hold_action:
         action: none
       state:
@@ -2956,8 +3005,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://somafm.com/img3/missioncontrol-400.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -3024,6 +3074,7 @@ views:
           url: http://ice1.somafm.com/groovesalad-256-mp3
           titre: SomaFM Groove Salad
           mime_marantz: audio/mpeg
+          logo: https://somafm.com/img3/groovesalad-400.jpg
       hold_action:
         action: none
       state:
@@ -3054,8 +3105,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://somafm.com/img3/groovesalad-400.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -3070,6 +3122,7 @@ views:
           url: http://ice1.somafm.com/beatblender-128-mp3
           titre: SomaFM Beat Blender
           mime_marantz: audio/mpeg
+          logo: https://somafm.com/img3/beatblender-400.jpg
       hold_action:
         action: none
       state:
@@ -3100,8 +3153,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://somafm.com/img3/beatblender-400.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -3116,6 +3170,7 @@ views:
           url: http://ice1.somafm.com/lush-128-mp3
           titre: SomaFM Lush
           mime_marantz: audio/mpeg
+          logo: https://somafm.com/img3/lush-400.jpg
       hold_action:
         action: none
       state:
@@ -3146,8 +3201,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://somafm.com/img3/lush-400.jpg
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -3162,6 +3218,7 @@ views:
           url: http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3
           titre: Jazz Radio Electro Swing
           mime_marantz: audio/mpeg
+          logo: http://www.jazzradio.fr/apple-touch-icon-120x120.png
       hold_action:
         action: none
       state:
@@ -3192,8 +3249,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: http://www.jazzradio.fr/apple-touch-icon-120x120.png
       grid_options:
         columns: 6
     - type: custom:button-card
@@ -3254,6 +3312,7 @@ views:
           url: http://91.121.134.23:8100/1
           titre: The UK 1940s Radio Station
           mime_marantz: audio/mpeg
+          logo: https://cdn.onlineradiobox.com/img/l/5/58735.v12.png
       hold_action:
         action: none
       state:
@@ -3284,8 +3343,9 @@ views:
         - width: 48px
         - height: 48px
         - object-fit: contain
-      show_icon: true
-      icon: mdi:radio
+      show_icon: false
+      show_entity_picture: true
+      entity_picture: https://cdn.onlineradiobox.com/img/l/5/58735.v12.png
       grid_options:
         columns: 6
 - title: Températures
