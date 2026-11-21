@@ -1,6 +1,6 @@
 # Kiosque chauffage Lens
 # 100 % Node-RED : mode maison et planning (helpers), radiateurs (climates MQTT climate.thermostat_*).
-# Créer le tableau de bord avec l'URL : kiosque-chauffage
+# Créer le tableau de bord avec l'URL : dashboard-chauffage
 # Requis (HACS) : button-card ; optionnel : kiosk-mode. Sortie du kiosque : ?disable_km
 
 title: Chauffage Lens
@@ -94,42 +94,42 @@ views:
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/chauffage
+          navigation_path: /dashboard-chauffage/chauffage
       - type: button
         name: Eau chaude
         icon: mdi:water-boiler
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/eau-chaude
+          navigation_path: /dashboard-chauffage/eau-chaude
       - type: button
         name: Médias
         icon: mdi:music
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/medias
+          navigation_path: /dashboard-chauffage/medias
       - type: button
         name: Radios
         icon: mdi:radio
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/radios
+          navigation_path: /dashboard-chauffage/radios
       - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/temperatures
+          navigation_path: /dashboard-chauffage/temperatures
       - type: button
         name: Énergie
         icon: mdi:lightning-bolt
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/energie
+          navigation_path: /dashboard-chauffage/energie
   - type: grid
     column_span: 2
     cards:
@@ -635,42 +635,42 @@ views:
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/chauffage
+          navigation_path: /dashboard-chauffage/chauffage
       - type: button
         name: ● Eau chaude
         icon: mdi:water-boiler
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/eau-chaude
+          navigation_path: /dashboard-chauffage/eau-chaude
       - type: button
         name: Médias
         icon: mdi:music
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/medias
+          navigation_path: /dashboard-chauffage/medias
       - type: button
         name: Radios
         icon: mdi:radio
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/radios
+          navigation_path: /dashboard-chauffage/radios
       - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/temperatures
+          navigation_path: /dashboard-chauffage/temperatures
       - type: button
         name: Énergie
         icon: mdi:lightning-bolt
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/energie
+          navigation_path: /dashboard-chauffage/energie
   - type: grid
     column_span: 2
     cards:
@@ -852,42 +852,42 @@ views:
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/chauffage
+          navigation_path: /dashboard-chauffage/chauffage
       - type: button
         name: Eau chaude
         icon: mdi:water-boiler
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/eau-chaude
+          navigation_path: /dashboard-chauffage/eau-chaude
       - type: button
         name: ● Médias
         icon: mdi:music
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/medias
+          navigation_path: /dashboard-chauffage/medias
       - type: button
         name: Radios
         icon: mdi:radio
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/radios
+          navigation_path: /dashboard-chauffage/radios
       - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/temperatures
+          navigation_path: /dashboard-chauffage/temperatures
       - type: button
         name: Énergie
         icon: mdi:lightning-bolt
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/energie
+          navigation_path: /dashboard-chauffage/energie
   - type: grid
     column_span: 2
     cards:
@@ -1403,42 +1403,42 @@ views:
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/chauffage
+          navigation_path: /dashboard-chauffage/chauffage
       - type: button
         name: Eau chaude
         icon: mdi:water-boiler
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/eau-chaude
+          navigation_path: /dashboard-chauffage/eau-chaude
       - type: button
         name: Médias
         icon: mdi:music
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/medias
+          navigation_path: /dashboard-chauffage/medias
       - type: button
         name: ● Radios
         icon: mdi:radio
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/radios
+          navigation_path: /dashboard-chauffage/radios
       - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/temperatures
+          navigation_path: /dashboard-chauffage/temperatures
       - type: button
         name: Énergie
         icon: mdi:lightning-bolt
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/energie
+          navigation_path: /dashboard-chauffage/energie
   - type: grid
     column_span: 4
     cards:
@@ -3368,42 +3368,42 @@ views:
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/chauffage
+          navigation_path: /dashboard-chauffage/chauffage
       - type: button
         name: Eau chaude
         icon: mdi:water-boiler
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/eau-chaude
+          navigation_path: /dashboard-chauffage/eau-chaude
       - type: button
         name: Médias
         icon: mdi:music
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/medias
+          navigation_path: /dashboard-chauffage/medias
       - type: button
         name: Radios
         icon: mdi:radio
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/radios
+          navigation_path: /dashboard-chauffage/radios
       - type: button
         name: ● Températures
         icon: mdi:thermometer-lines
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/temperatures
+          navigation_path: /dashboard-chauffage/temperatures
       - type: button
         name: Énergie
         icon: mdi:lightning-bolt
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/energie
+          navigation_path: /dashboard-chauffage/energie
   - type: grid
     column_span: 4
     cards:
@@ -3490,42 +3490,42 @@ views:
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/chauffage
+          navigation_path: /dashboard-chauffage/chauffage
       - type: button
         name: Eau chaude
         icon: mdi:water-boiler
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/eau-chaude
+          navigation_path: /dashboard-chauffage/eau-chaude
       - type: button
         name: Médias
         icon: mdi:music
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/medias
+          navigation_path: /dashboard-chauffage/medias
       - type: button
         name: Radios
         icon: mdi:radio
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/radios
+          navigation_path: /dashboard-chauffage/radios
       - type: button
         name: Températures
         icon: mdi:thermometer-lines
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/temperatures
+          navigation_path: /dashboard-chauffage/temperatures
       - type: button
         name: ● Énergie
         icon: mdi:lightning-bolt
         show_state: false
         tap_action:
           action: navigate
-          navigation_path: /kiosque-chauffage/energie
+          navigation_path: /dashboard-chauffage/energie
   - type: grid
     column_span: 4
     cards:
