@@ -185,8 +185,12 @@ lancer_radio:
               data:
                 media_content_type: music
                 media_content_id: "{{ url_marantz | default(url, true) }}"
+                # L'ampli remplace le titre par l'artiste et la chanson diffuses
+                # par la radio : le nom de la station passe aussi en "album".
                 extra:
                   title: "{{ titre | default(url, true) }}"
+                  metadata:
+                    albumName: "{{ titre | default(url, true) }}"
     - if: "{{ cible != 'Marantz' and source_eversolo != '' }}"
       then:
         - action: media_player.select_source
@@ -225,7 +229,9 @@ lancer_radio:
                 media_content_type: music
                 media_content_id: "{{ url }}"
                 extra: >-
-                  {{ {'title': titre | default(url, true)} | combine({'thumb': image} if image else {}) }}
+                  {{ {'title': titre | default(url, true),
+                      'metadata': {'albumName': titre | default(url, true)}}
+                     | combine({'thumb': image} if image else {}) }}
 
 arreter_radio:
   alias: "\u23F9 Arr\u00EAter la radio"
