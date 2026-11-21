@@ -10,10 +10,15 @@
 # notre choix.
 #
 # A mettre dans secrets.yaml (adresse de commande AVTransport du Marantz) :
-#   marantz_dlna_avtransport: http://IP_DU_MARANTZ:8080/AVTransport/ctrl
+#   marantz_dlna_avtransport: http://IP_DU_MARANTZ:PORT/chemin/AVTransport
+# Pour la trouver : dans /config/.storage/core.config_entries, entree "dlna_dmr"
+# du Marantz, valeur "url" (sa description XML). Ouvrir cette adresse dans un
+# navigateur ; dans le bloc AVTransport, <controlURL> donne le chemin a ajouter
+# apres http://IP:PORT.
 #
 # Variables : url, titre, mime
-#   mime = "*"       -> etiquette "n'importe quel type" + titre (essai par defaut)
+#   mime = "audio/mp4"  -> AAC (etiquette acceptee par le NR1603), "audio/mpeg" -> MP3
+#   mime = "*"       -> etiquette "n'importe quel type" + titre
 #   mime = "aucune"  -> aucune description : l'ampli devine seul (pas de titre)
 #   mime = autre     -> ce type precis, ex. "audio/vnd.dlna.adts" ou "audio/mp4"
 

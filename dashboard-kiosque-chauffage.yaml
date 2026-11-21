@@ -1531,6 +1531,7 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/option-musique/aacp_96
           titre: RTS Option Musique
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1577,6 +1578,7 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/couleur3/aacp_96
           titre: RTS Couleur3
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1622,6 +1624,7 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/rsj/aacp_96
           titre: Radio Swiss Jazz
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1667,6 +1670,7 @@ views:
         data:
           url: http://stream.srg-ssr.ch/srgssr/rsc_fr/aac/96
           titre: Radio Swiss Classic
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1712,6 +1716,7 @@ views:
         data:
           url: http://stream.srg-ssr.ch/m/rsp/aacp_96
           titre: Radio Swiss Pop
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1757,6 +1762,7 @@ views:
         data:
           url: https://onefm.ice.infomaniak.ch/onefm-high.aac
           titre: One FM
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1802,6 +1808,7 @@ views:
         data:
           url: http://rhonefm.ice.infomaniak.ch/rhonefm-high.aac
           titre: Rhône FM
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1847,6 +1854,7 @@ views:
         data:
           url: http://radiofribourg.ice.infomaniak.ch/radiofribourg-high.mp3
           titre: RadioFr. Fribourg
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -1892,6 +1900,7 @@ views:
         data:
           url: http://radiofrmusic.ice.infomaniak.ch/radiofrmusik-high.mp3
           titre: RadioFr. Fribourg Music
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -1943,6 +1952,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fip-hifi.aac
           titre: FIP
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -1989,6 +1999,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipelectro-hifi.aac
           titre: FIP Electro
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2034,6 +2045,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipgroove-hifi.aac
           titre: FIP Groove
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2079,6 +2091,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipjazz-hifi.aac
           titre: FIP Jazz
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2124,6 +2137,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipworld-hifi.aac
           titre: FIP Musiques du monde
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2169,6 +2183,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fippop-hifi.aac
           titre: FIP Pop
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2214,6 +2229,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipreggae-hifi.aac
           titre: FIP Reggae
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2259,6 +2275,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fiprock-hifi.aac
           titre: FIP Rock
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2304,6 +2321,7 @@ views:
         data:
           url: http://icecast.radiofrance.fr/fipnouveautes-hifi.aac
           titre: Tout nouveau, tout FIP
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2349,6 +2367,7 @@ views:
         data:
           url: https://stream-uk1.radioparadise.com/aac-320
           titre: Paradise Radio
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2395,6 +2414,7 @@ views:
         data:
           url: https://stream.radioparadise.com/world-etc-320
           titre: Radio Paradise World
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2441,6 +2461,7 @@ views:
         data:
           url: http://ic5.radiomonster.fm:80/evergreens-320
           titre: RadioMonster Evergreens
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2487,6 +2508,7 @@ views:
         data:
           url: http://ic5.radiomonster.fm:80/tophits-320
           titre: RadioMonster Tophits
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2533,6 +2555,7 @@ views:
         data:
           url: http://radionova.ice.infomaniak.ch/radionova-256.aac
           titre: Radio Nova
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2578,6 +2601,7 @@ views:
         data:
           url: http://nova-ln.ice.infomaniak.ch/nova-ln-128.mp3
           titre: Nova La Nuit
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2624,6 +2648,7 @@ views:
         data:
           url: http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac
           titre: Nova Classics
+          mime_marantz: audio/mp4
       hold_action:
         action: none
       state:
@@ -2670,6 +2695,7 @@ views:
         data:
           url: http://89.16.185.174:8000
           titre: Linn Jazz
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2715,6 +2741,7 @@ views:
         data:
           url: http://west-mp3-128.streamthejazzgroove.com
           titre: The Jazz Groove
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2760,6 +2787,7 @@ views:
         data:
           url: http://radio.jointil.net:9998
           titre: Joint Radio
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2805,6 +2833,7 @@ views:
         data:
           url: http://ice1.somafm.com/defcon-256-mp3
           titre: SomaFM DEF CON Radio
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2850,6 +2879,7 @@ views:
         data:
           url: http://ice1.somafm.com/dronezone-256-mp3
           titre: SomaFM Drone Zone
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2895,6 +2925,7 @@ views:
         data:
           url: http://ice1.somafm.com/missioncontrol-128-mp3
           titre: SomaFM Mission Control
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2940,6 +2971,7 @@ views:
         data:
           url: http://streaming.radionomy.com/TempoOfTheDownbeat1
           titre: Radionomy Downbeat
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -2991,6 +3023,7 @@ views:
         data:
           url: http://ice1.somafm.com/groovesalad-256-mp3
           titre: SomaFM Groove Salad
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -3036,6 +3069,7 @@ views:
         data:
           url: http://ice1.somafm.com/beatblender-128-mp3
           titre: SomaFM Beat Blender
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -3081,6 +3115,7 @@ views:
         data:
           url: http://ice1.somafm.com/lush-128-mp3
           titre: SomaFM Lush
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -3126,6 +3161,7 @@ views:
         data:
           url: http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3
           titre: Jazz Radio Electro Swing
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -3171,6 +3207,7 @@ views:
         data:
           url: http://192.240.102.133:9566/stream
           titre: 76Radio
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:
@@ -3216,6 +3253,7 @@ views:
         data:
           url: http://91.121.134.23:8100/1
           titre: The UK 1940s Radio Station
+          mime_marantz: audio/mpeg
       hold_action:
         action: none
       state:

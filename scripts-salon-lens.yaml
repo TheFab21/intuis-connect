@@ -111,7 +111,9 @@ lancer_app_apple_tv:
 # marantz_dlna_play, voir rest-commands-marantz-lens.yaml). Home Assistant
 # etiquette le flux avec le type annonce par le serveur radio ("audio/aac"...),
 # que le lecteur DLNA du NR1603 refuse (UPnP 714) alors qu'il lit l'AAC : on
-# envoie donc notre propre etiquette, reglable ci-dessous (mime_marantz).
+# envoie donc notre propre etiquette (mime_marantz), parmi celles que l'ampli
+# annonce accepter (diagnostic DLNA du NR1603) : AAC = audio/mp4 (aussi
+# audio/x-m4a, audio/x-mp4, audio/3gpp), MP3 = audio/mpeg.
 lancer_radio:
   alias: "\U0001F4FB Lancer une radio"
   icon: mdi:radio
@@ -131,11 +133,20 @@ lancer_radio:
       name: "Titre affich\u00E9"
       selector:
         text:
+    mime_marantz:
+      name: "\u00C9tiquette pour le Marantz"
+      description: "audio/mp4 pour l'AAC, audio/mpeg pour le MP3, * ou aucune. Par d\u00E9faut : devin\u00E9e d'apr\u00E8s l'adresse."
+      example: audio/mp4
+      selector:
+        text:
   variables:
     cible: "{{ states('input_select.radio_destination') }}"
-    # "*" = etiquette "tout type" avec titre ; "aucune" = pas de description ;
-    # ou un type precis : "audio/vnd.dlna.adts", "audio/mp4"...
-    mime_marantz: "*"
+    mime: >-
+      {%- set u = (url_marantz | default(url, true)) | lower -%}
+      {%- if mime_marantz is defined and mime_marantz -%}{{ mime_marantz }}
+      {%- elif 'mp3' in u -%}audio/mpeg
+      {%- elif 'aac' in u -%}audio/mp4
+      {%- else -%}audio/mpeg{%- endif -%}
   sequence:
     - if: "{{ cible in ['Marantz', 'Les deux'] }}"
       then:
@@ -160,7 +171,7 @@ lancer_radio:
           data:
             url: "{{ url_marantz | default(url, true) }}"
             titre: "{{ titre | default(url, true) }}"
-            mime: "{{ mime_marantz }}"
+            mime: "{{ mime }}"
         - if: "{{ reponse_uri is defined and reponse_uri.status | int(0) == 200 }}"
           then:
             - action: rest_command.marantz_dlna_play
@@ -169,7 +180,7 @@ lancer_radio:
             - action: persistent_notification.create
               data:
                 title: Radio sur le Marantz
-                message: "Le Marantz a refus\u00E9 la station {{ titre | default(url, true) }} (\u00E9tiquette {{ mime_marantz }}) : {% if reponse_uri is defined %}HTTP {{ reponse_uri.status }}, erreur UPnP {{ (reponse_uri.content | string | regex_findall('<errorCode>([0-9]+)</errorCode>') or ['?']) | first }}{% else %}pas de r\u00E9ponse (adresse marantz_dlna_avtransport dans secrets.yaml ?){% endif %}"
+                message: "Le Marantz a refus\u00E9 la station {{ titre | default(url, true) }} (\u00E9tiquette {{ mime }}) : {% if reponse_uri is defined %}HTTP {{ reponse_uri.status }}, erreur UPnP {{ (reponse_uri.content | string | regex_findall('<errorCode>([0-9]+)</errorCode>') or ['?']) | first }}{% else %}pas de r\u00E9ponse (adresse marantz_dlna_avtransport dans secrets.yaml ?){% endif %}"
     - if: "{{ cible != 'Marantz' }}"
       then:
         - action: media_player.play_media
